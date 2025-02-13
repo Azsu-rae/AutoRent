@@ -1,0 +1,3 @@
+John Doe john@example.com password123 Admin
+Jane Smith jane.smith@email.com pass456 Manager
+Alice Johnson alice.j@email.com password789 Manager
