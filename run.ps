@@ -1,0 +1,10 @@
+
+
+echo "Running the Main class..."
+echo ""
+
+javac -d ./backend/bin/ -cp "./backend/bin/:./backend/lib/sqlite-jdbc-3.47.1.0.jar" ./backend/src/Main.java
+
+java -cp "./backend/bin/:./backend/lib/sqlite-jdbc-3.47.1.0.jar" Main
+
+rm -f ./backend/ressources/databases/AutoRent.db

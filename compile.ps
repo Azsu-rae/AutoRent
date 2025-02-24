@@ -1,0 +1,19 @@
+
+#!/bin/bash
+ 
+compiledClassesPath="./backend/bin/"
+dependenciesPath="./backend/lib/sqlite-jdbc-3.47.1.0.jar"
+mainClass="Main"
+sourcePath="./backend/src/"
+
+classpath="$compiledClassesPath:$dependenciesPath"
+
+echo "Compiling Java files from $sourcePath..."
+javac -d "$compiledClassesPath" -cp "$dependenciesPath" -sourcepath "$sourcePath" $(find "$sourcePath" -name "*.java")
+
+if [ $? -eq 0 ]; then
+    echo "Compilation successful."
+else
+    echo "Compilation failed."
+    exit 1
+fi
