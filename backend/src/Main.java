@@ -6,11 +6,13 @@ import utilities.Pair;
 
 import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public class Main {
 
     public static void main(String[] args) {
 
         tutorial();
+
     }
 
     interface Printer {
@@ -39,12 +41,12 @@ public class Main {
         // ------------------ GENERALITIES --------------------------------
 
         /*
-         * There are 3 packages: 'orm', 'models and 'utilities': 
+         * There are 3 packages: 'orm', 'model' and 'utilities': 
          *
          * 'utilities' only has 1 class: 'Pair'. It is used to handle ranges. 
          *
          * 'orm' is the main package. It directly contains the class 'Table' which is an abstraction of an ORM 
-         * class corresponding to a SQLite table. We call such a class a 'Model'. 
+         * class corresponding to a SQLite table. We call such a class a Model.
          *
          * 'model' is a sub-package withing this 'orm' package. It defines 6 classes,  
          * each corresponding to a SQLite table.

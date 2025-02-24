@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Table<T extends Table<T>> {
 
     protected Integer id;
@@ -251,7 +252,6 @@ public abstract class Table<T extends Table<T>> {
         return this.id;
     }
 
-    @SuppressWarnings("unchecked")
     private T setId(Integer id) {
 
         this.id = id;
