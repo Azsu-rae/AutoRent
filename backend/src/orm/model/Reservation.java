@@ -7,6 +7,7 @@ import java.util.Vector;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+@SuppressWarnings("rawtypes")
 public class Reservation extends Table<Reservation> {
 
     private Client client;   

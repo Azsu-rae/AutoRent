@@ -4,6 +4,7 @@ import utilities.Pair;
 import orm.Table;
 import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public class Return extends Table<Return> {
 
     private Reservation reservation;

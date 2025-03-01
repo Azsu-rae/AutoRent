@@ -4,6 +4,7 @@ import utilities.Pair;
 import orm.Table;
 import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public class Vehicule extends Table<Vehicule> {
 
     private Double pricePerDay;
