@@ -1,0 +1,307 @@
+
+import orm.Table;
+import orm.model.*;
+
+import utilities.Pair;
+
+import java.util.Vector;
+
+import static utilities.UtilityMethods.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+    }
+
+    private static void tutorial() {
+
+        /*
+         * Hello,
+         *
+         * This file serves as a test and a tutorial for using the backend.
+         *
+         * The backend is an Object-Relational Mapping (ORM) system designed to interact with 
+         * an SQLite database through Java objects, eliminating the need to write SQL queries manually. 
+         * It supports CRUD operations (Create, Read, Update, Delete), which we will explore shortly.
+         *
+         * Carefully reviewing this file should provide a clear understanding of how to utilize 
+         * the ORM effectively.
+         *
+         * Hope this helps!
+         *
+         */
+
+        // ------------------- THE CONSTRUCTORS ---------------------------
+
+        // You can, of course, create an object of what table you want. For example:
+
+        Client c1 = new Client("Ilyas", "Ait-Ameur", "aitameurmedilyas@gmail.com", "0560308452", "DKSF23");
+
+        // creates a client. It is not, however, immediately inputed in the database. For that you'll have to 
+        // add it using the static method:
+
+        boolean success = Client.add(c1);
+
+        if (success) {
+            System.out.println("\nThe object 'c1' was successfully inserted in the DB!");
+        }
+
+        // And as you can see, the method returns a boolean representing the success or not of the operation. 
+        // Note that:
+        //  - this mehtod will also create the database file and table for the clients automatically.
+        //  - for the clients SQLite table, all the object's attributes have to be != null in order to be valid for insertion.
+        //       Similarily, All models check for validity before insertion (wether there are any non-nullable attributes that
+        //       are, well, null). In case the tuple is invalid for insertion, the .add() method returns 'null'
+
+        // Knowing that memorizing the order of the attributes in a constructor has to be tiring, in favor of convenience, 
+        // the setters for each model return the object itself allowing for method chaining. For example:
+        
+        Client.add(
+            new Client()
+                .setName("Hicham")
+                .setSurname("Gaceb")
+                .setEmail("hichamgaceb@gmail.com")
+                .setPhoneNumber("05483729493")
+                .setDrivingLicence("KSDU343")
+        );
+
+        // this approach is more readable and should allow the user to create an object without having to 
+        // write too many 'null' values in a constructor.
+
+        // For tables like vehicules that have non-string attributes, you can send those attribute in the form of a 
+        // string. Not advisable unless necessary (helps when reading from a chunk of data like a file).
+
+        // all lines below create the same object
+
+        Vehicle v;
+        v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
+        v = new Vehicle("29.99", "Available", "2024-12-01", "2022", "Toyota", "Corolla", "Sedan", "Gasoline");
+        v = new Vehicle()
+                .setPricePerDay(29.99)
+                .setState("Available")
+                .setMaintenanceDate("2024-12-01")
+                .setYear(2022)
+                .setBrand("Toyota")
+                .setModel("Corolla")
+                .setVehicleType("Sedan")
+                .setFuelType("Gasoline");
+
+        Vehicle.add(v);
+
+
+        // For tables with foreigh keys (references tuples from other tables), you can insert those 
+        // references either by their ID or by inserting the object directly
+
+        new Reservation(1, 1, "2022-01-01", "2022-02-01"); // will fetch the client and vehicule of id=1
+
+        // new Reservation(c1, v, "2022-01-01", "2022-02-01"); -> Will throw an IllegalArgumentException! Because 
+        //                                                        Becasue 'c1' and 'v' don't have an ID, which is given
+        //                                                        by the DB. Tuples must be read from the DB to have
+        //                                                        an ID
+        //                                                        Similarily, all non-nullable attributes cannot be
+        //                                                        null at the time of insertion or when creating objects
+        //                                                        Otherwise, an IllegalArgumentException will be thrown
+        //                                                        when creating an object. In the case of insertion it will
+        //                                                        fail (the .add() method will return false)
+
+
+        // ---------------------- THE SEARCH METHOD -------------------------------------
+
+        // Reading through the models' tables was made as easy as possible. The search methods takes in two
+        // kind of arguments:
+        //
+        //  - A tuple ('tuple' generally refers to a SQLite table line, but in this case it means a model's instance)
+        //  \-> for discrete-valued attributes (like a brand in the case a vehicule or a client's name)
+        //
+        //  - A range that can be represented in a Pair-type variable.
+        //  \-> for continuous-valued attriubtes  (like the price per day of a car or a date range)
+        //
+        // Both of these can be in vectors when the search criterias within a same attribute are multiple or
+        // when we have multiple ranges
+        //
+        // The tuples can be stored in any Table-inherited references.
+
+        Vector<Table> clients = Client.search(); // returns all clients
+        print(clients, "Clients");
+
+        // Let's create some vehicules and input them in the DB to see this:
+        Vehicle.add(new Vehicle(35.50, "Rented", "2023-10-15", 2020, "Ford", "Fiesta", "Hatchback", "Diesel"));
+        Vehicle.add(new Vehicle(40.00, "Unavailable", "2024-05-10", 2021, "Tesla", "Model3", "Electric", "Electric"));
+        Vehicle.add(new Vehicle(25.75, "Available", "2024-11-20", 2018, "Honda", "Civic", "Coupe", "Hybrid"));
+        Vehicle.add(new Vehicle(50.00, "Rented", "2023-08-30", 2023, "BMW", "X5", "SUV", "Gasoline"));
+        Vehicle.add(new Vehicle(18.99, "Available", "2024-03-25", 2017, "Volkswagen", "Polo", "Hatchback", "Diesel"));
+        Vehicle.add(new Vehicle(22.50, "Unavailable", "2024-07-12", 2019, "Hyundai", "Elantra", "Sedan", "Gasoline"));
+        Vehicle.add(new Vehicle(60.00, "Available", "2024-01-18", 2024, "Audi", "Q7", "SUV", "Gasoline"));
+        Vehicle.add(new Vehicle(28.00, "Rented", "2023-09-05", 2020, "Chevrolet", "Malibu", "Sedan", "Gasoline"));
+        Vehicle.add(new Vehicle(32.75, "Available", "2024-06-30", 2019, "Nissan", "Altima", "Sedan", "Gasoline"));
+
+        // Let's do some filtering!
+
+        // returns all vehicules
+        Vector<Table> vehicules = Vehicle.search();
+        print(vehicules, "Vehicles");
+
+        // returns all sedans
+        Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
+        Vector<Table> sedans = Vehicle.search(sedanFilter); 
+        print(sedans, "Sedans");
+
+        // filter the vehicules by year.
+        // the name of the criteria must be passed to the Pair<> when creating a range, 
+        // it has to be the exact same as the class attribute.
+        // Passing an incorrect attribute name will throw an exception, so be careful
+        Vector<Table> newVehicles = Vehicle.search("year", 2020, 2024); 
+        print(newVehicles, "New Vehicles (2020 - 2024)");
+
+        // new Sedans
+        Vector<Table> newSedans = Vehicle.search(sedanFilter, "year", 2020, 2024); 
+        print(newSedans, "New Sedans");
+
+        // Sedans from Nissan
+        Vector<Table> sedansFromNissan = Vehicle.search(
+                new Vehicle()
+                    .setVehicleType("Sedan")
+                    .setBrand("Nissan")
+        );
+        print(sedansFromNissan, "Sedans from Nissan");
+
+        // BMWs and Toyotas
+        // You send a Vector of tuples for multiple discrete search criterias,
+        // of course, passing an empty array will, you guessed it, throw an exception
+        Vector<Vehicle> BMWsToyotasCriteria = new Vector<>();
+        BMWsToyotasCriteria.add(new Vehicle().setBrand("Toyota"));
+        BMWsToyotasCriteria.add(new Vehicle().setBrand("BMW"));
+        Vector<Table> bt = Vehicle.search(BMWsToyotasCriteria);
+        print(bt, "BMWs or Toyotas");
+
+        // Recent cheap vehicules (different method for multiple ranges: searchRanges())
+        Vector<Pair<Object,Object>> newCheapVehicleCriteria = new Vector<>();
+        newCheapVehicleCriteria.add(new Pair<>("year", 2020,2024));
+        newCheapVehicleCriteria.add(new Pair<>("pricePerDay", 30.0, 40.0));
+        Vector<Table> newCheapVehicles = Vehicle.searchRanges(newCheapVehicleCriteria);
+        print(newCheapVehicles, "New Cheap Vehicles");
+
+        // And you of course also have Cheap and new Toyotas or BMWs! (Not sure)
+        Vector<Table> dream = Vehicle.search(BMWsToyotasCriteria, newCheapVehicleCriteria);
+        print(dream, "The Dream");
+
+        // If you want to perform a search without having to type in the name of class,
+        // (for more general work) it is possible to use Table.search() but then you would
+        // need to provide either: 
+        //  ->  at least one instance of the model you are searching for. (e.g. Table.search(new Client()); // returns all clients
+        //      or any varient as long as you provide at least one instance of what you are searching for
+        //  ->  The name of model to search in (e.g. Table.search("Reservation");) if there are no search criterias
+        //      NOTE: Passing a wrong class name will throw an IllegalArgumentException
+
+        // SPECIAL CASE 1: RESERVATION DATE RANGES 
+
+        // For searching through date ranges, we usualy use the ranges:
+        Vector<Table> maintenancesIn2024 = Vehicle.search("maintenanceDate", "2024-01-01", "2024-12-31");
+        print(maintenancesIn2024, "All 2024 Vehicles Maintenances");
+
+        // But in the case of Reservations, since a reservation's period has two dates, the given range would include all
+        // the reservations whose ranges intersect with the given one. 
+
+        // Let's input some Reservations in the DB, and then print them to the console
+
+        // Since we need clients to input reservations, we'll start with them
+
+        // Let's start by deleting everything we have
+        clients = Client.search();
+        for (Table c : clients) {
+            if (c.delete()) {}  
+            // deletes from the database using the ID
+            // the deletion will be cascaded to all the models that reference 
+            // a Client object. It will be set to null in case the reference is nullable, deleted otherwise
+        }
+
+        // Now let's add some good examples
+        Client.add(new Client("John", "Doe", "Ajohn.doe@example.com", "1234567890", "BC12345"));
+        Client.add(new Client("Jane", "Smith", "jane.smith@example.com", "9876543210", "YZ67890"));
+        Client.add(new Client("Alice", "Brown", "alice.brown@example.com", "4561237890", "LMN45678"));
+        Client.add(new Client("Bob", "White", "bob.white@example.com", "7894561230", "PQR12345"));
+        Client.add(new Client("Charlie", "Black", "charlie.black@example.com", "3216549870", "mGHI98765"));
+        Client.add(new Client("Emily", "Green", "emily.green@example.com", "6549873210", "TUV65432")); 
+        Client.add(new Client("David", "Gray", "david.gray@example.com", "7891234560", "DEF32145")); 
+        Client.add(new Client("Sophia", "Blue", "sophia.blue@example.com", "1597534860", "KLM78912")); 
+        Client.add(new Client("Lucas", "Orange", "lucas.orange@example.com", "9517534860", "NOP85246")); 
+        Client.add(new Client("Olivia", "Yellow", "olivia.yellow@example.com", "3579514860", "QRS74125")); 
+
+        // Let's get them (we didn't do this with the previously created clients because they don't have an ID, which is given by the DB)
+        clients = Client.search();
+
+        Vector<Reservation> createdReservations = new Vector<>();
+        createdReservations.add(new Reservation().setStartDate("2024-12-20").setEndDate("2025-01-08"));
+        createdReservations.add(new Reservation().setStartDate("2024-12-21").setEndDate("2025-01-09"));
+        createdReservations.add(new Reservation().setStartDate("2024-12-22").setEndDate("2025-01-10"));
+        createdReservations.add(new Reservation().setStartDate("2024-12-23").setEndDate("2025-01-11"));
+        createdReservations.add(new Reservation().setStartDate("2024-12-24").setEndDate("2025-01-12"));
+
+        for (int i=0;i<5;i++) {
+            Reservation.add(
+                createdReservations.elementAt(i)
+                    .setVehicle( (Vehicle) vehicules.elementAt(i))
+                    .setClient( (Client) clients.elementAt(i))
+            );
+        }
+
+        Vector<Table> reservations = Reservation.search();
+        print(reservations, "Reservations");
+
+        // Now to get to the point, we'll try a search
+
+        // returns all reservations that intersects with the given intervall (Always pass the name of 
+        // the lowerBound when looking for intersections)
+        Vector<Table> intersectedPeriods = Reservation.search("startDate", "2024-12-15", "2024-12-25");
+
+        Vector<Table> disjointReservations = new Vector<>();
+        for (Table tuple : reservations) {
+
+            boolean good = true;
+            for (Table bad : intersectedPeriods) {
+                if (tuple.equals(bad)) { // compares using the ID
+                    good = false;
+                }
+            }
+
+            if (good) {
+                disjointReservations.add(tuple);
+            }
+        }
+
+        print(disjointReservations, "Reservations that don't coinside with the period 2024-12-15, 2024-12-25");
+
+        // SPECIAL CASE 2: CLIENT AND USER'S NAMES
+
+        // Normally, doing search is a discrete attribute would simply compare them, but it's different for the Client 
+        // and  User table.
+
+        // Case insensitive, check for name and surname.
+        Vector<Table> clientsWhoseNameStartWithJ = Client.search(new Client().setName("j"));
+        print(clientsWhoseNameStartWithJ, "Clients Whose Name Start With 'j'");
+
+        // EDITING:
+
+        // For example, let's set all the client's whose name start with 'j' to have the same name and surname:
+        for (Table c : clientsWhoseNameStartWithJ) {
+            Client curr = (Client) c;
+            curr.setName("Gaceb");
+            curr.setSurname("Hicham");
+            curr.edit(); // uses the attributes to update the tuple that has the object's ID in the DB
+                         // returns a success value in a boolean
+        }
+
+        /* 
+         * We didn't really talk about the other 3 classes left, but they're workings are similar to what we saw.
+         *
+         *  - User is a like Client
+         *  - Return and Payment are like Reservation
+         *
+         *  All that is left is to check the attributes and constructors of each class to know and that's it!
+         *
+         */
+
+        System.out.println();
+    }
+}

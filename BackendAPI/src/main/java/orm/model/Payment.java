@@ -1,0 +1,112 @@
+package orm.model;
+
+import orm.Table;
+
+import utilities.Pair;
+import utilities.Column;
+
+import java.time.LocalDate;
+import java.util.Vector;
+
+public class Payment extends Table {
+
+    @Column(type = "INTEGER", nullable = false, foreignKey = true)
+    private Reservation reservation;
+
+    @Column(type = "DATE", nullable = false, bounded = true)
+    private LocalDate date;
+    @Column(type = "TEXT", nullable = false)
+    private String method;
+    @Column(type = "DECIMAL", nullable = false, bounded = true)
+    private Double amount;
+
+    public Payment() {}
+
+    public Payment(Integer reservationId, Double amount, String date, String method) {
+
+        this(reservationId.toString(), amount.toString(), date, method);
+    }
+
+    public Payment(String reservationId, String amount, String date, String method) {
+
+        this(
+            (Reservation) idToInstance(Integer.parseInt(reservationId), "Reservation"), 
+            Double.parseDouble(amount), 
+            date, 
+            method
+        );
+    }
+
+    public Payment(Reservation reservation, Double amount, String date, String method) {
+
+        setReservation(reservation);
+        this.amount = amount;
+        this.date = stringToDate(date);
+        this.method = method;
+    }
+
+    public static Vector<Table> search() {
+
+        return search(new Payment());
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+
+        return search(new Payment(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Payment());
+        return search(tuples, boundedCriterias);
+    }
+
+    public Payment setReservation(Reservation r) {
+        
+        if (!r.isValid() || r.getId() == null) {
+            throw new IllegalArgumentException("Invalid Reservation!");
+        }
+
+        this.reservation = r;
+        return this;
+    }
+
+    public Payment setDate(String date) {
+
+        this.date = stringToDate(date);
+        return this;
+    }
+
+    public Payment setMethod(String method) {
+
+        this.method = method;
+        return this;
+    }
+
+    public Payment setAmount(Double amount) {
+
+        this.amount = amount;
+        return this;
+    }
+
+    public Reservation getReservation() {
+        
+        return this.reservation;
+    }
+
+    public String getDate() {
+
+        return this.date.toString();
+    }
+
+    public String getMethod() {
+
+        return this.method;
+    }
+
+    public Double getAmount() {
+
+        return this.amount;
+    }
+}

@@ -1,0 +1,15 @@
+
+# Ignore all hidden files
+.*
+
+# But keep these
+!.gitignore
+!.gitattributes
+!.github/
+
+# Ignore build directory
+BackendAPI/target/
+BackendMCP/target/
+
+# Ignore specific file
+TODO.md
