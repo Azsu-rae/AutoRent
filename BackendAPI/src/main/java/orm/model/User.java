@@ -2,22 +2,26 @@ package orm.model;
 
 import orm.Table;
 
-import utilities.Pair;
-import utilities.Column;
+import orm.util.Pair;
+import orm.util.Constraints;
 
 import java.util.Vector;
 
 public class User extends Table {
 
-    @Column(type = "TEXT", nullable = false, searchedText = true)
+    static {
+        registerModel(User.class);
+    }
+
+    @Constraints(type = "TEXT", nullable = false, searchedText = true)
     private String name;
-    @Column(type = "TEXT", nullable = false, searchedText = true)
+    @Constraints(type = "TEXT", nullable = false, searchedText = true)
     private String surname;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String email;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String password;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String role;
 
     public User() {}
@@ -29,6 +33,11 @@ public class User extends Table {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public static boolean isSearchable() {
+
+        return isSearchable(new User());
     }
 
     public static Vector<Table> search() {

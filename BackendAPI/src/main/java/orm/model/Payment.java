@@ -2,40 +2,29 @@ package orm.model;
 
 import orm.Table;
 
-import utilities.Pair;
-import utilities.Column;
+import orm.util.Pair;
+import orm.util.Constraints;
 
 import java.time.LocalDate;
 import java.util.Vector;
 
 public class Payment extends Table {
 
-    @Column(type = "INTEGER", nullable = false, foreignKey = true)
+    static {
+        registerModel(Payment.class);
+    }
+
+    @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
     private Reservation reservation;
 
-    @Column(type = "DATE", nullable = false, bounded = true)
+    @Constraints(type = "DATE", nullable = false, bounded = true)
     private LocalDate date;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String method;
-    @Column(type = "DECIMAL", nullable = false, bounded = true)
+    @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double amount;
 
     public Payment() {}
-
-    public Payment(Integer reservationId, Double amount, String date, String method) {
-
-        this(reservationId.toString(), amount.toString(), date, method);
-    }
-
-    public Payment(String reservationId, String amount, String date, String method) {
-
-        this(
-            (Reservation) idToInstance(Integer.parseInt(reservationId), "Reservation"), 
-            Double.parseDouble(amount), 
-            date, 
-            method
-        );
-    }
 
     public Payment(Reservation reservation, Double amount, String date, String method) {
 
@@ -43,6 +32,11 @@ public class Payment extends Table {
         this.amount = amount;
         this.date = stringToDate(date);
         this.method = method;
+    }
+
+    public static boolean isSearchable() {
+
+        return isSearchable(new Payment());
     }
 
     public static Vector<Table> search() {
@@ -64,8 +58,12 @@ public class Payment extends Table {
 
     public Payment setReservation(Reservation r) {
         
+        if (r == null) {
+            return this;
+        }
+
         if (!r.isValid() || r.getId() == null) {
-            throw new IllegalArgumentException("Invalid Reservation!");
+            throw new IllegalArgumentException("Invalid reservation:\n\n" + r + "\n");
         }
 
         this.reservation = r;

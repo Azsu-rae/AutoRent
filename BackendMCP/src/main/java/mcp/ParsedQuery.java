@@ -10,9 +10,9 @@ import java.util.Arrays;
 
 import java.time.LocalDate;
 
-import java.lang.reflect.*;
+import static orm.util.Reflection.*;
 
-import static utilities.ReflectionUtils.*;
+import java.lang.reflect.*;
 
 @SuppressWarnings("rawtypes")
 public class ParsedQuery {

@@ -2,8 +2,8 @@ package orm.model;
 
 import orm.Table;
 
-import utilities.Pair;
-import utilities.Column;
+import orm.util.Pair;
+import orm.util.Constraints;
 
 import java.util.Vector;
 import java.util.Objects;
@@ -13,40 +13,30 @@ import java.time.temporal.ChronoUnit;
 
 public class Reservation extends Table {
 
-    @Column(type = "INTEGER", nullable = false, foreignKey = true)
+    static {
+        registerModel(Reservation.class);
+    }
+
+    @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
     private Client client;   
-    @Column(type = "INTEGER", nullable = false, foreignKey = true)
+    @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
     private Vehicle vehicle;
 
-    @Column(type = "DECIMAL", nullable = false, bounded = true)
+    @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double totalAmount;
-    @Column(type = "DATE", nullable = false, lowerBound = true)
+    @Constraints(type = "DATE", nullable = false, lowerBound = true)
     private LocalDate startDate;
-    @Column(type = "DATE", nullable = false, upperBound = true)
+    @Constraints(type = "DATE", nullable = false, upperBound = true)
     private LocalDate endDate;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String status;
 
     public Reservation() {}
 
-    public Reservation(Integer clientId, Integer vehicleId, String startDate, String endDate) {
+    public Reservation(String startDate, String endDate) {
 
-        this(
-            clientId.toString(), 
-            vehicleId.toString(), 
-            startDate, 
-            endDate
-        );
-    }
-
-    public Reservation(String clientId, String vehicleId, String startDate, String endDate) {
-
-        this(
-            (Client) idToInstance(Integer.parseInt(clientId), "Client"), 
-            (Vehicle) idToInstance(Integer.parseInt(vehicleId), "Vehicle"), 
-            startDate, 
-            endDate
-        );
+        this.startDate = stringToDate(startDate);
+        this.endDate = stringToDate(endDate);
     }
 
     public Reservation(Client client, Vehicle vehicle, String startDate, String endDate) {
@@ -57,6 +47,28 @@ public class Reservation extends Table {
         this.endDate = stringToDate(endDate);
 
         setTotalAmountAndStatus();
+    }
+
+    public static boolean isSearchable() {
+
+        return isSearchable(new Reservation());
+    }
+
+    public static Vector<Table> search() {
+
+        return search(new Reservation());
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+
+        return search(new Reservation(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Reservation());
+        return search(tuples, boundedCriterias);
     }
 
     private void setTotalAmountAndStatus() {
@@ -110,27 +122,14 @@ public class Reservation extends Table {
         return false;
     }
 
-    public static Vector<Table> search() {
-
-        return search(new Reservation());
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-
-        return search(new Reservation(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Reservation());
-        return search(tuples, boundedCriterias);
-    }
-
     public Reservation setClient(Client c) {
 
+        if (c == null) {
+            return this;
+        }
+        
         if (!c.isValid() || c.getId() == null) {
-            throw new IllegalArgumentException("Invalid client!");
+            throw new IllegalArgumentException("Invalid client:\n\n" + c + "\n");
         }
 
         this.client = c;
@@ -140,8 +139,12 @@ public class Reservation extends Table {
 
     public Reservation setVehicle(Vehicle v) {
 
+        if (v == null) {
+            return this;
+        }
+
         if (!v.isValid() || v.getId() == null) {
-            throw new IllegalArgumentException("Invalid vehicle!");
+            throw new IllegalArgumentException("Invalid vehicle:\n\n" + v + "\n");
         }
 
         this.vehicle = v;

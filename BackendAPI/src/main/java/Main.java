@@ -1,17 +1,21 @@
 
 import orm.Table;
 import orm.model.*;
-
-import utilities.Pair;
+import orm.util.Pair;
 
 import java.util.Vector;
 
-import static utilities.UtilityMethods.*;
+import static orm.util.Database.*;
+
 
 public class Main {
 
     public static void main(String[] args) {
 
+        System.out.println(Table.getModelNames());
+        clear();
+        readSampleData();
+        display();
     }
 
     private static void tutorial() {
@@ -69,7 +73,7 @@ public class Main {
         // this approach is more readable and should allow the user to create an object without having to 
         // write too many 'null' values in a constructor.
 
-        // For tables like vehicules that have non-string attributes, you can send those attribute in the form of a 
+        // For tables like vehicles that have non-string attributes, you can send those attribute in the form of a 
         // string. Not advisable unless necessary (helps when reading from a chunk of data like a file).
 
         // all lines below create the same object
@@ -89,12 +93,6 @@ public class Main {
 
         Vehicle.add(v);
 
-
-        // For tables with foreigh keys (references tuples from other tables), you can insert those 
-        // references either by their ID or by inserting the object directly
-
-        new Reservation(1, 1, "2022-01-01", "2022-02-01"); // will fetch the client and vehicule of id=1
-
         // new Reservation(c1, v, "2022-01-01", "2022-02-01"); -> Will throw an IllegalArgumentException! Because 
         //                                                        Becasue 'c1' and 'v' don't have an ID, which is given
         //                                                        by the DB. Tuples must be read from the DB to have
@@ -112,7 +110,7 @@ public class Main {
         // kind of arguments:
         //
         //  - A tuple ('tuple' generally refers to a SQLite table line, but in this case it means a model's instance)
-        //  \-> for discrete-valued attributes (like a brand in the case a vehicule or a client's name)
+        //  \-> for discrete-valued attributes (like a brand in the case a vehicle or a client's name)
         //
         //  - A range that can be represented in a Pair-type variable.
         //  \-> for continuous-valued attriubtes  (like the price per day of a car or a date range)
@@ -125,7 +123,7 @@ public class Main {
         Vector<Table> clients = Client.search(); // returns all clients
         print(clients, "Clients");
 
-        // Let's create some vehicules and input them in the DB to see this:
+        // Let's create some vehicles and input them in the DB to see this:
         Vehicle.add(new Vehicle(35.50, "Rented", "2023-10-15", 2020, "Ford", "Fiesta", "Hatchback", "Diesel"));
         Vehicle.add(new Vehicle(40.00, "Unavailable", "2024-05-10", 2021, "Tesla", "Model3", "Electric", "Electric"));
         Vehicle.add(new Vehicle(25.75, "Available", "2024-11-20", 2018, "Honda", "Civic", "Coupe", "Hybrid"));
@@ -138,16 +136,16 @@ public class Main {
 
         // Let's do some filtering!
 
-        // returns all vehicules
-        Vector<Table> vehicules = Vehicle.search();
-        print(vehicules, "Vehicles");
+        // returns all vehicles
+        Vector<Table> vehicles = Vehicle.search();
+        print(vehicles, "Vehicles");
 
         // returns all sedans
         Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
         Vector<Table> sedans = Vehicle.search(sedanFilter); 
         print(sedans, "Sedans");
 
-        // filter the vehicules by year.
+        // filter the vehicles by year.
         // the name of the criteria must be passed to the Pair<> when creating a range, 
         // it has to be the exact same as the class attribute.
         // Passing an incorrect attribute name will throw an exception, so be careful
@@ -175,7 +173,7 @@ public class Main {
         Vector<Table> bt = Vehicle.search(BMWsToyotasCriteria);
         print(bt, "BMWs or Toyotas");
 
-        // Recent cheap vehicules (different method for multiple ranges: searchRanges())
+        // Recent cheap vehicles (different method for multiple ranges: searchRanges())
         Vector<Pair<Object,Object>> newCheapVehicleCriteria = new Vector<>();
         newCheapVehicleCriteria.add(new Pair<>("year", 2020,2024));
         newCheapVehicleCriteria.add(new Pair<>("pricePerDay", 30.0, 40.0));
@@ -241,7 +239,7 @@ public class Main {
         for (int i=0;i<5;i++) {
             Reservation.add(
                 createdReservations.elementAt(i)
-                    .setVehicle( (Vehicle) vehicules.elementAt(i))
+                    .setVehicle( (Vehicle) vehicles.elementAt(i))
                     .setClient( (Client) clients.elementAt(i))
             );
         }

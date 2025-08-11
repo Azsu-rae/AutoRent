@@ -1,8 +1,7 @@
 package mcp;
 
 import mcp.ParsedQuery;
-
-import utilities.Pair;
+import orm.util.Pair;
 
 import java.time.LocalDate;
 import java.util.HashMap;

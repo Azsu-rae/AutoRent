@@ -2,40 +2,49 @@ package orm.model;
 
 import orm.Table;
 
-import utilities.Pair;
-import utilities.Column;
+import orm.util.Pair;
+import orm.util.Constraints;
 
 import java.time.LocalDate;
 import java.util.Vector;
 
 public class Vehicle extends Table {
 
-    @Column(type = "DECIMAL", nullable = false, bounded = true)
+    static {
+        registerModel(Vehicle.class);
+    }
+
+    @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double pricePerDay;
-    @Column(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false)
     private String state;
-    @Column(type = "DATE", nullable = false, bounded = true)
+    @Constraints(type = "DATE", nullable = false, bounded = true)
     private LocalDate maintenanceDate;
 
-    @Column(type = "TEXT")
+    @Constraints(type = "TEXT")
     private String brand;
-    @Column(type = "TEXT")
+    @Constraints(type = "TEXT")
     private String model;
-    @Column(type = "INTEGER", bounded = true)
+    @Constraints(type = "INTEGER", bounded = true)
     private Integer year;
-    @Column(type = "TEXT")
-    private String vehiculeType;
-    @Column(type = "TEXT")
+    @Constraints(type = "TEXT")
+    private String vehicleType;
+    @Constraints(type = "TEXT")
     private String fuelType;
 
     public Vehicle() {}
 
-    public Vehicle(String pricePerDay, String state, String maintenanceDate, String year, String brand, String model, String vehiculeType, String fuelType) {
+    public Vehicle(String pricePerDay, String state, String maintenanceDate, String year, String brand, String model, String vehicleType, String fuelType) {
 
-        this(Double.parseDouble(pricePerDay), state, maintenanceDate, Integer.parseInt(year), brand, model, vehiculeType, fuelType);
+        this(
+            Double.parseDouble(pricePerDay), 
+            state, maintenanceDate, 
+            Integer.parseInt(year), 
+            brand, model, vehicleType, fuelType
+        );
     }
 
-    public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model, String vehiculeType, String fuelType) {
+    public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model, String vehicleType, String fuelType) {
 
         this.pricePerDay = pricePerDay;
         this.state = state;
@@ -43,8 +52,13 @@ public class Vehicle extends Table {
         this.brand = brand;
         this.model = model;
         this.year = year;
-        this.vehiculeType = vehiculeType;
+        this.vehicleType = vehicleType;
         this.fuelType = fuelType;
+    }
+
+    public static boolean isSearchable() {
+
+        return isSearchable(new Vehicle());
     }
 
     public static Vector<Table> search() {
@@ -102,7 +116,7 @@ public class Vehicle extends Table {
 
     public Vehicle setVehicleType(String s) {
 
-        this.vehiculeType = s;
+        this.vehicleType = s;
         return this;
     }
 
@@ -144,7 +158,7 @@ public class Vehicle extends Table {
 
     public String getVehicleType() {
 
-        return this.vehiculeType;
+        return this.vehicleType;
     }
 
     public String getFuelType() {
