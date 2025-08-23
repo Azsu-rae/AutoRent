@@ -3,6 +3,7 @@ package orm.model;
 import orm.Table;
 import orm.util.Constraints;
 import orm.util.Pair;
+import orm.util.Reflection;
 
 import java.util.Vector;
 
@@ -44,9 +45,14 @@ public class Client extends Table {
         return search(new Client());
     }
 
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+    public static Vector<Table> search(String attName, Object value) {
 
-        return search(new Client(), attributeName, lowerBound, upperBound);
+        return search(Reflection.getModelInstance("Client").reflect.setAttribute(attName, value));
+    }
+
+    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
+
+        return search(new Client(), boundedAttributeName, lowerBound, upperBound);
     }
 
     public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {

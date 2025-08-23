@@ -7,13 +7,10 @@ import java.util.Vector;
 
 import static orm.util.Database.*;
 
-
 public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println(Table.getModelNames());
-        clear();
         readSampleData();
         display();
     }
@@ -25,8 +22,8 @@ public class Main {
          *
          * This file serves as a test and a tutorial for using the backend.
          *
-         * The backend is an Object-Relational Mapping (ORM) system designed to interact with 
-         * an SQLite database through Java objects, eliminating the need to write SQL queries manually. 
+         * The backend is an Object-Relational Mapping (ORM) system designed to interact with
+         * a SQLite database through Java objects, eliminating the need to write SQL queries manually.
          * It supports CRUD operations (Create, Read, Update, Delete), which we will explore shortly.
          *
          * Carefully reviewing this file should provide a clear understanding of how to utilize 
@@ -40,69 +37,59 @@ public class Main {
 
         // You can, of course, create an object of what table you want. For example:
 
-        Client c1 = new Client("Ilyas", "Ait-Ameur", "aitameurmedilyas@gmail.com", "0560308452", "DKSF23");
+        Client ilyas = new Client("Ilyas", "Ait-Ameur", "aitameurmedilyas@gmail.com", "0560308452", "DKSF23");
 
         // creates a client. It is not, however, immediately inputed in the database. For that you'll have to 
         // add it using the static method:
 
-        boolean success = Client.add(c1);
+        boolean success = Client.add(ilyas);
 
         if (success) {
-            System.out.println("\nThe object 'c1' was successfully inserted in the DB!");
+            System.out.println("\nThe object 'ilyas' was successfully inserted in the DB!");
         }
 
         // And as you can see, the method returns a boolean representing the success or not of the operation. 
         // Note that:
         //  - this mehtod will also create the database file and table for the clients automatically.
-        //  - for the clients SQLite table, all the object's attributes have to be != null in order to be valid for insertion.
-        //       Similarily, All models check for validity before insertion (wether there are any non-nullable attributes that
-        //       are, well, null). In case the tuple is invalid for insertion, the .add() method returns 'null'
+        //  - for the clients SQLite table, all the object's attributes have to be != null in order to
+        //      be valid for insertion. Similarily, All models check for validity before insertion
+        //      (wether there are any non-nullable attributes that are, well, null). In case the tuple
+        //      is invalid for insertion, the .add() method fails and returns false.
 
-        // Knowing that memorizing the order of the attributes in a constructor has to be tiring, in favor of convenience, 
-        // the setters for each model return the object itself allowing for method chaining. For example:
-        
-        Client.add(
-            new Client()
+        // Knowing that memorizing the order of the attributes in a constructor has to be tiring, and
+        // in favor of convenience, the setters for each model return the object itself allowing for 
+        // method chaining. For example:
+
+        Client c = new Client()
                 .setName("Hicham")
                 .setSurname("Gaceb")
                 .setEmail("hichamgaceb@gmail.com")
                 .setPhoneNumber("05483729493")
-                .setDrivingLicence("KSDU343")
-        );
+                .setDrivingLicence("KSDU343");
 
-        // this approach is more readable and should allow the user to create an object without having to 
+        // this approach is more readable and should allow the user to create an object without having to
         // write too many 'null' values in a constructor.
 
-        // For tables like vehicles that have non-string attributes, you can send those attribute in the form of a 
-        // string. Not advisable unless necessary (helps when reading from a chunk of data like a file).
+        // For tables like vehicles that have non-string attributes, you can send those attribute in the
+        // form of a string. Not advisable unless necessary (helps when reading from a chunk of data
+        // like a file).
 
-        // all lines below create the same object
+        // both lines below create the same object
 
         Vehicle v;
         v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
         v = new Vehicle("29.99", "Available", "2024-12-01", "2022", "Toyota", "Corolla", "Sedan", "Gasoline");
-        v = new Vehicle()
-                .setPricePerDay(29.99)
-                .setState("Available")
-                .setMaintenanceDate("2024-12-01")
-                .setYear(2022)
-                .setBrand("Toyota")
-                .setModel("Corolla")
-                .setVehicleType("Sedan")
-                .setFuelType("Gasoline");
 
-        Vehicle.add(v);
+        // For tables that have foreign keys, you have to pass the foreing key's java instantiation.
+        // if the sent tuples don't have an ID field, the construction will fail and throw an exception.
+        // null values don't throw exceptions and are allowed. However, Invalid objects are not.
 
-        // new Reservation(c1, v, "2022-01-01", "2022-02-01"); -> Will throw an IllegalArgumentException! Because 
-        //                                                        Becasue 'c1' and 'v' don't have an ID, which is given
-        //                                                        by the DB. Tuples must be read from the DB to have
-        //                                                        an ID
-        //                                                        Similarily, all non-nullable attributes cannot be
-        //                                                        null at the time of insertion or when creating objects
-        //                                                        Otherwise, an IllegalArgumentException will be thrown
-        //                                                        when creating an object. In the case of insertion it will
-        //                                                        fail (the .add() method will return false)
-
+        // here c and v weren't retrieved from the database and they do not have an ID. Thus,
+        //
+        //          Reservation r = new Reservation(c, v, "2022-01-01", "2022-02-01");
+        //
+        // -> will throw an IllegalArgumentException because c and v don't have an ID. If you wish
+        // to create objects with tuples make sure you retrieve those from the database using:
 
         // ---------------------- THE SEARCH METHOD -------------------------------------
 
@@ -115,8 +102,8 @@ public class Main {
         //  - A range that can be represented in a Pair-type variable.
         //  \-> for continuous-valued attriubtes  (like the price per day of a car or a date range)
         //
-        // Both of these can be in vectors when the search criterias within a same attribute are multiple or
-        // when we have multiple ranges
+        // Both of these can be in vectors when the criterias's values within a same attribute are multiple
+        // (for discrete criterias) or when we have multiple ranges
         //
         // The tuples can be stored in any Table-inherited references.
 
@@ -145,11 +132,18 @@ public class Main {
         Vector<Table> sedans = Vehicle.search(sedanFilter); 
         print(sedans, "Sedans");
 
-        // filter the vehicles by year.
+        // in
         // the name of the criteria must be passed to the Pair<> when creating a range, 
         // it has to be the exact same as the class attribute.
         // Passing an incorrect attribute name will throw an exception, so be careful
-        Vector<Table> newVehicles = Vehicle.search("year", 2020, 2024); 
+        // of course the range values's types has to be correct. e.g.
+        //  
+        //              Vehicle.search("year", 2020.0, 2024.0)
+        //
+        // will throw an exception as years are integers
+        //
+        // filter the vehicles by year:
+        Vector<Table> newVehicles = Vehicle.search("year", 2020, 2024);
         print(newVehicles, "New Vehicles (2020 - 2024)");
 
         // new Sedans

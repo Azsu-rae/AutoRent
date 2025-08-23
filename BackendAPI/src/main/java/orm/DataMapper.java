@@ -70,7 +70,7 @@ class DataMapper {
             while (rs.next()) {
                 Table tuple = Reflection.getModelInstance(className);
                 for (int i=0;i<tuple.reflect.getAttributesNumber();i++) {
-                    String colName = tuple.queryConstructor.getColumn(i).name;
+                    String colName = tuple.query.getColumn(i).name;
                     Class<?> attClass = tuple.reflect.getAttributeClass(i);
                     Object value = getValue(rs, colName, attClass);
                     tuple.reflect.setAttribute(i, value);
@@ -92,14 +92,17 @@ class DataMapper {
         Table i = Reflection.getModelInstance(className);
         i.id = id;
 
-        if (!Table.isSearchable(i)) {
+        Integer found = null;
+        if (Table.isSearchable(i)) {
             Vector<Table> ic = Table.search(i);
+            found = ic.size();
             if (ic.size() > 0) {
                 return ic.elementAt(0);
             }
         }
 
-        throw new IllegalArgumentException("youMessedUpException!");
+        String s = String.format("(isSearchable, size, className) = (%s, %s, %s)", Table.isSearchable(i), found, className);
+        throw new IllegalArgumentException("idToInstance exception: " + s);
     }
 
     private static Object getValue(ResultSet rs, String columnName, Class<?> attributeClass) {

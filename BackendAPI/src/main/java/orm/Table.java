@@ -33,13 +33,13 @@ public abstract class Table {
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
 
-    final Reflection reflect;
-    final SQLiteQueryConstructor queryConstructor;
+    final public Reflection reflect;
+    final SQLiteQueryConstructor query;
 
     protected Table() {
 
         this.reflect = new Reflection(this);
-        this.queryConstructor = new SQLiteQueryConstructor(this);
+        this.query = new SQLiteQueryConstructor(this);
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class Table {
             return false;
         }
 
-        return this.id.equals( ((Table)obj).getId());
+        return this.id.equals(((Table)obj).getId());
     }
 
     public static Vector<Table> search(String className) {
@@ -136,13 +136,11 @@ public abstract class Table {
         }
 
         Table instance = discreteCriterias.elementAt(0);
-        SQLiteQueryConstructor queryConstructor = instance.queryConstructor;
-
-        if (!db(queryConstructor.sqliteTableName)) {
+        if (!db(instance.query.define.table())) {
             throw new IllegalStateException("No Database or no table found!");
         }
 
-        Pair<String,Vector<Object>> scratched = queryConstructor.manipulate.select(discreteCriterias, boundedCriterias);
+        Pair<String,Vector<Object>> scratched = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
         Vector<Table> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
@@ -168,12 +166,12 @@ public abstract class Table {
         }
 
 
-        Pair<String,Vector<Object>> scratched = tuple.queryConstructor.manipulate.insert();
+        Pair<String,Vector<Object>> scratched = tuple.query.manipulate.insert();
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
              Statement stmt = conn.createStatement();) {
 
-            stmt.execute(tuple.queryConstructor.define.table());
+            stmt.execute(tuple.query.define.table());
 
             PreparedStatement pstmt = conn.prepareStatement(scratched.first);
             bindValues(pstmt, scratched.second);
@@ -193,11 +191,11 @@ public abstract class Table {
 
     public boolean edit() {
 
-        if (!isValid() || !db(queryConstructor.sqliteTableName) || id == null) {
+        if (!isValid() || !db(query.define.table()) || id == null) {
             return false;
         }
 
-        Pair<String,Vector<Object>> scratched = queryConstructor.manipulate.update();
+        Pair<String,Vector<Object>> scratched = query.manipulate.update();
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
              PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
@@ -219,11 +217,12 @@ public abstract class Table {
 
     public boolean delete() {
 
-        if (!db(queryConstructor.sqliteTableName) || id == null) {
+        if (!db(query.define.table()) || id == null) {
             return false;
         }
+        reflect.cascadeDeletion();
 
-        String sql = "DELETE FROM " + queryConstructor.sqliteTableName + " WHERE id=?";
+        String sql = "DELETE FROM " + query.sqliteTableName + " WHERE id=?";
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -240,7 +239,6 @@ public abstract class Table {
             return false;
         }
 
-        reflect.cascadeDeletion();
         return true;
     }
 
@@ -270,22 +268,7 @@ public abstract class Table {
 
     public static boolean isSearchable(Table tuple) {
 
-        return db(tuple.queryConstructor.sqliteTableName);
-    }
-
-    public static boolean hasSubClass(String className) {
-
-        return getModelNames().contains(className);
-    }
-
-    public static List<String> getModelNames() {
-
-        return getModels().stream().map(Class::getSimpleName).toList();
-    }
-
-    public static Set<Class<? extends Table>> getModels() {
-
-        return Collections.unmodifiableSet(models);
+        return db(tuple.query.sqliteTableName);
     }
 
     protected static void registerModel(Class<? extends Table> model) {
@@ -304,6 +287,21 @@ public abstract class Table {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format: " + s);
         }
+    }
+
+    public static boolean hasSubClass(String className) {
+
+        return getModelNames().contains(className);
+    }
+
+    public static List<String> getModelNames() {
+
+        return getModels().stream().map(Class::getSimpleName).toList();
+    }
+
+    public static Set<Class<? extends Table>> getModels() {
+
+        return Collections.unmodifiableSet(models);
     }
 
     private static boolean db(String sqliteTableName) {
@@ -329,7 +327,7 @@ public abstract class Table {
 
     private static String path() {
 
-        String url = "./ressources/databases/AutoRent.db";
+        String url = "./BackendAPI/ressources/databases/AutoRent.db";
         return url;
     }
 }

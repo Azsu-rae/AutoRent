@@ -1,47 +1,57 @@
 package mcp;
 
-import orm.Table;
-import orm.model.*;
-
 import java.util.Vector;
+
+import orm.Table;
+import orm.util.Pair;
+import orm.util.Reflection;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
 
-import java.time.LocalDate;
+class ParsedQuery {
 
-import static orm.util.Reflection.*;
+    final private String operation;
+    final private String model;
 
-import java.lang.reflect.*;
+    final private Reflection reflect;
+    final private Map<String,Vector<Object>> discreteAttributes;
+    final private Vector<Pair<Object,Object>> boundedCriterias;
 
-@SuppressWarnings("rawtypes")
-public class ParsedQuery {
-
-    private String operation;
-    private String modelType;
-    private Map<String,Vector<Object>> attributes;
-
-    private ParsedQuery(String operation, String modelType) {
+    private ParsedQuery(String operation, String model) {
 
         this.operation = operation;
-        this.modelType = modelType;
-        this.attributes = new HashMap<>();
+        this.model = model;
+
+        this.reflect = new Reflection(model);
+        this.discreteAttributes = new HashMap<>();
+        this.boundedCriterias = new Vector<>();
     }
 
-    public static ParsedQuery create(String operation, String modelType) {
+    public static ParsedQuery create(String operation, String model) {
 
-        if (operation == null || modelType == null) {
-            return null;
+        boolean nil = operation == null || model == null;
+        boolean op = Arrays.asList("search", "create", "update", "delete").contains(operation);
+        boolean mdl = Table.hasSubClass(model);
+
+        if (!nil && op && mdl) {
+            return new ParsedQuery(operation, model);
+        } else {
+            String s = "Invalid operation: %s or model: %s";
+            throw new IllegalArgumentException(String.format(s, operation, model));
         }
-
-        if (!Arrays.asList("search", "create", "update", "delete").contains(operation)) {
-            return null;
-        }
-
-        return new ParsedQuery(operation, modelType);
     }
 
-    public String execute() {
+    public <T> T execute() {
+
+        return switch (operation) {
+            case "search"   -> execute(Vector.class);
+            default         -> execute(Boolean.class);
+        }
+    }
+
+    public <T> T execute(Class<T> type) {
 
         switch (operation) {
             case "search":
@@ -53,30 +63,67 @@ public class ParsedQuery {
             case "delete":
                 return delete();
             default:
-                return "Unsupported operation.";
+                return null;
         }
     }
 
-    public void setAtrribute(String name, Object value) {
+    public void setCriteria(String name, Pair<Object,Object> value) {
 
+        if (!value.isValidCriteriaFor(reflect)) {
+            String s = "Invalid attribute : %s for model: %s";
+            throw new IllegalArgumentException(String.format(s, value.toString(), model));
+        }
+
+        boundedCriterias.add(value);
     }
 
-    private String search() {
+    public void setCriteria(String name, Object value) {
 
-        return "";
+        if (!reflect.getDiscreteFieldNames().contains(name)) {
+            String s = "Invalid attribute name: %s for model: %s";
+            throw new IllegalArgumentException(String.format(s, name, model));
+        }
+
+        if (!reflect.getFieldType(name).equals(value.getClass())) {
+            String s = "Invalid type: %s for attribute: %s of model:  %s";
+            throw new IllegalArgumentException(String.format(s, value.getClass().getSimpleName(), name, model));
+        }
+
+        discreteAttributes.computeIfAbsent(name, k -> new Vector<>()).add(value);
     }
 
-    private String create() {
+    private Vector<Table> search() {
 
-        return "";
+        Vector<Table> discreteCriterias = new Vector<>();
+        for (Map.Entry<String,Vector<Object>> entry : discreteAttributes.entrySet()) {
+
+            int count = 1;
+            for (Object att : entry.getValue()) {
+
+                if (count > discreteCriterias.size()) {
+                    discreteCriterias.add(Reflection.getModelInstance(model));
+                }
+
+                discreteCriterias.elementAt(count-1).reflect.setAttribute(entry.getKey(), att);
+                count++;
+            }
+        }
+
+        return Table.search(discreteCriterias, boundedCriterias);
     }
 
-    private String delete() {
+    private Vector<Table> create() {
 
-        return "";
+        return null;
     }
 
-    private String update() {
-        return "";
+    private Vector<Table> delete() {
+
+        return null;
+    }
+
+    private Vector<Table> update() {
+
+        return null;
     }
 }

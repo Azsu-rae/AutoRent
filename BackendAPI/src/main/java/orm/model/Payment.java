@@ -3,6 +3,7 @@ package orm.model;
 import orm.Table;
 
 import orm.util.Pair;
+import orm.util.Reflection;
 import orm.util.Constraints;
 
 import java.time.LocalDate;
@@ -26,6 +27,11 @@ public class Payment extends Table {
 
     public Payment() {}
 
+    public Payment(Reservation reservation, String amount, String date, String method) {
+
+        this(reservation, Double.parseDouble(amount), date, method);
+    }
+
     public Payment(Reservation reservation, Double amount, String date, String method) {
 
         setReservation(reservation);
@@ -42,6 +48,11 @@ public class Payment extends Table {
     public static Vector<Table> search() {
 
         return search(new Payment());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+
+        return search(Reflection.getModelInstance("Payment").reflect.setAttribute(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
@@ -63,7 +74,7 @@ public class Payment extends Table {
         }
 
         if (!r.isValid() || r.getId() == null) {
-            throw new IllegalArgumentException("Invalid reservation:\n\n" + r + "\n");
+            throw new IllegalArgumentException("Invalid reservation:\n\n" + r);
         }
 
         this.reservation = r;

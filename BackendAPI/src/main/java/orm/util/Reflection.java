@@ -1,6 +1,12 @@
 package orm.util;
 
 import orm.Table;
+import orm.model.Client;
+import orm.model.Payment;
+import orm.model.Reservation;
+import orm.model.Return;
+import orm.model.User;
+import orm.model.Vehicle;
 import orm.util.Constraints;
 
 import java.util.List;
@@ -15,11 +21,24 @@ import java.lang.reflect.*;
 public class Reflection {
 
     static String qualifiedPackageName = "orm.model.";
+    static {
+        new Client();
+        new Vehicle();
+        new Reservation();
+        new Return();
+        new Payment();
+        new User();
+    }
 
     Table tuple;
     Class<?> model;
     Field[] fields;
     String className;
+
+    public Reflection(String modelName) {
+
+        this(getModelInstance(modelName));
+    }
 
     public Reflection(Table tuple) {
 
@@ -47,20 +66,6 @@ public class Reflection {
 
     // Method to get a model's instance
 
-    public static void init() {
-
-        try {
-            Class.forName(qualifiedPackageName + "Client");
-            Class.forName(qualifiedPackageName + "Vehicle");
-            Class.forName(qualifiedPackageName + "Reservation");
-            Class.forName(qualifiedPackageName + "Return");
-            Class.forName(qualifiedPackageName + "Payment");
-            Class.forName(qualifiedPackageName + "User");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-    
     public static Table getModelInstance(String className) {
 
         return getModelInstance(className, new Object[0]);
@@ -98,9 +103,16 @@ public class Reflection {
         return getFieldValue(fields[i]);
     }
 
-    public void setAttribute(int i, Object value) {
+    public Table setAttribute(int i, Object value) {
 
         setFieldValue(fields[i], value);
+        return tuple;
+    }
+
+    public Table setAttribute(String name, Object value) {
+
+        setFieldValue(getField(name), value);
+        return tuple;
     }
 
     // Field management methods
@@ -169,11 +181,22 @@ public class Reflection {
     private Field[] getReferencingFieldsFrom(String modelName) {
 
         return processFields(field -> {
-            if (field.getType().equals(tuple.getClass())) {
+            if (field.getType().equals(model)) {
                 return field;
             }
             return null;
         }, getModel(modelName).getDeclaredFields()).toArray(Field[]::new);
+    }
+
+    public List<String> getDiscreteFieldNames() {
+
+        var boundeds = getBoundedFieldNames(); 
+        return processFields(field -> {
+            if (!boundeds.contains(field.getName())) {
+                return field.getName();
+            }
+            return null;
+        });
     }
 
     public List<String> getBoundedFieldNames() {
@@ -219,7 +242,17 @@ public class Reflection {
         return attributes;
     }
 
+    public Class<?> getFieldType(String fieldName) {
+
+        return getField(fieldName).getType();
+    }
+
     // Default-valued instance methods
+
+    private Field getField(String name) {
+
+        return getField(model, name);
+    }
 
     private void setFieldValue(Field field, Object value) {
 

@@ -3,6 +3,7 @@ package orm.model;
 import orm.Table;
 
 import orm.util.Pair;
+import orm.util.Reflection;
 import orm.util.Constraints;
 
 import java.util.Vector;
@@ -33,12 +34,6 @@ public class Reservation extends Table {
 
     public Reservation() {}
 
-    public Reservation(String startDate, String endDate) {
-
-        this.startDate = stringToDate(startDate);
-        this.endDate = stringToDate(endDate);
-    }
-
     public Reservation(Client client, Vehicle vehicle, String startDate, String endDate) {
 
         setClient(client);
@@ -57,6 +52,11 @@ public class Reservation extends Table {
     public static Vector<Table> search() {
 
         return search(new Reservation());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+
+        return search(Reflection.getModelInstance("Reservation").reflect.setAttribute(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {

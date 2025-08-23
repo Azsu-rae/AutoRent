@@ -9,8 +9,8 @@ class SQLiteQueryConstructor {
 
     final private Table instance;
     final private Vector<Column> columns;
+    final private String sqliteTableName;
 
-    final String sqliteTableName;
     final public DataDefinition define;
     final public DataManipulation manipulate;
 
@@ -145,14 +145,14 @@ class SQLiteQueryConstructor {
 
             for (Pair<Object,Object> criteria : boundedCriterias) {
 
-                if (!criteria.isValid() || !instance.reflect.getBoundedFieldNames().contains(criteria.attributeName)) {
+                if (!criteria.isValidCriteriaFor(instance.reflect)) {
                     throw new IllegalArgumentException("Invalid bounded criteria: " + criteria + "!");
                 }
 
                 if (!criteria.attributeName.equals(colName)) {
                     continue;
                 }
-                    
+
                 appendConnector(" OR ");
 
                 Object lowerBound = criteria.first, upperBound = criteria.second;

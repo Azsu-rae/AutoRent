@@ -2,32 +2,28 @@ package orm.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
+
 import java.util.stream.Stream;
 
 import orm.Table;
 
 public class Database {
 
-    private static String path = "./ressources/data/";
+    private static String path = "./BackendAPI/ressources/sample_data/";
 
-    private static HashMap<String,Integer> occurences = new HashMap<>();
-
-    static {
-        Reflection.init();
-    }
+    private static HashMap<Pair<String,String>,Integer> occurences = new HashMap<>();
 
     public static void display() {
 
         for (String className : Table.getModelNames()) {
-            Table tuple = Reflection.getModelInstance(className);
-            if (Table.isSearchable(tuple)) {
-                print(Table.search(tuple), className);
+            if (Table.isSearchable(className)) {
+                print(Table.search(className), className);
             }
         }
     }
@@ -35,15 +31,13 @@ public class Database {
     public static void clear() {
 
         for (String className : Table.getModelNames()) {
-            Table tuple = Reflection.getModelInstance(className);
-            if (Table.isSearchable(tuple)) {
-                delete(Table.search(tuple));
+            if (Table.isSearchable(className)) {
+                delete(Table.search(className));
             }
         }
     }
 
     public static void readSampleData() {
-
 
         for (String modelName : readOrderFile()) {
 
@@ -54,7 +48,12 @@ public class Database {
                 while (scanner.hasNextLine()) {
                     lines.add(scanner.nextLine());
                 }
-                input(parse(lines, modelName));
+
+                if (input(parse(lines, modelName))) {
+                    System.out.println("Inputed " + lines.size() + " lines to the '" + modelName + "' table");
+                } else {
+                    System.out.println("Faillure to input to the '" + modelName + "' table");
+                }
 
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException("File not found: " + e.getMessage());
@@ -64,12 +63,15 @@ public class Database {
 
     private static List<String> readOrderFile() {
 
+        System.out.print("\nOrder: ");
         File order = new File(path + "order.txt");
         List<String> modelNames = new ArrayList<>();
         try (Scanner orderScanner = new Scanner(order)) {
             while (orderScanner.hasNext()) {
-                modelNames.add(orderScanner.next());
-            }
+                String modelName = orderScanner.next();
+                System.out.print(modelName + " ");
+                modelNames.add(modelName);
+            } System.out.println("\n");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -100,25 +102,29 @@ public class Database {
 
         Vector<Table> tuples = new Vector<>();
         for (String line : lines) {
+
             List<Object> args = Stream.of(line.split(" ")).map(arg -> {
-                if (Table.getModelNames().contains(arg)) {
-                    return getSample(arg);
+                if (Table.hasSubClass(arg)) {
+                    return getSample(className, arg);
                 } else {
                     return arg;
                 }
             }).toList();
-            tuples.add(Reflection.getModelInstance(className, args.toArray()));
+
+            Table tuple = Reflection.getModelInstance(className, args.toArray());
+            tuples.add(tuple);
         }
 
         return tuples;
     }
 
-    private static Table getSample(String model) {
+    private static Table getSample(String model, String attribute) {
 
-        int index = occurences.computeIfAbsent(model, k -> 1);
-        occurences.put(model, index+1);
+        Pair<String,String> key = new Pair<>(model,attribute);
+        int index = occurences.computeIfAbsent(key, k -> 0);
+        occurences.put(key, index+1);
 
-        return Table.search(model).elementAt(index);
+        return Table.search(attribute).elementAt(index);
     }
 
     public static String toString(Vector<? extends Table> tuples) {

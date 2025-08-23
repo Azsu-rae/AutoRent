@@ -6,6 +6,7 @@
 !.gitignore
 !.gitattributes
 !.github/
+!.gitkeep
 
 # Ignore build directory
 BackendAPI/target/
