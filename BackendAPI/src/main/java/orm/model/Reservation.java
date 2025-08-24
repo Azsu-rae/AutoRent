@@ -19,7 +19,7 @@ public class Reservation extends Table {
     }
 
     @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
-    private Client client;   
+    private Client client;
     @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
     private Vehicle vehicle;
 
@@ -104,19 +104,16 @@ public class Reservation extends Table {
         this.status = "Canceled";
     }
 
-    public boolean rebook() {
+    public boolean book() {
 
         if (!isValid()) {
             throw new IllegalStateException("Rebooking a reservation of an invalid object!");
         }
 
-        Reservation conflictingReservationsCriteria = new Reservation()
-            .setStartDate(startDate.toString())
-            .setEndDate(endDate.toString())
-            .setVehicle(vehicle);
+        var conflictCriteria = new Reservation(null, vehicle, startDate.toString(), endDate.toString());
 
-        if (search(conflictingReservationsCriteria).size() == 0) {
-            return add(this);
+        if (search(conflictCriteria).size() == 0) {
+            return add();
         }
 
         return false;
@@ -127,7 +124,7 @@ public class Reservation extends Table {
         if (c == null) {
             return this;
         }
-        
+
         if (!c.isValid() || c.getId() == null) {
             throw new IllegalArgumentException("Invalid client:\n\n" + c + "\n");
         }

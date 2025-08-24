@@ -83,6 +83,7 @@ public class Database {
 
         StringBuilder s = new StringBuilder();
 
+        s.append("\n");
         if (tuples == null) {
             s.append("No tuples passed (null!) called " + name + "!");
         } else if (tuples.size() == 0) {
@@ -144,7 +145,7 @@ public class Database {
 
         boolean success = true;
         for (Table tuple : tuples) {
-            success = success && Table.add(tuple);
+            success = success && tuple.add();
         }
 
         return success;

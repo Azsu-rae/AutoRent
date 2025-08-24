@@ -56,10 +56,10 @@ public class Pair<U, V> {
 
     public boolean isValidCriteriaFor(Reflection r) {
 
-        return 
-            attributeName != null && first != null && second != null && 
-            first.getClass().equals(second.getClass()) &&
-            r.getBoundedFieldNames().contains(attributeName) &&
-            r.getFieldType(attributeName).equals(first.getClass());
+        return
+            attributeName != null && first != null && second != null
+            && first.getClass().equals(second.getClass())
+            && r.getBoundedFieldNames().contains(attributeName)
+            && r.getFieldType(attributeName).equals(first.getClass());
     }
 }

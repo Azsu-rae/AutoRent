@@ -26,18 +26,27 @@ import orm.util.Reflection;
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
 
+import static orm.util.Reflection.getModelInstance;
+
 public abstract class Table {
 
+    private static String path = "./BackendAPI/ressources/databases/AutoRent.db";
+
     private static Set<Class<? extends Table>> models = new HashSet<>();
+    protected static void registerModel(Class<? extends Table> model) {
+        models.add(model);
+    }
 
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
+    public Integer getId() {
+        return this.id;
+    }
 
-    final public Reflection reflect;
     final SQLiteQueryConstructor query;
+    final public Reflection reflect;
 
     protected Table() {
-
         this.reflect = new Reflection(this);
         this.query = new SQLiteQueryConstructor(this);
     }
@@ -91,21 +100,27 @@ public abstract class Table {
             return false;
         }
 
-        return this.id.equals(((Table)obj).getId());
+        Table tuple = (Table) obj;
+        return this.id.equals(tuple.getId());
+    }
+
+    public static boolean isSearchable(String modelName) {
+        return isSearchable(getModelInstance(modelName));
+    }
+
+    public static boolean isSearchable(Table tuple) {
+        return db(tuple.query.sqliteTableName);
     }
 
     public static Vector<Table> search(String className) {
-
-        return search(Reflection.getModelInstance(className));
+        return search(getModelInstance(className));
     }
 
     public static Vector<Table> search(Table discreteCriteria) {
-
         return search(discreteCriteria, null, null, null);
     }
 
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias) {
-
         return search(discreteCriterias, null);
     }
 
@@ -121,10 +136,8 @@ public abstract class Table {
         Vector<Pair<Object,Object>> boundedContainer = null;
         if (boundedAttributeName != null && lowerBound != null && upperBound != null) {
             boundedContainer = new Vector<>();
-            Pair<Object,Object> range = new Pair<>(lowerBound, upperBound);
-            range.attributeName = boundedAttributeName;
-            boundedContainer.add(range);
-        } 
+            boundedContainer.add(new Pair<>(boundedAttributeName, lowerBound, upperBound));
+        }
 
         return search(discreteContainer, boundedContainer);
     }
@@ -136,52 +149,48 @@ public abstract class Table {
         }
 
         Table instance = discreteCriterias.elementAt(0);
-        if (!db(instance.query.define.table())) {
+        if (!db(instance.query.sqliteTableName)) {
             throw new IllegalStateException("No Database or no table found!");
         }
 
-        Pair<String,Vector<Object>> scratched = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
+        var scratched = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
         Vector<Table> tuples = null;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
              PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
 
             bindValues(pstmt, scratched.second);
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            System.err.println(scratched.first);
-            e.printStackTrace();
-        } catch (Exception e) {
+            System.err.println("Search query: " + scratched.first);
             e.printStackTrace();
         }
 
         return tuples;
     }
 
-    public static boolean add(Table tuple) {
+    public boolean add() {
 
-        if (tuple == null || !tuple.isValid()) {
+        if (!isValid()) {
             return false;
         }
 
+        var scratched = query.manipulate.insert();
 
-        Pair<String,Vector<Object>> scratched = tuple.query.manipulate.insert();
-
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
              Statement stmt = conn.createStatement();) {
 
-            stmt.execute(tuple.query.define.table());
+            stmt.execute(query.define.table());
 
-            PreparedStatement pstmt = conn.prepareStatement(scratched.first);
+            var pstmt = conn.prepareStatement(scratched.first);
             bindValues(pstmt, scratched.second);
             pstmt.executeUpdate();
             pstmt.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
+            System.err.println("Table creation query:\n" + query.define.table());
+            System.err.println("Insertion query: " + scratched.first);
             e.printStackTrace();
             return false;
         }
@@ -195,19 +204,16 @@ public abstract class Table {
             return false;
         }
 
-        Pair<String,Vector<Object>> scratched = query.manipulate.update();
+        var scratched = query.manipulate.update();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
              PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
 
             bindValues(pstmt, scratched.second);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println(scratched.first);
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
+            System.err.println("Updating query: " + scratched.first);
             e.printStackTrace();
             return false;
         }
@@ -220,38 +226,30 @@ public abstract class Table {
         if (!db(query.define.table()) || id == null) {
             return false;
         }
-        reflect.cascadeDeletion();
 
+        boolean success = reflect.cascadeDeletion();
         String sql = "DELETE FROM " + query.sqliteTableName + " WHERE id=?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, this.id);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println(sql);
+            System.err.println("Deletion query: " + sql);
             e.printStackTrace();
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            success = false;
         }
 
-        return true;
-    }
-
-    public Integer getId() {
-
-        return this.id;
+        return success;
     }
 
     public boolean isValid() {
 
         boolean valid = true;
         for (int i=1;i<reflect.getAttributesNumber();i++) {
-            Constraints col = reflect.getFieldColumns()[i];
+            Constraints col = reflect.getFieldConstraints()[i];
             if (!col.nullable() && reflect.getAttribute(i) == null) {
                 valid = false;
                 break;
@@ -261,19 +259,16 @@ public abstract class Table {
         return valid;
     }
 
-    public static boolean isSearchable(String modelName) {
-
-        return isSearchable(Reflection.getModelInstance(modelName));
+    public static boolean hasSubClass(String className) {
+        return getModelNames().contains(className);
     }
 
-    public static boolean isSearchable(Table tuple) {
-
-        return db(tuple.query.sqliteTableName);
+    public static List<String> getModelNames() {
+        return getModels().stream().map(Class::getSimpleName).toList();
     }
 
-    protected static void registerModel(Class<? extends Table> model) {
-
-        models.add(model);
+    public static Set<Class<? extends Table>> getModels() {
+        return Collections.unmodifiableSet(models);
     }
 
     protected static LocalDate stringToDate(String s) {
@@ -289,29 +284,14 @@ public abstract class Table {
         }
     }
 
-    public static boolean hasSubClass(String className) {
-
-        return getModelNames().contains(className);
-    }
-
-    public static List<String> getModelNames() {
-
-        return getModels().stream().map(Class::getSimpleName).toList();
-    }
-
-    public static Set<Class<? extends Table>> getModels() {
-
-        return Collections.unmodifiableSet(models);
-    }
-
     private static boolean db(String sqliteTableName) {
 
         boolean ans = false;
 
-        File db = new File(path());
+        File db = new File(path);
         if (db.exists() && db.isFile()) {
             String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + sqliteTableName + "';";
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path());
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
                  Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(checkTable)) {
 
@@ -323,11 +303,5 @@ public abstract class Table {
         }
 
         return ans;
-    }
-
-    private static String path() {
-
-        String url = "./BackendAPI/ressources/databases/AutoRent.db";
-        return url;
     }
 }

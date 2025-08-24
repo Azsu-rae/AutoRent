@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 DB_PATH="BackendAPI/ressources/databases/AutoRent.db"
 echo "Initializing database..."

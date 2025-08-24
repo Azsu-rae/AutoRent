@@ -10,15 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import orm.util.Reflection;
+import static orm.util.Reflection.getModelInstance;
 
 class DataMapper {
 
     private static Map<Class<?>,PreparedStatementSetter> javaClassPstmtSetter;
     private static Map<Class<?>,ResultSetGetter> javaClassResultSetGetter;
 
-    // all of the types that any model can have
-    static {
+    static { // all of the types that any model can have
         javaClassPstmtSetter = new HashMap<>();
         javaClassResultSetGetter = new HashMap<>();
         addType(
@@ -43,82 +42,64 @@ class DataMapper {
         );
     }
 
-    static void bindValues(PreparedStatement pstmt, Vector<Object> atts) {
+    static void bindValues(PreparedStatement pstmt, Vector<Object> atts) throws SQLException {
 
         int i=1;
-        try {
-            for (Object att : atts) {
-                if (att instanceof Table) {
-                    pstmt.setInt(i, ((Table)att).getId());
-                } else {
-                    getSetter(att.getClass()).set(pstmt, i, att);
-                }
-                i++;
+        for (Object att : atts) {
+            if (att instanceof Table) {
+                pstmt.setInt(i, ((Table)att).getId());
+            } else {
+                getSetter(att.getClass()).set(pstmt, i, att);
             }
-        } catch (SQLException e) {
-            System.err.println(pstmt + "\n" + atts.toString());
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            i++;
         }
     }
 
-    static Vector<Table> fetchResutls(PreparedStatement pstmt, String className) {
+    static Vector<Table> fetchResutls(PreparedStatement pstmt, String className) throws SQLException {
 
         Vector<Table> tuples = new Vector<>();
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                Table tuple = Reflection.getModelInstance(className);
-                for (int i=0;i<tuple.reflect.getAttributesNumber();i++) {
-                    String colName = tuple.query.getColumn(i).name;
-                    Class<?> attClass = tuple.reflect.getAttributeClass(i);
-                    Object value = getValue(rs, colName, attClass);
-                    tuple.reflect.setAttribute(i, value);
-                }
-                tuples.add(tuple);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Table tuple = getModelInstance(className);
+            for (int i=0;i<tuple.reflect.getAttributesNumber();i++) {
+                String colName = tuple.query.getColumn(i).name;
+                Class<?> attClass = tuple.reflect.getAttributeClass(i);
+                Object value = getValue(rs, colName, attClass);
+                tuple.reflect.setAttribute(i, value);
             }
-        } catch (SQLException e) {
-            System.err.println(pstmt.toString());
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            tuples.add(tuple);
         }
 
         return tuples;
     }
 
-    private static Table idToInstance(int id, String className) {
+    private static Object getValue(ResultSet rs, String columnName, Class<?> attributeClass) throws SQLException {
 
-        Table i = Reflection.getModelInstance(className);
-        i.id = id;
-
-        Integer found = null;
-        if (Table.isSearchable(i)) {
-            Vector<Table> ic = Table.search(i);
-            found = ic.size();
-            if (ic.size() > 0) {
-                return ic.elementAt(0);
-            }
+        if (Table.class.isAssignableFrom(attributeClass)) {
+            return idToInstance(rs.getInt(columnName), attributeClass.getSimpleName());
+        } else {
+            Object v = getGetter(attributeClass).get(rs, columnName);
+            return rs.wasNull() ? null : v;
         }
-
-        String s = String.format("(isSearchable, size, className) = (%s, %s, %s)", Table.isSearchable(i), found, className);
-        throw new IllegalArgumentException("idToInstance exception: " + s);
     }
 
-    private static Object getValue(ResultSet rs, String columnName, Class<?> attributeClass) {
+    private static Table idToInstance(int id, String className) {
 
-        try {
-            if (Table.class.isAssignableFrom(attributeClass)) {
-                return idToInstance(rs.getInt(columnName), attributeClass.getSimpleName());
-            } else {
-                Object v = getGetter(attributeClass).get(rs, columnName);
-                return rs.wasNull() ? null : v;
+        Table c = getModelInstance(className);
+        c.id = id;
+
+        Integer found = null;
+        if (Table.isSearchable(c)) {
+            Vector<Table> r = Table.search(c);
+            found = r.size();
+            if (r.size() > 0) {
+                return r.elementAt(0);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
-        return null;
+        String s = "idToInstance exception: (isSearchable, size, className) = (%s, %s, %s)";
+        throw new IllegalArgumentException(String.format(s, Table.isSearchable(c), found, className));
     }
 
     private static void addType(Class<?> type, ResultSetGetter resultSetGetter, PreparedStatementSetter pstmtSetter) {

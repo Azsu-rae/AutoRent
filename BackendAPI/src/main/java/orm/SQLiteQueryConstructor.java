@@ -9,8 +9,8 @@ class SQLiteQueryConstructor {
 
     final private Table instance;
     final private Vector<Column> columns;
-    final private String sqliteTableName;
 
+    final String sqliteTableName;
     final public DataDefinition define;
     final public DataManipulation manipulate;
 
@@ -194,7 +194,6 @@ class SQLiteQueryConstructor {
         }
 
         private void appendConnector(String connector) {
-
             appendConnector(connector, null);
         }
 
@@ -260,10 +259,10 @@ class SQLiteQueryConstructor {
         final private String tableCreationQuery;
 
         private DataDefinition() {
-        
+
             StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + sqliteTableName + "(");
             String[] fieldNames = instance.reflect.getFieldNames();
-            Constraints[] contraints = instance.reflect.getFieldColumns();
+            Constraints[] contraints = instance.reflect.getFieldConstraints();
             Vector<String> foreignKeys = new Vector<>();
             boolean first = true;
 
@@ -293,7 +292,6 @@ class SQLiteQueryConstructor {
         }
 
         String table() {
-
             return tableCreationQuery;
         }
     }

@@ -31,12 +31,11 @@ public class Reflection {
     }
 
     Table tuple;
-    Class<?> model;
     Field[] fields;
-    String className;
+    Class<?> model;
+    String modelName;
 
     public Reflection(String modelName) {
-
         this(getModelInstance(modelName));
     }
 
@@ -44,7 +43,7 @@ public class Reflection {
 
         this.tuple = tuple;
         this.model = tuple.getClass();
-        this.className = tuple.getClass().getSimpleName();
+        this.modelName = tuple.getClass().getSimpleName();
 
         Field[] modelFields = processFields(field -> {
             if (field.isAnnotationPresent(Constraints.class)) {
@@ -67,12 +66,10 @@ public class Reflection {
     // Method to get a model's instance
 
     public static Table getModelInstance(String className) {
-
         return getModelInstance(className, new Object[0]);
     }
 
     public static Table getModelInstance(String className, Object[] args) {
-
         return (Table) getInstance(getConstructor(getModel(className), objectArrayToTypeArray(args)), args);
     }
 
@@ -89,36 +86,32 @@ public class Reflection {
     // Attributes methods
 
     public int getAttributesNumber() {
-
         return fields.length;
     }
 
     public Class<?> getAttributeClass(int i) {
-
         return getFieldClasses()[i];
     }
 
     public Object getAttribute(int i) {
-
         return getFieldValue(fields[i]);
     }
 
     public Table setAttribute(int i, Object value) {
-
         setFieldValue(fields[i], value);
         return tuple;
     }
 
     public Table setAttribute(String name, Object value) {
-
         setFieldValue(getField(name), value);
         return tuple;
     }
 
     // Field management methods
 
-    public void cascadeDeletion() {
+    public boolean cascadeDeletion() {
 
+        boolean success = true;
         for (String referencerName : getReferencerNames()) {
 
             if (!Table.isSearchable(referencerName)) {
@@ -130,16 +123,18 @@ public class Reflection {
                     for (Field relevantField : getReferencingFieldsFrom(referencerName)) {
 
                         if (relevantField.getAnnotation(Constraints.class).nullable()) {
-                            setFieldValue(referencer, relevantField, null);
+                            success = success && setFieldValue(referencer, relevantField, null).edit();
                         } else {
-                            referencer.delete();
+                            success = success && referencer.delete();
                         }
                     }
                 }
             }
         }
+
+        return success;
     }
-    
+
     private String[] getReferencerNames() {
 
         List<String> referencerNames = new ArrayList<>();
@@ -166,7 +161,7 @@ public class Reflection {
 
         for (Field relevantField : relevantFields) {
 
-            Table instanceOfMyself = getModelInstance(className);
+            Table instanceOfMyself = getModelInstance(modelName);
             setFieldValue(instanceOfMyself, idField, tuple.getId());
 
             Table referencer = getModelInstance(referencerName);
@@ -200,7 +195,6 @@ public class Reflection {
     }
 
     public List<String> getBoundedFieldNames() {
-
         return processFields(field -> {
             Constraints col = field.getAnnotation(Constraints.class);
             if (col.bounded() || col.lowerBound()) {
@@ -211,22 +205,18 @@ public class Reflection {
     }
 
     public Class<?>[] getFieldClasses() {
-
         return processFields(Field::getType).toArray(Class<?>[]::new);
     }
 
     public String[] getFieldNames() {
-
         return processFields(Field::getName).toArray(String[]::new);
     }
 
-    public Constraints[] getFieldColumns() {
- 
+    public Constraints[] getFieldConstraints() {
         return processFields(field -> field.getAnnotation(Constraints.class)).toArray(Constraints[]::new);
     }
 
     private <R> List<R> processFields(Function<Field,R> func) {
-
         return processFields(func, fields);
     }
 
@@ -243,35 +233,30 @@ public class Reflection {
     }
 
     public Class<?> getFieldType(String fieldName) {
-
         return getField(fieldName).getType();
     }
 
     // Default-valued instance methods
 
     private Field getField(String name) {
-
         return getField(model, name);
     }
 
-    private void setFieldValue(Field field, Object value) {
-
-        setFieldValue(tuple, field, value);
+    private Table setFieldValue(Field field, Object value) {
+        return setFieldValue(tuple, field, value);
     }
 
     private Object getFieldValue(Field field) {
-
         return getFieldValue(tuple, field);
     }
 
     private Class<?> getModel() {
-
         return model;
     }
 
     // Primary methods
 
-    static private void setFieldValue(Table tuple, Field field, Object value) {
+    static private Table setFieldValue(Table tuple, Field field, Object value) {
 
         try {
             field.setAccessible(true);
@@ -279,6 +264,8 @@ public class Reflection {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        return tuple;
     }
 
     static private Object getFieldValue(Table tuple, Field field) {
@@ -337,7 +324,7 @@ public class Reflection {
 
     static private Class<?> getModel(String modelName) {
 
-        if (!Table.getModels().stream().map(Class::getSimpleName).toList().contains(modelName)) {
+        if (!Table.hasSubClass(modelName)) {
             throw new IllegalArgumentException("Invalid model name: " + modelName);
         }
 
