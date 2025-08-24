@@ -12,6 +12,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>BackendAPI</module>
+        <module>Backend</module>
     </modules>
 </project>

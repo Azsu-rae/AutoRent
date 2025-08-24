@@ -1,5 +1,0 @@
-Reservation 599.0 2024-12-26 Cash
-Reservation 700.0 2024-12-29 CreditCard
-Reservation 800.0 2025-01-01 DebitCard
-Reservation 500.0 2025-01-06 MobilePaymentApps
-Reservation 950.0 2025-01-08 BankTransfer
