@@ -10,5 +10,5 @@ else
 fi
 
 echo ""
-mvn -pl BackendAPI clean compile exec:java -D exec.mainClass="Main"
+mvn -pl Backend clean compile exec:java -D exec.mainClass="Main"
 echo ""
