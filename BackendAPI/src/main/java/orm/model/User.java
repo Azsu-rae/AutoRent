@@ -7,6 +7,8 @@ import orm.util.Constraints;
 
 import java.util.Vector;
 
+import static orm.util.Reflection.getModelInstance;
+
 public class User extends Table {
 
     static {
@@ -36,17 +38,18 @@ public class User extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new User());
     }
 
     public static Vector<Table> search() {
-
         return search(new User());
     }
 
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("User").reflect.setFieldValue(attName, value));
+    }
 
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
         return search(new User(), attributeName, lowerBound, upperBound);
     }
 
@@ -58,57 +61,47 @@ public class User extends Table {
     }
 
     public User setSurname(String surname) {
-
         this.surname = surname;
         return this;
     }
 
     public User setName(String name) {
-
         this.name = name;
         return this;
     }
 
     public User setEmail(String email) {
-
         this.email = email;
         return this;
     }
 
     public User setPassword(String password) {
-
         this.password = password;
         return this;
     }
 
     public User setRole(String role) {
-
         this.role = role;
         return this;
     }
 
     public String getSurname() {
-
         return this.surname;
     }
 
     public String getName() {
-
         return this.name;
     }
 
     public String getEmail() {
-
         return this.email;
     }
 
     public String getPassword() {
-
         return this.password;
     }
 
     public String getRole() {
-
         return this.role;
     }
 }

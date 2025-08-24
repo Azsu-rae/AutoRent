@@ -3,9 +3,10 @@ package orm.model;
 import orm.Table;
 import orm.util.Constraints;
 import orm.util.Pair;
-import orm.util.Reflection;
 
 import java.util.Vector;
+
+import static orm.util.Reflection.getModelInstance;;
 
 public class Client extends Table {
 
@@ -36,22 +37,18 @@ public class Client extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new Client());
     }
 
     public static Vector<Table> search() {
-
         return search(new Client());
     }
 
     public static Vector<Table> search(String attName, Object value) {
-
-        return search(Reflection.getModelInstance("Client").reflect.setAttribute(attName, value));
+        return search(getModelInstance("Client").reflect.setFieldValue(attName, value));
     }
 
     public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-
         return search(new Client(), boundedAttributeName, lowerBound, upperBound);
     }
 
@@ -63,25 +60,21 @@ public class Client extends Table {
     }
 
     public Client setSurname(String surname) {
-
         this.surname = surname;
         return this;
     }
 
     public Client setName(String name) {
-
         this.name = name;
         return this;
     }
 
     public Client setEmail(String email) {
-
         this.email = email;
         return this;
     }
 
     public Client setPhoneNumber(String phoneNumber) {
-
         this.phoneNumber = phoneNumber;
         return this;
     }
@@ -93,27 +86,22 @@ public class Client extends Table {
     }
 
     public String getSurname() {
-
         return this.surname;
     }
 
     public String getName() {
-
         return this.name;
     }
 
     public String getEmail() {
-
         return this.email;
     }
 
     public String getPhoneNumber() {
-
         return this.phoneNumber;
     }
 
     public String getDrivingLicence() {
-
         return this.drivingLicence;
     }
 }

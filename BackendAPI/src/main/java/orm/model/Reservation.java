@@ -3,7 +3,6 @@ package orm.model;
 import orm.Table;
 
 import orm.util.Pair;
-import orm.util.Reflection;
 import orm.util.Constraints;
 
 import java.util.Vector;
@@ -11,6 +10,8 @@ import java.util.Objects;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+
+import static orm.util.Reflection.getModelInstance;
 
 public class Reservation extends Table {
 
@@ -45,22 +46,18 @@ public class Reservation extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new Reservation());
     }
 
     public static Vector<Table> search() {
-
         return search(new Reservation());
     }
 
     public static Vector<Table> search(String attName, Object value) {
-
-        return search(Reflection.getModelInstance("Reservation").reflect.setAttribute(attName, value));
+        return search(getModelInstance("Reservation").reflect.setFieldValue(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-
         return search(new Reservation(), attributeName, lowerBound, upperBound);
     }
 
@@ -95,38 +92,37 @@ public class Reservation extends Table {
 
         LocalDate currentDate = LocalDate.now();
         return 
-            (currentDate.isAfter(startDate) || currentDate.isEqual(startDate)) && 
-            (currentDate.isBefore(endDate) || currentDate.isEqual(endDate));
+            (currentDate.isAfter(startDate) || currentDate.isEqual(startDate))
+            && (currentDate.isBefore(endDate) || currentDate.isEqual(endDate));
     }
 
-    public void cancel() {
-
-        this.status = "Canceled";
-    }
-
-    public boolean book() {
+    public boolean hasConflict() {
 
         if (!isValid()) {
-            throw new IllegalStateException("Rebooking a reservation of an invalid object!");
+            throw new IllegalStateException("Booking a reservation with an invalid object!");
         }
 
-        var conflictCriteria = new Reservation(null, vehicle, startDate.toString(), endDate.toString());
-
-        if (search(conflictCriteria).size() == 0) {
-            return add();
+        Vector<Table> conflicts = new Vector<>();
+        for (Table tuple : search(new Reservation().setVehicle(vehicle), "startDate", startDate.toString(), endDate.toString())) {
+            Reservation r = (Reservation) tuple;
+            if (!r.getStatus().equals("Canceled")) {
+                conflicts.add(r);
+                break;
+            }
         }
 
-        return false;
+        return (conflicts.size() == 0);
+    }
+
+    public boolean cancel() {
+        this.status = "Canceled";
+        return edit();
     }
 
     public Reservation setClient(Client c) {
 
-        if (c == null) {
+        if (!isValidField(c)) {
             return this;
-        }
-
-        if (!c.isValid() || c.getId() == null) {
-            throw new IllegalArgumentException("Invalid client:\n\n" + c + "\n");
         }
 
         this.client = c;
@@ -136,12 +132,8 @@ public class Reservation extends Table {
 
     public Reservation setVehicle(Vehicle v) {
 
-        if (v == null) {
+        if (!isValidField(v)) {
             return this;
-        }
-
-        if (!v.isValid() || v.getId() == null) {
-            throw new IllegalArgumentException("Invalid vehicle:\n\n" + v + "\n");
         }
 
         this.vehicle = v;
@@ -150,46 +142,38 @@ public class Reservation extends Table {
     }
 
     public Reservation setStartDate(String startDate) {
-
         this.startDate = stringToDate(startDate);
         setTotalAmountAndStatus();
         return this;
     }
 
     public Reservation setEndDate(String endDate) {
-
         this.endDate = stringToDate(endDate);
         setTotalAmountAndStatus();
         return this;
     }
 
     public Client getClient() {
-
         return this.client;
     }
 
     public Vehicle getVehicle() {
-
         return this.vehicle;
     }
 
     public String getStatus() {
-
         return this.status;
     }
 
     public Double getTotalAmount() {
-
         return this.totalAmount;
     }
 
     public String getStartDate() {
-
         return this.startDate.toString();
     }
 
     public String getEndDate() {
-
         return this.endDate.toString();
     }
 }

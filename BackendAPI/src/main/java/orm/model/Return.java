@@ -8,6 +8,8 @@ import orm.util.Constraints;
 import java.time.LocalDate;
 import java.util.Vector;
 
+import static orm.util.Reflection.getModelInstance;
+
 public class Return extends Table {
 
     static {
@@ -40,17 +42,18 @@ public class Return extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new Return());
     }
 
     public static Vector<Table> search() {
-
         return search(new Return());
     }
 
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Return").reflect.setFieldValue(attName, value));
+    }
 
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
         return search(new Return(), attributeName, lowerBound, upperBound);
     }
 
@@ -63,12 +66,8 @@ public class Return extends Table {
 
     public Return setReservation(Reservation r) {
 
-        if (r == null) {
+        if (!isValidField(r)) {
             return this;
-        }
-
-        if (!r.isValid() || r.getId() == null) {
-            throw new IllegalArgumentException("Invalid reservation:\n\n" + r + "\n");
         }
 
         this.reservation = r;
@@ -76,40 +75,33 @@ public class Return extends Table {
     }
 
     public Return setReturnDate(String returnDate) {
-
         this.returnDate = stringToDate(returnDate);
         return this;
     }
 
     public Return setReturnState(String returnState) {
-
         this.returnState = returnState;
         return this;
     }
 
     public Return setAdditionalFees(Double additionalFees) {
-
         this.additionalFees = additionalFees;
         return this;
     }
 
     public Reservation getReservation() {
-
         return this.reservation;
     }
 
     public String getReturnDate() {
-
         return this.returnDate.toString();
     }
 
     public String getReturnState() {
-
         return this.returnState;
     }
 
     public Double getAdditionalFees() {
-
         return this.additionalFees;
     }
 }

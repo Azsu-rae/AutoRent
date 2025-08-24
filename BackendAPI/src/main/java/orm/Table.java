@@ -31,11 +31,7 @@ import static orm.util.Reflection.getModelInstance;
 public abstract class Table {
 
     private static String path = "./BackendAPI/ressources/databases/AutoRent.db";
-
     private static Set<Class<? extends Table>> models = new HashSet<>();
-    protected static void registerModel(Class<? extends Table> model) {
-        models.add(model);
-    }
 
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
@@ -56,11 +52,11 @@ public abstract class Table {
 
         StringBuilder s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
 
-        int n = reflect.getAttributesNumber();
+        int n = reflect.getFieldsNumber();
         boolean first = true;
         for (int i=1;i<n;i++) {
 
-            Object curr = reflect.getAttribute(i);
+            Object curr = reflect.getFieldValue(i);
             if (curr == null) {
                 continue;
             }
@@ -109,7 +105,7 @@ public abstract class Table {
     }
 
     public static boolean isSearchable(Table tuple) {
-        return db(tuple.query.sqliteTableName);
+        return db(tuple.query.tableName);
     }
 
     public static Vector<Table> search(String className) {
@@ -149,7 +145,7 @@ public abstract class Table {
         }
 
         Table instance = discreteCriterias.elementAt(0);
-        if (!db(instance.query.sqliteTableName)) {
+        if (!db(instance.query.tableName)) {
             throw new IllegalStateException("No Database or no table found!");
         }
 
@@ -173,6 +169,7 @@ public abstract class Table {
     public boolean add() {
 
         if (!isValid()) {
+            System.err.println("This tuple is invalid:\n\n" + this);
             return false;
         }
 
@@ -228,7 +225,7 @@ public abstract class Table {
         }
 
         boolean success = reflect.cascadeDeletion();
-        String sql = "DELETE FROM " + query.sqliteTableName + " WHERE id=?";
+        String sql = "DELETE FROM " + query.tableName + " WHERE id=?";
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -245,20 +242,6 @@ public abstract class Table {
         return success;
     }
 
-    public boolean isValid() {
-
-        boolean valid = true;
-        for (int i=1;i<reflect.getAttributesNumber();i++) {
-            Constraints col = reflect.getFieldConstraints()[i];
-            if (!col.nullable() && reflect.getAttribute(i) == null) {
-                valid = false;
-                break;
-            }
-        }
-
-        return valid;
-    }
-
     public static boolean hasSubClass(String className) {
         return getModelNames().contains(className);
     }
@@ -271,17 +254,8 @@ public abstract class Table {
         return Collections.unmodifiableSet(models);
     }
 
-    protected static LocalDate stringToDate(String s) {
-
-        if (s == null) {
-            return null;
-        }
-
-        try {
-            return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid date format: " + s);
-        }
+    protected static void registerModel(Class<? extends Table> model) {
+        models.add(model);
     }
 
     private static boolean db(String sqliteTableName) {
@@ -303,5 +277,46 @@ public abstract class Table {
         }
 
         return ans;
+    }
+
+    public boolean isValid() {
+
+        boolean valid = true;
+        for (int i=1;i<reflect.getFieldsNumber();i++) {
+            Constraints col = reflect.getFieldConstraints()[i];
+            if (!col.nullable() && reflect.getFieldValue(i) == null) {
+                valid = false;
+                break;
+            }
+        }
+
+        return valid;
+    }
+
+    protected boolean isValidField(Table tuple) {
+
+        if (tuple == null) {
+            return false;
+        }
+
+        if (!tuple.isValid() || tuple.getId() == null) {
+            String s = "Invalid %s:\n\n%s";
+            throw new IllegalArgumentException(String.format(s, tuple.getClass().getSimpleName(), tuple));
+        }
+
+        return true;
+    }
+
+    protected static LocalDate stringToDate(String s) {
+
+        if (s == null) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format: " + s);
+        }
     }
 }

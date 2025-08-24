@@ -3,11 +3,12 @@ package orm.model;
 import orm.Table;
 
 import orm.util.Pair;
-import orm.util.Reflection;
 import orm.util.Constraints;
 
 import java.time.LocalDate;
 import java.util.Vector;
+
+import static orm.util.Reflection.getModelInstance;
 
 public class Payment extends Table {
 
@@ -28,7 +29,6 @@ public class Payment extends Table {
     public Payment() {}
 
     public Payment(Reservation reservation, String amount, String date, String method) {
-
         this(reservation, Double.parseDouble(amount), date, method);
     }
 
@@ -41,22 +41,18 @@ public class Payment extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new Payment());
     }
 
     public static Vector<Table> search() {
-
         return search(new Payment());
     }
 
     public static Vector<Table> search(String attName, Object value) {
-
-        return search(Reflection.getModelInstance("Payment").reflect.setAttribute(attName, value));
+        return search(getModelInstance("Payment").reflect.setFieldValue(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-
         return search(new Payment(), attributeName, lowerBound, upperBound);
     }
 
@@ -68,13 +64,9 @@ public class Payment extends Table {
     }
 
     public Payment setReservation(Reservation r) {
-        
-        if (r == null) {
-            return this;
-        }
 
-        if (!r.isValid() || r.getId() == null) {
-            throw new IllegalArgumentException("Invalid reservation:\n\n" + r);
+        if (!isValidField(r)) {
+            return this;
         }
 
         this.reservation = r;
@@ -82,40 +74,33 @@ public class Payment extends Table {
     }
 
     public Payment setDate(String date) {
-
         this.date = stringToDate(date);
         return this;
     }
 
     public Payment setMethod(String method) {
-
         this.method = method;
         return this;
     }
 
     public Payment setAmount(Double amount) {
-
         this.amount = amount;
         return this;
     }
 
     public Reservation getReservation() {
-        
         return this.reservation;
     }
 
     public String getDate() {
-
         return this.date.toString();
     }
 
     public String getMethod() {
-
         return this.method;
     }
 
     public Double getAmount() {
-
         return this.amount;
     }
 }

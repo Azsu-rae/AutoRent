@@ -10,14 +10,14 @@ class SQLiteQueryConstructor {
     final private Table instance;
     final private Vector<Column> columns;
 
-    final String sqliteTableName;
+    final String tableName;
     final public DataDefinition define;
     final public DataManipulation manipulate;
 
     SQLiteQueryConstructor(Table instance) {
 
         this.instance = instance;
-        this.sqliteTableName = instance.getClass().getSimpleName().toLowerCase() + "s";
+        this.tableName = instance.getClass().getSimpleName().toLowerCase() + "s";
 
         this.columns = new Vector<>();
 
@@ -67,7 +67,7 @@ class SQLiteQueryConstructor {
 
         Pair<String,Vector<Object>> select(Vector<? extends Table> discreteCriterias, Vector<Pair<Object,Object>> boundedCriterias) {
 
-            init("SELECT * FROM " + sqliteTableName);
+            init("SELECT * FROM " + tableName);
 
             for (i=0;i<columns.size();i++) {
 
@@ -90,13 +90,13 @@ class SQLiteQueryConstructor {
 
         Pair<String,Vector<Object>> insert() {
 
-            init("INSERT INTO " + sqliteTableName + "(");
+            init("INSERT INTO " + tableName + "(");
             StringBuilder valuesQuery = new StringBuilder("VALUES (");
 
             boolean first = true;
             for (i=1;i<columns.size();i++) {
 
-                Object curr = instance.reflect.getAttribute(i);
+                Object curr = instance.reflect.getFieldValue(i);
                 if (curr == null) {
                     continue;
                 }
@@ -116,13 +116,13 @@ class SQLiteQueryConstructor {
 
         Pair<String,Vector<Object>> update() {
 
-            StringBuilder query = new StringBuilder("UPDATE " + sqliteTableName + " SET ");
+            StringBuilder query = new StringBuilder("UPDATE " + tableName + " SET ");
             Vector<Object> inputs = new Vector<>();
 
             boolean first = true;
             for (int i=1;i<columns.size();i++) {
 
-                Object curr = instance.reflect.getAttribute(i);
+                Object curr = instance.reflect.getFieldValue(i);
                 if (curr == null) {
                     continue;
                 }
@@ -172,7 +172,7 @@ class SQLiteQueryConstructor {
 
             for (int j=0;j<discreteCriterias.size();j++) {
 
-                Object curr = discreteCriterias.elementAt(j).reflect.getAttribute(i);
+                Object curr = discreteCriterias.elementAt(j).reflect.getFieldValue(i);
                 if (curr == null) {
                     continue;
                 }
@@ -260,13 +260,13 @@ class SQLiteQueryConstructor {
 
         private DataDefinition() {
 
-            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + sqliteTableName + "(");
+            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(");
             String[] fieldNames = instance.reflect.getFieldNames();
             Constraints[] contraints = instance.reflect.getFieldConstraints();
             Vector<String> foreignKeys = new Vector<>();
             boolean first = true;
 
-            for (int i=0;i<instance.reflect.getAttributesNumber();i++) {
+            for (int i=0;i<instance.reflect.getFieldsNumber();i++) {
 
                 if (contraints[i].foreignKey()) {
                     foreignKeys.add("FOREIGN KEY (id_" + fieldNames[i] + ") REFERENCES " + fieldNames[i] + "s(id)");

@@ -8,6 +8,8 @@ import orm.util.Constraints;
 import java.time.LocalDate;
 import java.util.Vector;
 
+import static orm.util.Reflection.getModelInstance;
+
 public class Vehicle extends Table {
 
     static {
@@ -57,17 +59,18 @@ public class Vehicle extends Table {
     }
 
     public static boolean isSearchable() {
-
         return isSearchable(new Vehicle());
     }
 
     public static Vector<Table> search() {
-
         return search(new Vehicle());
     }
 
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Vehicle").reflect.setFieldValue(attName, value));
+    }
 
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
         return search(new Vehicle(), attributeName, lowerBound, upperBound);
     }
 
@@ -78,91 +81,75 @@ public class Vehicle extends Table {
         return search(tuples, boundedCriterias);
     }
 
-    public Vehicle setPricePerDay(Double d) {
-
-        this.pricePerDay = d;
+    public Vehicle setPricePerDay(Double pricePerDay) {
+        this.pricePerDay = pricePerDay;
         return this;
     }
 
-    public Vehicle setState(String s) {
-
-        this.state = s;
+    public Vehicle setState(String state) {
+        this.state = state;
         return this;
     }
 
-    public Vehicle setMaintenanceDate(String s) {
-
-        this.maintenanceDate = stringToDate(s);
+    public Vehicle setMaintenanceDate(String maintenanceDate) {
+        this.maintenanceDate = stringToDate(maintenanceDate);
         return this;
     }
 
-    public Vehicle setYear(Integer s) {
-
-        this.year = s;
+    public Vehicle setYear(Integer year) {
+        this.year = year;
         return this;
     }
 
-    public Vehicle setBrand(String s) {
-
-        this.brand = s;
+    public Vehicle setBrand(String brand) {
+        this.brand = brand;
         return this;
     }
 
-    public Vehicle setModel(String s) {
-
-        this.model = s;
+    public Vehicle setModel(String model) {
+        this.model = model;
         return this;
     }
 
-    public Vehicle setVehicleType(String s) {
-
-        this.vehicleType = s;
+    public Vehicle setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
         return this;
     }
 
-    public Vehicle setFuelType(String s) {
-
-        this.fuelType = s;
+    public Vehicle setFuelType(String fuelType) {
+        this.fuelType = fuelType;
         return this;
     }
 
     public Double getPricePerDay() {
-
         return this.pricePerDay;
     }
 
     public String getState() {
-
         return this.state;
     }
 
     public String getMaintenanceDate() {
-
         return this.maintenanceDate.toString();
     }
 
     public Integer getYear() {
-
         return this.year;
     }
 
     public String getBrand() {
-
         return this.brand;
     }
 
     public String getModel() {
-
         return this.model;
     }
 
     public String getVehicleType() {
-
         return this.vehicleType;
     }
 
     public String getFuelType() {
-
         return this.fuelType;
     }
 }

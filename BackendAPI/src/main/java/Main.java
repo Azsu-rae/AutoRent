@@ -231,10 +231,13 @@ public class Main {
         createdReservations.add(new Reservation().setStartDate("2024-12-24").setEndDate("2025-01-12"));
 
         for (int i=0;i<createdReservations.size();i++) {
-            createdReservations.elementAt(i)
-                .setVehicle( (Vehicle) vehicles.elementAt(i))
-                .setClient( (Client) clients.elementAt(i))
-                .add();
+            Reservation r = createdReservations.elementAt(i);
+            r.setVehicle((Vehicle)vehicles.elementAt(i));
+            Client ci = (Client) clients.elementAt(i);
+            r.setClient(ci);
+            if (!r.add()) {
+                System.err.println("We got a problem!");
+            }
         }
 
         Vector<Table> reservations = Reservation.search();

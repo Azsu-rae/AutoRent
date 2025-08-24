@@ -83,31 +83,7 @@ public class Reflection {
         return types;
     }
 
-    // Attributes methods
-
-    public int getAttributesNumber() {
-        return fields.length;
-    }
-
-    public Class<?> getAttributeClass(int i) {
-        return getFieldClasses()[i];
-    }
-
-    public Object getAttribute(int i) {
-        return getFieldValue(fields[i]);
-    }
-
-    public Table setAttribute(int i, Object value) {
-        setFieldValue(fields[i], value);
-        return tuple;
-    }
-
-    public Table setAttribute(String name, Object value) {
-        setFieldValue(getField(name), value);
-        return tuple;
-    }
-
-    // Field management methods
+    // Cascading deletion
 
     public boolean cascadeDeletion() {
 
@@ -183,6 +159,38 @@ public class Reflection {
         }, getModel(modelName).getDeclaredFields()).toArray(Field[]::new);
     }
 
+    // Attributes methods
+
+    public int getFieldsNumber() {
+        return fields.length;
+    }
+
+    public Class<?> getFieldClass(int i) {
+        return getFieldClasses()[i];
+    }
+
+    public Class<?> getFieldClass(String name) {
+        return getField(name).getType();
+    }
+
+    public Object getFieldValue(int i) {
+        return getFieldValue(fields[i]);
+    }
+
+    public Object getFieldValue(String name) {
+        return getFieldValue(getField(name));
+    }
+
+    public Table setFieldValue(int i, Object value) {
+        setFieldValue(fields[i], value);
+        return tuple;
+    }
+
+    public Table setFieldValue(String name, Object value) {
+        setFieldValue(getField(name), value);
+        return tuple;
+    }
+
     public List<String> getDiscreteFieldNames() {
 
         var boundeds = getBoundedFieldNames(); 
@@ -230,10 +238,6 @@ public class Reflection {
         }
 
         return attributes;
-    }
-
-    public Class<?> getFieldType(String fieldName) {
-        return getField(fieldName).getType();
     }
 
     // Default-valued instance methods

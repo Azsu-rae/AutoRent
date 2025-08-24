@@ -48,7 +48,12 @@ public class Database {
                 while (scanner.hasNextLine()) {
                     lines.add(scanner.nextLine());
                 }
-                input(parse(lines, modelName));
+
+                if (input(parse(lines, modelName))) {
+                    System.out.println("Inputed " + lines.size() + " lines to the '" + modelName + "' table");
+                } else {
+                    System.out.println("Faillure to input to the '" + modelName + "' table");
+                }
 
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException("File not found: " + e.getMessage());
