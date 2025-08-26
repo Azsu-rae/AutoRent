@@ -30,7 +30,7 @@ import static orm.util.Reflection.getModelInstance;
 
 public abstract class Table {
 
-    private static String path = "./BackendAPI/ressources/databases/AutoRent.db";
+    private static String path = "./Backend/ressources/databases/AutoRent.db";
     private static Set<Class<? extends Table>> models = new HashSet<>();
 
     @Constraints(type = "INTEGER", primaryKey = true)

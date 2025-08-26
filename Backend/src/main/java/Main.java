@@ -38,7 +38,7 @@ public class Main {
 
         Client ilyas = new Client("Ilyas", "Ait-Ameur", "aitameurmedilyas@gmail.com", "0560308452", "DKSF23");
 
-        // creates a client. It is not, however, immediately inputed in the database. For that you'll have to 
+        // creates a client. It is not, however, immediately inputed in the database. For that you'll have to
         // add it using the method:
 
         boolean success = ilyas.add();
