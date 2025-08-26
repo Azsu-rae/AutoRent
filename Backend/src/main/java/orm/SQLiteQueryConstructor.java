@@ -31,14 +31,12 @@ class SQLiteQueryConstructor {
         Constraints constraints;
 
         private Column(String name, Constraints constraints) {
-
             this.name = name;
             this.constraints = constraints;
         }
     }
 
     Column getColumn(int i) {
-
         return columns.elementAt(i);
     }
 

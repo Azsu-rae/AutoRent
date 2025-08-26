@@ -103,30 +103,25 @@ class DataMapper {
     }
 
     private static void addType(Class<?> type, ResultSetGetter resultSetGetter, PreparedStatementSetter pstmtSetter) {
-
         javaClassPstmtSetter.put(type, pstmtSetter);
         javaClassResultSetGetter.put(type, resultSetGetter);
     }
 
     private static PreparedStatementSetter getSetter(Class<?> type) {
-
         return javaClassPstmtSetter.get(type);
     }
 
     private static ResultSetGetter getGetter(Class<?> type) {
-
         return javaClassResultSetGetter.get(type);
     }
 
     @FunctionalInterface
     private interface PreparedStatementSetter {
-
         public void set(PreparedStatement pstmt, int i, Object value) throws SQLException;
     }
 
     @FunctionalInterface
     private interface ResultSetGetter {
-
         public Object get(ResultSet rs, String col) throws SQLException;
     }
 }
