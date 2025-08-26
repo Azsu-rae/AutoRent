@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DB_PATH="BackendAPI/ressources/databases/AutoRent.db"
+DB_PATH="Backend/ressources/databases/AutoRent.db"
 echo "Initializing database..."
 if [ -f "$DB_PATH" ]; then
     rm "$DB_PATH"

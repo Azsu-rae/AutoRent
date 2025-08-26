@@ -9,8 +9,8 @@
 !.gitkeep
 
 # Ignore build directory
-BackendAPI/target/
-BackendMCP/target/
+./Backend/target/
 
 # Ignore specific file
 TODO.md
+AutoRent.db
