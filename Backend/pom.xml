@@ -24,7 +24,6 @@
 
     <build>
         <plugins>
-            <!-- Allows you to run the main class -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

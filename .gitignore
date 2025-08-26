@@ -9,7 +9,7 @@
 !.gitkeep
 
 # Ignore build directory
-./Backend/target/
+Backend/target/
 
 # Ignore specific file
 TODO.md
