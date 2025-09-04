@@ -1,0 +1,16 @@
+
+# Ignore all hidden files
+.*
+
+# But keep these
+!.gitignore
+!.gitattributes
+!.github/
+!.gitkeep
+
+# Ignore build directory
+Backend/target/
+
+# Ignore specific file
+TODO.md
+AutoRent.db

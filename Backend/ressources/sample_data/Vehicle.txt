@@ -1,0 +1,10 @@
+29.99 Available 2024-12-01 2022 Toyota Corolla Sedan Gasoline
+35.50 Rented 2023-10-15 2020 Ford Fiesta Hatchback Diesel
+40.00 Unavailable 2024-05-10 2021 Tesla Model3 Electric Electric
+25.75 Available 2024-11-20 2018 Honda Civic Coupe Hybrid
+50.00 Rented 2023-08-30 2023 BMW X5 SUV Gasoline
+18.99 Available 2024-03-25 2017 Volkswagen Polo Hatchback Diesel
+22.50 Unavailable 2024-07-12 2019 Hyundai Elantra Sedan Gasoline
+60.00 Available 2024-01-18 2024 Audi Q7 SUV Gasoline
+28.00 Rented 2023-09-05 2020 Chevrolet Malibu Sedan Gasoline
+32.75 Available 2024-06-30 2019 Nissan Altima Sedan Gasoline

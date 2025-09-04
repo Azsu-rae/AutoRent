@@ -1,0 +1,107 @@
+package orm.model;
+
+import orm.Table;
+import orm.util.Constraints;
+import orm.util.Pair;
+
+import java.util.Vector;
+
+import static orm.util.Reflection.getModelInstance;;
+
+public class Client extends Table {
+
+    static {
+        registerModel(Client.class);
+    }
+
+    @Constraints(type = "TEXT", nullable = false, searchedText = true)
+    private String surname;
+    @Constraints(type = "TEXT", nullable = false, searchedText = true)
+    private String name;
+    @Constraints(type = "TEXT", nullable = false)
+    private String email;
+    @Constraints(type = "TEXT", nullable = false)
+    private String drivingLicence;
+    @Constraints(type = "TEXT", nullable = false)
+    private String phoneNumber;
+
+    public Client() {}
+
+    public Client(String name, String surname, String email, String phoneNumber, String drivingLicence) {
+
+        this.name = name;
+        this.surname = surname;
+        this.drivingLicence = drivingLicence;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable(new Client());
+    }
+
+    public static Vector<Table> search() {
+        return search(new Client());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Client").reflect.setFieldValue(attName, value));
+    }
+
+    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
+        return search(new Client(), boundedAttributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Client());
+        return search(tuples, boundedCriterias);
+    }
+
+    public Client setSurname(String surname) {
+        this.surname = surname;
+        return this;
+    }
+
+    public Client setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Client setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public Client setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        return this;
+    }
+
+    public Client setDrivingLicence(String drivingLicence) {
+
+        this.drivingLicence = drivingLicence;
+        return this;
+    }
+
+    public String getSurname() {
+        return this.surname;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    public String getDrivingLicence() {
+        return this.drivingLicence;
+    }
+}

@@ -1,0 +1,107 @@
+package orm.model;
+
+import orm.Table;
+
+import orm.util.Pair;
+import orm.util.Constraints;
+
+import java.time.LocalDate;
+import java.util.Vector;
+
+import static orm.util.Reflection.getModelInstance;
+
+public class Return extends Table {
+
+    static {
+        registerModel(Return.class);
+    }
+
+    @Constraints(type = "INTEGER", nullable = false, foreignKey = true)
+    private Reservation reservation;
+
+    @Constraints(type = "DATE", nullable = false, bounded = true)
+    private LocalDate returnDate;
+    @Constraints(type = "TEXT", nullable = false)
+    private String returnState;
+    @Constraints(type = "DECIMAL", nullable = false, bounded = true)
+    private Double additionalFees;
+
+    public Return() {}
+
+    public Return(Reservation reservation, String returnDate, String returnState, String additionalFees) {
+
+        this(reservation, returnDate, returnDate, Double.parseDouble(additionalFees));
+    }
+
+    public Return(Reservation reservation, String returnDate, String returnState, Double additionalFees) {
+
+        setReservation(reservation);
+        this.returnDate = stringToDate(returnDate);
+        this.returnState = returnState;
+        this.additionalFees = additionalFees;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable(new Return());
+    }
+
+    public static Vector<Table> search() {
+        return search(new Return());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Return").reflect.setFieldValue(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new Return(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Return());
+        return search(tuples, boundedCriterias);
+    }
+
+    public Return setReservation(Reservation r) {
+
+        if (!isValidField(r)) {
+            return this;
+        }
+
+        this.reservation = r;
+        return this;
+    }
+
+    public Return setReturnDate(String returnDate) {
+        this.returnDate = stringToDate(returnDate);
+        return this;
+    }
+
+    public Return setReturnState(String returnState) {
+        this.returnState = returnState;
+        return this;
+    }
+
+    public Return setAdditionalFees(Double additionalFees) {
+        this.additionalFees = additionalFees;
+        return this;
+    }
+
+    public Reservation getReservation() {
+        return this.reservation;
+    }
+
+    public String getReturnDate() {
+        return this.returnDate.toString();
+    }
+
+    public String getReturnState() {
+        return this.returnState;
+    }
+
+    public Double getAdditionalFees() {
+        return this.additionalFees;
+    }
+}

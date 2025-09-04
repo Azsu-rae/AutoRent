@@ -1,0 +1,5 @@
+Reservation 2025-01-10 Good 0.00
+Reservation 2025-01-12 Flawed 15.00
+Reservation 2025-01-15 Good 0.00
+Reservation 2025-01-18 Flawed 10.00
+Reservation 2025-01-20 Good 0.00
