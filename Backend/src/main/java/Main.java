@@ -11,7 +11,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        tutorial();
+        readSampleData();
+        display();
     }
 
     private static void tutorial() {

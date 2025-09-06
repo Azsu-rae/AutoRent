@@ -15,7 +15,7 @@ import orm.Table;
 
 public class Database {
 
-    private static String path = "./BackendAPI/ressources/sample_data/";
+    private static String path = "./Backend/ressources/sample_data/";
 
     private static HashMap<Pair<String,String>,Integer> occurences = new HashMap<>();
 
