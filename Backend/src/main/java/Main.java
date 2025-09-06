@@ -25,7 +25,7 @@ public class Main {
          * a SQLite database through Java objects, eliminating the need to write SQL queries manually.
          * It supports CRUD operations (Create, Read, Update, Delete), which we will explore shortly.
          *
-         * Carefully reviewing this file should provide a clear understanding of how to utilize 
+         * Careful reviewing of this file should provide a clear understanding of how to utilize 
          * the ORM effectively.
          *
          * Hope this helps!
