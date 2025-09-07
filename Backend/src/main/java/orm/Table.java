@@ -23,6 +23,8 @@ import orm.util.Constraints;
 import orm.util.Pair;
 import orm.util.Reflection;
 
+import static orm.util.Utils.*;
+
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
 
@@ -30,8 +32,12 @@ import static orm.util.Reflection.getModelInstance;
 
 public abstract class Table {
 
-    private static String path = "./Backend/ressources/databases/AutoRent.db";
+    private static String dbPath = "./Backend/ressources/databases/AutoRent.db";
+
     private static Set<Class<? extends Table>> models = new HashSet<>();
+    protected static void registerModel(Class<? extends Table> model) {
+        models.add(model);
+    }
 
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
@@ -54,6 +60,7 @@ public abstract class Table {
 
         int n = reflect.getFieldsNumber();
         boolean first = true;
+
         for (int i=1;i<n;i++) {
 
             Object curr = reflect.getFieldValue(i);
@@ -123,7 +130,8 @@ public abstract class Table {
     public static Vector<Table> search(Table discreteCriteria, String boundedAttributeName, Object lowerBound, Object upperBound) {
 
         if (discreteCriteria == null) {
-            throw new IllegalArgumentException("Give a discrete criteria when searching!");
+            String s = "Give a discrete criteria when searching!";
+            throw new IllegalArgumentException(format(s));
         }
 
         Vector<Table> discreteContainer = new Vector<>();
@@ -141,26 +149,28 @@ public abstract class Table {
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Pair<Object,Object>> boundedCriterias) {
 
         if (discreteCriterias == null || discreteCriterias.size() == 0) {
-            throw new IllegalArgumentException("Give at least one discrete criteria when searching!");
+            String s = "Give at least one discrete criteria when searching!";
+            throw new IllegalArgumentException(format(s));
         }
 
         Table instance = discreteCriterias.elementAt(0);
         if (!db(instance.query.tableName)) {
-            throw new IllegalStateException("No Database or no table found!");
+            String s = "No Database or no table found for the model: %s while attempting a search!";
+            throw new IllegalStateException(format(s, instance.getClass().getSimpleName()));
         }
 
         var scratched = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
         Vector<Table> tuples = null;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
 
             bindValues(pstmt, scratched.second);
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            System.err.println("Search query: " + scratched.first);
             e.printStackTrace();
+            error("Search query: %s", scratched.first);
         }
 
         return tuples;
@@ -169,13 +179,13 @@ public abstract class Table {
     public boolean add() {
 
         if (!isValid()) {
-            System.err.println("This tuple is invalid:\n\n" + this);
-            return false;
+            String s = "Attempting to add an invalid tuple:\n\n%s";
+            throw new IllegalArgumentException(format(s, this));
         }
 
         var scratched = query.manipulate.insert();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              Statement stmt = conn.createStatement();) {
 
             stmt.execute(query.define.table());
@@ -186,9 +196,10 @@ public abstract class Table {
             pstmt.close();
 
         } catch (SQLException e) {
-            System.err.println("Table creation query:\n" + query.define.table());
-            System.err.println("Insertion query: " + scratched.first);
             e.printStackTrace();
+            error("Table creation query:\n\n%s", query.define.table());
+            error("Insertion query: %s", scratched.first);
+
             return false;
         }
 
@@ -197,21 +208,28 @@ public abstract class Table {
 
     public boolean edit() {
 
-        if (!isValid() || !db(query.define.table()) || id == null) {
-            return false;
+        if (!db(query.tableName)) {
+            String s = "No database or no table found for the class: %s while attempting deletion!";
+            throw new IllegalStateException(format(s, getClass().getSimpleName()));
+        }
+
+        if (!isValid() || id == null) {
+            String s = "Editting attempt on invalid object:\n\n%s";
+            throw new IllegalArgumentException(format(s, this));
         }
 
         var scratched = query.manipulate.update();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
 
             bindValues(pstmt, scratched.second);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Updating query: " + scratched.first);
             e.printStackTrace();
+            error("Updating query: %s", scratched.first);
+
             return false;
         }
 
@@ -220,26 +238,37 @@ public abstract class Table {
 
     public boolean delete() {
 
-        if (!db(query.define.table()) || id == null) {
-            return false;
+        if (!db(query.define.table())) {
+            String s = "No database or no table found while attempting deletion for class: %s";
+            throw new IllegalStateException(format(s, getClass().getSimpleName()));
         }
 
-        boolean success = reflect.cascadeDeletion();
-        String sql = "DELETE FROM " + query.tableName + " WHERE id=?";
+        if (id == null) {
+            String s = "Pass an ID on a tuple you wish to delete:\n\n%s";
+            throw new IllegalArgumentException(format(s, this));
+        }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
+        if (!reflect.cascadeDeletion()) {
+            String s = "Faillure to cascade deletion on this %s:\n\n%s";
+            throw new IllegalStateException(format(s, getClass().getSimpleName(), this));
+        }
+
+        String sql = format("DELETE FROM %s WHERE id=?", query.tableName);
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, this.id);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Deletion query: " + sql);
             e.printStackTrace();
-            success = false;
+            error("Deletion query: %s", sql);
+
+            return false;
         }
 
-        return success;
+        return true;
     }
 
     public static boolean hasSubClass(String className) {
@@ -254,26 +283,24 @@ public abstract class Table {
         return Collections.unmodifiableSet(models);
     }
 
-    protected static void registerModel(Class<? extends Table> model) {
-        models.add(model);
-    }
-
     private static boolean db(String sqliteTableName) {
 
+        File db = new File(dbPath);
+        if (!db.exists() || !db.isFile()) {
+            return false;
+        }
+
+        String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='%s';";
         boolean ans = false;
 
-        File db = new File(path);
-        if (db.exists() && db.isFile()) {
-            String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + sqliteTableName + "';";
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + path);
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(checkTable)) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(format(checkTable, sqliteTableName))) {
 
-                ans = rs.next();
+            ans = rs.next();
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return ans;
@@ -301,7 +328,7 @@ public abstract class Table {
 
         if (!tuple.isValid() || tuple.getId() == null) {
             String s = "Invalid %s:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, tuple.getClass().getSimpleName(), tuple));
+            throw new IllegalArgumentException(format(s, tuple.getClass().getSimpleName(), tuple));
         }
 
         return true;

@@ -32,7 +32,15 @@ public class Database {
 
         for (String className : Table.getModelNames()) {
             if (Table.isSearchable(className)) {
-                delete(Table.search(className));
+
+                String s;
+                if (delete(Table.search(className))) {
+                    s = "Deleted: %s";
+                } else {
+                    s = "Deletion failed for: %s";
+                }
+
+                System.out.println(String.format(s, className));
             }
         }
     }
