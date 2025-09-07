@@ -28,6 +28,7 @@ $javaFiles = Get-ChildItem -Recurse -Filter *.java -Path $SRC_DIR | ForEach-Obje
 javac -d $OUT_DIR $javaFiles
 
 Write-Host "Compilation successful!"
+Write-Host ""
 
 # Run program (use `;` for Windows classpath, `:` for Linux/macOS)
 $classpath = "$OUT_DIR;$SQLITE_JAR"
