@@ -25,7 +25,7 @@ public class Pair<U, V> {
     @Override
     public String toString() {
 
-        return attributeName + " = [" + first.toString() + ", " + second.toString() + "]";
+        return String.format("%s = [%s, %s]", attributeName, first, second);
     }
 
     @Override
@@ -39,9 +39,9 @@ public class Pair<U, V> {
 
         Pair<?,?> pair = (Pair<?,?>) obj;
         return
-            (attributeName != null ?  attributeName.equals(pair.attributeName) : attributeName == pair.attributeName) &&
-            (first != null ?  first.equals(pair.first) : first == pair.first) &&
-            (second != null ?  second.equals(pair.second) : second == pair.second);
+            (attributeName != null ?  attributeName.equals(pair.attributeName) : attributeName == pair.attributeName)
+            && (first != null ?  first.equals(pair.first) : first == pair.first)
+            && (second != null ?  second.equals(pair.second) : second == pair.second);
     }
 
     @Override

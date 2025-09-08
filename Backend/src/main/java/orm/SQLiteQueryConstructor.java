@@ -5,6 +5,8 @@ import java.util.Vector;
 import orm.util.Constraints;
 import orm.util.Pair;
 
+import static orm.util.Utils.format;
+
 class SQLiteQueryConstructor {
 
     final private Table instance;
@@ -63,13 +65,15 @@ class SQLiteQueryConstructor {
             close = false;
         }
 
-        Pair<String,Vector<Object>> select(Vector<? extends Table> discreteCriterias, Vector<Pair<Object,Object>> boundedCriterias) {
+        Pair<String,Vector<Object>> select(
+            Vector<? extends Table> discreteCriterias,
+            Vector<Pair<Object,Object>> boundedCriterias) {
 
             init("SELECT * FROM " + tableName);
 
             for (i=0;i<columns.size();i++) {
 
-                Column col= getColumn(i);
+                Column col = getColumn(i);
 
                 if (col.constraints.upperBound()) {
                     continue;
@@ -144,7 +148,8 @@ class SQLiteQueryConstructor {
             for (Pair<Object,Object> criteria : boundedCriterias) {
 
                 if (!criteria.isValidCriteriaFor(instance.reflect)) {
-                    throw new IllegalArgumentException("Invalid bounded criteria: " + criteria + "!");
+                    String s = "Invalid bounded criteria: %s!";
+                    throw new IllegalArgumentException(format(s, criteria));
                 }
 
                 if (!criteria.attributeName.equals(colName)) {
@@ -224,10 +229,8 @@ class SQLiteQueryConstructor {
             }
 
             if (upperBoundName.equals("")) {
-                throw new IllegalStateException(
-                    "Couldn't find a name for the upper bound! Check your codebase for the class " + 
-                    instance.getClass().getSimpleName() + "!"
-                );
+                String s = "Couldn't find a name for the upper bound! Check your codebase for the class %s!";
+                throw new IllegalStateException(format(s, instance.getClass().getSimpleName() + "!"));
             }
 
             return upperBoundName;

@@ -24,11 +24,10 @@ import orm.util.Pair;
 import orm.util.Reflection;
 
 import static orm.util.Utils.*;
+import static orm.util.Reflection.getModelInstance;
 
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
-
-import static orm.util.Reflection.getModelInstance;
 
 public abstract class Table {
 
@@ -58,10 +57,8 @@ public abstract class Table {
 
         StringBuilder s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
 
-        int n = reflect.getFieldsNumber();
         boolean first = true;
-
-        for (int i=1;i<n;i++) {
+        for (int i=1;i<reflect.getFieldsNumber();i++) {
 
             Object curr = reflect.getFieldValue(i);
             if (curr == null) {
@@ -127,7 +124,11 @@ public abstract class Table {
         return search(discreteCriterias, null);
     }
 
-    public static Vector<Table> search(Table discreteCriteria, String boundedAttributeName, Object lowerBound, Object upperBound) {
+    public static Vector<Table> search(
+        Table discreteCriteria,
+        String boundedAttributeName,
+        Object lowerBound,
+        Object upperBound) {
 
         if (discreteCriteria == null) {
             String s = "Give a discrete criteria when searching!";
@@ -146,7 +147,9 @@ public abstract class Table {
         return search(discreteContainer, boundedContainer);
     }
 
-    public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> search(
+        Vector<? extends Table> discreteCriterias,
+        Vector<Pair<Object,Object>> boundedCriterias) {
 
         if (discreteCriterias == null || discreteCriterias.size() == 0) {
             String s = "Give at least one discrete criteria when searching!";
@@ -169,8 +172,7 @@ public abstract class Table {
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            error("Search query: %s", scratched.first);
+            error(e, "Search query: %s", scratched.first);
         }
 
         return tuples;
@@ -196,9 +198,12 @@ public abstract class Table {
             pstmt.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            error("Table creation query:\n\n%s", query.define.table());
-            error("Insertion query: %s", scratched.first);
+
+            String[] suspects = {
+                format("Table creation query:\n\n%s", query.define.table()),
+                format("Insertion query: %s", scratched.first)
+            };
+            error(e, suspects);
 
             return false;
         }
@@ -227,9 +232,7 @@ public abstract class Table {
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            error("Updating query: %s", scratched.first);
-
+            error(e, "Updating query: %s", scratched.first);
             return false;
         }
 
@@ -238,7 +241,7 @@ public abstract class Table {
 
     public boolean delete() {
 
-        if (!db(query.define.table())) {
+        if (!db(query.tableName)) {
             String s = "No database or no table found while attempting deletion for class: %s";
             throw new IllegalStateException(format(s, getClass().getSimpleName()));
         }
@@ -262,9 +265,7 @@ public abstract class Table {
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            error("Deletion query: %s", sql);
-
+            error(e, "Deletion query: %s", sql);
             return false;
         }
 
@@ -300,7 +301,7 @@ public abstract class Table {
             ans = rs.next();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return ans;
