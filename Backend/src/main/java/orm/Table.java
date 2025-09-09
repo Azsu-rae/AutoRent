@@ -296,7 +296,7 @@ public abstract class Table {
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(format(checkTable, sqliteTableName))) {
+             ResultSet rs = stmt.executeQuery(String.format(checkTable, sqliteTableName))) {
 
             ans = rs.next();
 

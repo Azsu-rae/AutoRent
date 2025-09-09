@@ -229,7 +229,7 @@ class SQLiteQueryConstructor {
             }
 
             if (upperBoundName.equals("")) {
-                String s = "Couldn't find a name for the upper bound! Check your codebase for the class %s!";
+                String s = "Couldn't find a name for the upper bound in class %s!";
                 throw new IllegalStateException(format(s, instance.getClass().getSimpleName() + "!"));
             }
 
@@ -270,7 +270,8 @@ class SQLiteQueryConstructor {
             for (int i=0;i<instance.reflect.getFieldsNumber();i++) {
 
                 if (contraints[i].foreignKey()) {
-                    foreignKeys.add("FOREIGN KEY (id_" + fieldNames[i] + ") REFERENCES " + fieldNames[i] + "s(id)");
+                    String foreignKey = "FOREIGN KEY (id_%s) REFERENCES %ss(id)";
+                    foreignKeys.add(String.format(foreignKey, fieldNames[i], fieldNames[i]));
                     fieldNames[i] = "id_" + fieldNames[i];
                 }
 
