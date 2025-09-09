@@ -1,0 +1,72 @@
+[
+    {
+        "name": "John",
+        "surname": "Doe",
+        "email": "Ajohn.doe@example.com",
+        "phoneNumber": "1234567890",
+        "drivingLicence": "BC12345"
+    },
+    {
+        "name": "Jane",
+        "surname": "Smith",
+        "email": "jane.smith@example.com",
+        "phoneNumber": "9876543210",
+        "drivingLicence": "YZ67890"
+    },
+    {
+        "name": "Alice",
+        "surname": "Brown",
+        "email": "alice.brown@example.com",
+        "phoneNumber": "4561237890",
+        "drivingLicence": "LMN4567"
+    },
+    {
+        "name": "Bob",
+        "surname": "White",
+        "email": "bob.white@example.com",
+        "phoneNumber": "7894561230",
+        "drivingLicence": "PQR12345"
+    },
+    {
+        "name": "Charlie",
+        "surname": "Black",
+        "email": "charlie.black@example.com",
+        "phoneNumber": "3216549870",
+        "drivingLicence": "mGHI98765"
+    },
+    {
+        "name": "Emily",
+        "surname": "Green",
+        "email": "emily.green@example.com",
+        "phoneNumber": "6549873210",
+        "drivingLicence": "TUV65432"
+    },
+    {
+        "name": "David",
+        "surname": "Gray",
+        "email": "david.gray@example.com",
+        "phoneNumber": "7891234560",
+        "drivingLicence": "DEF32145"
+    },
+    {
+        "name": "Sophia",
+        "surname": "Blue",
+        "email": "sophia.blue@example.com",
+        "phoneNumber": "1597534860",
+        "drivingLicence": "KLM78912"
+    },
+    {
+        "name": "Lucas",
+        "surname": "Orange",
+        "email": "lucas.orange@example.com",
+        "phoneNumber": "9517534860",
+        "drivingLicence": "NOP85246"
+    },
+    {
+        "name": "Olivia",
+        "surname": "Yellow",
+        "email": "olivia.yellow@example.com",
+        "phoneNumber": "3579514860",
+        "drivingLicence": "QRS74125"
+    }
+]

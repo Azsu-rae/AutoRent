@@ -29,6 +29,55 @@ import static orm.util.Reflection.getModelInstance;
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
 
+/**
+ * <h2>Table Inheritance Rules</h2>
+ *
+ * <p>All subclasses of {@code Table} must follow these conventions:</p>
+ *
+ * <ol>
+ *   <li>
+ *     <b>Registration</b><br>
+ *     Each subclass must register itself in a static block by calling
+ *     {@code registerModel(Class<?>)}.
+ *   </li>
+ *
+ *   <li>
+ *     <b>Attributes</b><br>
+ *     <ul>
+ *       <li>Every attribute must correspond to a SQLite column.</li>
+ *       <li>All SQLite columns must be annotated with {@code @Constraints}.</li>
+ *     </ul>
+ *   </li>
+ *
+ *   <li>
+ *     <b>Constructors</b><br>
+ *     Subclasses must provide constructors that accept string versions
+ *     of all attributes (except when an attribute is itself a model type).
+ *   </li>
+ *
+ *   <li>
+ *     <b>Model-type attributes</b><br>
+ *     Subclasses must check validity of all model-type attributes:
+ *     <ul>
+ *       <li>{@code null} values are permitted.</li>
+ *       <li>Invalid tuples are not permitted.</li>
+ *     </ul>
+ *   </li>
+ *
+ *   <li>
+ *     <b>Required Methods</b><br>
+ *     Subclasses must implement the following methods:
+ *     <pre>{@code
+ *     public static boolean isSearchable();
+ *     public static Vector<Table> search();
+ *     public static Vector<Table> search(String attName, Object value);
+ *     public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound);
+ *     public static Vector<Table> searchRanges(Vector<Pair<Object, Object>> boundedCriterias);
+ *     }</pre>
+ *   </li>
+ * </ol>
+ */
+
 public abstract class Table {
 
     private static String dbPath = "./Backend/ressources/databases/AutoRent.db";

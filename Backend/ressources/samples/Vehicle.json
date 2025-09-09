@@ -1,0 +1,102 @@
+[
+    {
+        "pricePerDay": 29.99,
+        "state": "Available",
+        "maintenanceDate": "2024-12-01",
+        "year": 2022,
+        "brand": "Toyota",
+        "model": "Corolla",
+        "vehicleType": "Sedan",
+        "fuel": "Gasoline"
+    },
+    {
+        "pricePerDay": 35.50,
+        "state": "Rented",
+        "maintenanceDate": "2023-10-15",
+        "year": 2020,
+        "brand": "Ford",
+        "model": "Fiesta",
+        "vehicleType": "Hatchback",
+        "fuel": "Diesel"
+    },
+    {
+        "pricePerDay": 40.00,
+        "state": "Unavailable",
+        "maintenanceDate": "2024-05-10",
+        "year": 2021,
+        "brand": "Tesla",
+        "model": "Model3",
+        "vehicleType": "Electric",
+        "fuel": "Electric"
+    },
+    {
+        "pricePerDay": 25.75,
+        "state": "Available",
+        "maintenanceDate": "2024-11-20",
+        "year": 2018,
+        "brand": "Honda",
+        "model": "Civic",
+        "vehicleType": "Coupe",
+        "fuel": "Hybrid"
+    },
+    {
+        "pricePerDay": 50.00,
+        "state": "Rented",
+        "maintenanceDate": "2023-08-30",
+        "year": 2023,
+        "brand": "BMW",
+        "model": "X5",
+        "vehicleType": "SUV",
+        "fuel": "Gasoline"
+    },
+    {
+        "pricePerDay": 18.99,
+        "state": "Available",
+        "maintenanceDate": "2024-03-25",
+        "year": 2017,
+        "brand": "Volkswagen",
+        "model": "Polo",
+        "vehicleType": "Hatchback",
+        "fuel": "Diesel"
+    },
+    {
+        "pricePerDay": 22.50,
+        "state": "Unavailable",
+        "maintenanceDate": "2024-07-12",
+        "year": 2019,
+        "brand": "Hyundai",
+        "model": "Elantra",
+        "vehicleType": "Sedan",
+        "fuel": "Gasoline"
+    },
+    {
+        "pricePerDay": 60.00,
+        "state": "Available",
+        "maintenanceDate": "2024-01-18",
+        "year": 2024,
+        "brand": "Audi",
+        "model": "Q7",
+        "vehicleType": "SUV",
+        "fuel": "Gasoline"
+    },
+    {
+        "pricePerDay": 28.00,
+        "state": "Rented",
+        "maintenanceDate": "2023-09-05",
+        "year": 2020,
+        "brand": "Chevrolet",
+        "model": "Malibu",
+        "vehicleType": "Sedan",
+        "fuel": "Gasoline"
+    },
+    {
+        "pricePerDay": 32.75,
+        "state": "Available",
+        "maintenanceDate": "2024-06-30",
+        "year": 2019,
+        "brand": "Nissan",
+        "model": "Altima",
+        "vehicleType": "Sedan",
+        "fuel": "Gasoline"
+    }
+]

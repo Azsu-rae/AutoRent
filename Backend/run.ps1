@@ -17,6 +17,7 @@ Write-Host ""
 $SRC_DIR = "Backend/src/main/java/"
 $OUT_DIR = "Backend/bin/"
 $SQLITE_JAR = "Backend/lib/sqlite-jdbc-3.50.3.0.jar"
+$JSON_JAR = "Backend/lib/json-20250517.jar"
 
 Write-Host "Compiling files from: $SRC_DIR"
 
@@ -24,12 +25,13 @@ Write-Host "Compiling files from: $SRC_DIR"
 New-Item -ItemType Directory -Force -Path $OUT_DIR | Out-Null
 
 # Compile all Java files
+$classpath = "$SQLITE_JAR;$JSON_JAR"
 $javaFiles = Get-ChildItem -Recurse -Filter *.java -Path $SRC_DIR | ForEach-Object { $_.FullName }
-javac -d $OUT_DIR $javaFiles
+javac -cp $classpath -d $OUT_DIR $javaFiles
 
 Write-Host "Compilation successful!"
 Write-Host ""
 
 # Run program (use `;` for Windows classpath, `:` for Linux/macOS)
-$classpath = "$OUT_DIR;$SQLITE_JAR"
+$classpath = "$OUT_DIR;$SQLITE_JAR;$JSON_JAR"
 java -cp $classpath Main

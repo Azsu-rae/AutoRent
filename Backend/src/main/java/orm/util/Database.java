@@ -1,21 +1,29 @@
 package orm.util;
 
+import static orm.util.Utils.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
-
 import java.util.stream.Stream;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import orm.Table;
 
 public class Database {
 
-    private static String path = "./Backend/ressources/sample_data/";
+    private static String path = "./Backend/ressources/samples/";
 
     private static HashMap<Pair<String,String>,Integer> occurences = new HashMap<>();
 
@@ -48,8 +56,7 @@ public class Database {
     public static void readSampleData() {
 
         for (String modelName : readOrderFile()) {
-
-            File file = new File(path + modelName + ".txt");
+            JSONArray tuples = new JSONArray(readJson(modelName));
             try (Scanner scanner = new Scanner(file)) {
 
                 Vector<String> lines = new Vector<>();
@@ -65,19 +72,18 @@ public class Database {
     }
 
     private static List<String> readOrderFile() {
+        return Arrays.asList(((String) new JSONArray(readJson("order")).getJSONObject(0).get("order"))
+            .split(" ")
+        );
+    }
 
-        File order = new File(path + "order.txt");
-        List<String> modelNames = new ArrayList<>();
-        try (Scanner orderScanner = new Scanner(order)) {
-            while (orderScanner.hasNext()) {
-                String modelName = orderScanner.next();
-                modelNames.add(modelName);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    private static String readJson(String fileName) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(path + fileName + ".json")));
+        } catch (IOException e) {
+            error(e);
+            return null;
         }
-
-        return modelNames;
     }
 
     public static void print(Vector<? extends Table> tuples, String name) {

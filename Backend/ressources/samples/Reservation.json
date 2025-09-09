@@ -1,0 +1,32 @@
+[
+    {
+        "client": "Client",
+        "vehicle": "Vehicle",
+        "startDate": "2024-12-20",
+        "endDate": "2025-01-08"
+    },
+    {
+        "client": "Client",
+        "vehicle": "Vehicle",
+        "startDate": "2024-12-21",
+        "endDate": "2025-01-09"
+    },
+    {
+        "client": "Client",
+        "vehicle": "Vehicle",
+        "startDate": "2024-12-22",
+        "endDate": "2025-01-10"
+    },
+    {
+        "client": "Client",
+        "vehicle": "Vehicle",
+        "startDate": "2024-12-23",
+        "endDate": "2025-01-11"
+    },
+    {
+        "client": "Client",
+        "vehicle": "Vehicle",
+        "startDate": "2024-12-24",
+        "endDate": "2025-01-12"
+    }
+]

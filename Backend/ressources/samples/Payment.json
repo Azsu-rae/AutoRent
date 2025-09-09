@@ -1,0 +1,32 @@
+[
+    {
+        "reservation": "Reservation",
+        "amount": 599.0,
+        "date": "2024-12-26",
+        "method": "Cash"
+    },
+    {
+        "reservation": "Reservation",
+        "amount": 700.0,
+        "date": "2024-12-29",
+        "method": "CreditCard"
+    },
+    {
+        "reservation": "Reservation",
+        "amount": 800.0,
+        "date": "2025-01-01",
+        "method": "DebitCard"
+    },
+    {
+        "reservation": "Reservation",
+        "amount": 500.0,
+        "date": "2025-01-06",
+        "method": "MobilePaymentApps"
+    },
+    {
+        "reservation": "Reservation",
+        "amount": 950.0,
+        "date": "2025-01-08",
+        "method": "BankTransfer"
+    }
+]

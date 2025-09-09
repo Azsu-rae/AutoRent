@@ -1,0 +1,32 @@
+[
+    {
+        "reservation": "Reservation",
+        "date": "2025-01-10",
+        "returnState": "Good",
+        "additionalFees": 0.00
+    },
+    {
+        "reservation": "Reservation",
+        "date": "2025-01-12",
+        "returnState": "Flawed",
+        "additionalFees": 15.00
+    },
+    {
+        "reservation": "Reservation",
+        "date": "2025-01-15",
+        "returnState": "Good",
+        "additionalFees": 0.00
+    },
+    {
+        "reservation": "Reservation",
+        "date": "2025-01-18",
+        "returnState": "Flawed",
+        "additionalFees": 10.00
+    },
+    {
+        "reservation": "Reservation",
+        "date": "2025-01-20",
+        "returnState": "Good",
+        "additionalFees": 0.00
+    }
+]
