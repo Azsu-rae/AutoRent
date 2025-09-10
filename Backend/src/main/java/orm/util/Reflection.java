@@ -152,10 +152,7 @@ public class Reflection {
 
         try {
             String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
-            Class<?> attType = getModelInstance(model.getSimpleName()).reflect.fields.type(attribute);
-            if (attType.equals(LocalDate.class)) {
-                attType = String.class;
-            }
+            Class<?> attType = getModelInstance(model.getSimpleName()).reflect.fields.effectiveType(attribute);
             return model.getDeclaredMethod(method, attType);
         } catch (NoSuchMethodException e) {
             error(e);
@@ -167,6 +164,7 @@ public class Reflection {
     static private Object invoke(Method method, Table tuple, Object... args) {
 
         try {
+            method.setAccessible(true);
             return method.invoke(tuple, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             error(e);
@@ -310,6 +308,14 @@ public class Reflection {
 
         public Class<?> type(String name) {
             return fieldByName.get(name).getType();
+        }
+
+        public Class<?> effectiveType(String name) {
+            Class<?> type = type(name);
+            if (type.equals(LocalDate.class)) {
+                type = String.class;
+            }
+            return type;
         }
 
         public Object get(int i) {
