@@ -50,12 +50,6 @@ import static orm.DataMapper.fetchResutls;
  *   </li>
  *
  *   <li>
- *     <b>Constructors</b><br>
- *     Subclasses must provide constructors that accept string versions
- *     of all attributes (except when an attribute is itself a model type).
- *   </li>
- *
- *   <li>
  *     <b>Model-type attributes</b><br>
  *     Subclasses must check validity of all model-type attributes:
  *     <ul>
