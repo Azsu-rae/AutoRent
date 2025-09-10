@@ -7,7 +7,7 @@
         "brand": "Toyota",
         "model": "Corolla",
         "vehicleType": "Sedan",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     },
     {
         "pricePerDay": 35.50,
@@ -17,7 +17,7 @@
         "brand": "Ford",
         "model": "Fiesta",
         "vehicleType": "Hatchback",
-        "fuel": "Diesel"
+        "fuelType": "Diesel"
     },
     {
         "pricePerDay": 40.00,
@@ -27,7 +27,7 @@
         "brand": "Tesla",
         "model": "Model3",
         "vehicleType": "Electric",
-        "fuel": "Electric"
+        "fuelType": "Electric"
     },
     {
         "pricePerDay": 25.75,
@@ -37,7 +37,7 @@
         "brand": "Honda",
         "model": "Civic",
         "vehicleType": "Coupe",
-        "fuel": "Hybrid"
+        "fuelType": "Hybrid"
     },
     {
         "pricePerDay": 50.00,
@@ -47,7 +47,7 @@
         "brand": "BMW",
         "model": "X5",
         "vehicleType": "SUV",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     },
     {
         "pricePerDay": 18.99,
@@ -57,7 +57,7 @@
         "brand": "Volkswagen",
         "model": "Polo",
         "vehicleType": "Hatchback",
-        "fuel": "Diesel"
+        "fuelType": "Diesel"
     },
     {
         "pricePerDay": 22.50,
@@ -67,7 +67,7 @@
         "brand": "Hyundai",
         "model": "Elantra",
         "vehicleType": "Sedan",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     },
     {
         "pricePerDay": 60.00,
@@ -77,7 +77,7 @@
         "brand": "Audi",
         "model": "Q7",
         "vehicleType": "SUV",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     },
     {
         "pricePerDay": 28.00,
@@ -87,7 +87,7 @@
         "brand": "Chevrolet",
         "model": "Malibu",
         "vehicleType": "Sedan",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     },
     {
         "pricePerDay": 32.75,
@@ -97,6 +97,6 @@
         "brand": "Nissan",
         "model": "Altima",
         "vehicleType": "Sedan",
-        "fuel": "Gasoline"
+        "fuelType": "Gasoline"
     }
 ]

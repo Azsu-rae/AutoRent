@@ -43,13 +43,6 @@ class DataMapper {
         );
     }
 
-    static Class<?> setterType(Class<?> attribute) {
-        if (attribute.equals(LocalDate.class)) {
-            return String.class;
-        }
-        return attribute;
-    }
-
     static void bindValues(PreparedStatement pstmt, Vector<Object> atts) throws SQLException {
 
         int i=1;
