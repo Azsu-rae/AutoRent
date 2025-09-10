@@ -68,6 +68,26 @@ public class Reservation extends Table {
         return search(tuples, boundedCriterias);
     }
 
+    @Override
+    public boolean add() {
+
+        if (hasConflict()) {
+            return false;
+        }
+
+        return super.add();
+    }
+
+    @Override
+    public boolean edit() {
+
+        if (hasConflict()) {
+            return false;
+        }
+
+        return super.add();
+    }
+
     private void setTotalAmountAndStatus() {
 
         if (vehicle != null && startDate != null && endDate != null) {

@@ -80,7 +80,6 @@ public class Main {
 
         Vehicle v;
         v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
-        v = new Vehicle("29.99", "Available", "2024-12-01", "2022", "Toyota", "Corolla", "Sedan", "Gasoline");
 
         // For tables that have foreign keys, you have to pass the foreing key's java instantiation.
         // if the sent tuples don't have an ID field, the construction will fail and throw an exception.
