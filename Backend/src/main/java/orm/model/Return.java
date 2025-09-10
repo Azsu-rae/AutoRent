@@ -28,11 +28,6 @@ public class Return extends Table {
 
     public Return() {}
 
-    public Return(Reservation reservation, String returnDate, String returnState, String additionalFees) {
-
-        this(reservation, returnDate, returnDate, Double.parseDouble(additionalFees));
-    }
-
     public Return(Reservation reservation, String returnDate, String returnState, Double additionalFees) {
 
         setReservation(reservation);

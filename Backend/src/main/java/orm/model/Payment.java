@@ -28,10 +28,6 @@ public class Payment extends Table {
 
     public Payment() {}
 
-    public Payment(Reservation reservation, String amount, String date, String method) {
-        this(reservation, Double.parseDouble(amount), date, method);
-    }
-
     public Payment(Reservation reservation, Double amount, String date, String method) {
 
         setReservation(reservation);

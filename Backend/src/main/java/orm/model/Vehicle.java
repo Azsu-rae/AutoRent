@@ -36,16 +36,6 @@ public class Vehicle extends Table {
 
     public Vehicle() {}
 
-    public Vehicle(String pricePerDay, String state, String maintenanceDate, String year, String brand, String model, String vehicleType, String fuelType) {
-
-        this(
-            Double.parseDouble(pricePerDay), 
-            state, maintenanceDate, 
-            Integer.parseInt(year), 
-            brand, model, vehicleType, fuelType
-        );
-    }
-
     public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model, String vehicleType, String fuelType) {
 
         this.pricePerDay = pricePerDay;
