@@ -10,13 +10,15 @@ import orm.model.Vehicle;
 import orm.util.Constraints;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Vector;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import java.util.function.Function;
+import static orm.util.Utils.*;
 
 import java.lang.reflect.*;
+import java.time.LocalDate;
 
 public class Reflection {
 
@@ -30,56 +32,30 @@ public class Reflection {
         new User();
     }
 
-    Table tuple;
-    Field[] fields;
-    Class<?> model;
-    String modelName;
-
-    public Reflection(String modelName) {
-        this(getModelInstance(modelName));
-    }
+    private Table tuple;
+    public FieldUtils fields;
 
     public Reflection(Table tuple) {
-
         this.tuple = tuple;
-        this.model = tuple.getClass();
-        this.modelName = tuple.getClass().getSimpleName();
-
-        Field[] modelFields = processFields(field -> {
-            if (field.isAnnotationPresent(Constraints.class)) {
-                return field;
-            } else {
-                return null;
-            }
-        }, model.getDeclaredFields()).toArray(Field[]::new);
-
-        Field[] effectiveFields = new Field[modelFields.length+1];
-        effectiveFields[0] = getField(Table.class, "id");
-
-        for (int i=0;i<modelFields.length;i++) {
-            effectiveFields[i+1] = modelFields[i];
-        }
-
-        this.fields = effectiveFields;
+        this.fields = new FieldUtils();
     }
 
-    // Method to get a model's instance
+    // Creating a model instance
 
-    public static Table getModelInstance(String className) {
-        return getModelInstance(className, new Object[0]);
+    public static Table getModelInstance(String modelName) {
+        return getModelInstance(modelName, new Object[0]);
     }
 
-    public static Table getModelInstance(String className, Object[] args) {
-        return (Table) getInstance(getConstructor(getModel(className), objectArrayToTypeArray(args)), args);
+    public static Table getModelInstance(String modelName, Object[] args) {
+        return (Table)
+            getInstance(getConstructor(getModel(modelName), objectArrayToTypeArray(args)), args);
     }
 
     private static Class<?>[] objectArrayToTypeArray(Object[] objs) {
-
         Class<?>[] types = new Class<?>[objs.length];
         for (int i=0;i<objs.length;i++) {
             types[i] = objs[i].getClass();
         }
-
         return types;
     }
 
@@ -111,10 +87,10 @@ public class Reflection {
         return success;
     }
 
-    private String[] getReferencerNames() {
+    private List<String> getReferencerNames() {
 
         List<String> referencerNames = new ArrayList<>();
-        Class<?> thisModel = getModel();
+        Class<?> thisModel = tuple.getClass();
 
         for (Class<?> model : Table.getModels()) {
 
@@ -126,18 +102,17 @@ public class Reflection {
             }
         }
 
-        return referencerNames.toArray(String[]::new);
+        return referencerNames;
     }
 
     private Vector<Table> getReferencerCriterias(String referencerName) {
 
         Field idField = getField(Table.class, "id");
         Vector<Table> referencerCriterias = new Vector<>();
-        Field[] relevantFields = getReferencingFieldsFrom(referencerName);
 
-        for (Field relevantField : relevantFields) {
+        for (Field relevantField : getReferencingFieldsFrom(referencerName)) {
 
-            Table instanceOfMyself = getModelInstance(modelName);
+            Table instanceOfMyself = getModelInstance(tuple.getClass().getSimpleName());
             setFieldValue(instanceOfMyself, idField, tuple.getId());
 
             Table referencer = getModelInstance(referencerName);
@@ -149,102 +124,19 @@ public class Reflection {
         return referencerCriterias;
     }
 
-    private Field[] getReferencingFieldsFrom(String modelName) {
+    private List<Field> getReferencingFieldsFrom(String modelName) {
 
-        return processFields(field -> {
-            if (field.getType().equals(model)) {
-                return field;
+        List<Field> referencingFields = new ArrayList<>();
+        for (Field field : getModel(modelName).getDeclaredFields()) {
+            if (field.getType().equals(tuple.getClass())) {
+                referencingFields.add(field);
             }
-            return null;
-        }, getModel(modelName).getDeclaredFields()).toArray(Field[]::new);
-    }
-
-    // Attributes methods
-
-    public int getFieldsNumber() {
-        return fields.length;
-    }
-
-    public Class<?> getFieldClass(int i) {
-        return getFieldClasses()[i];
-    }
-
-    public Class<?> getFieldClass(String name) {
-        return getField(name).getType();
-    }
-
-    public Object getFieldValue(int i) {
-        return getFieldValue(fields[i]);
-    }
-
-    public Object getFieldValue(String name) {
-        return getFieldValue(getField(name));
-    }
-
-    public Table setFieldValue(int i, Object value) {
-        setFieldValue(fields[i], value);
-        return tuple;
-    }
-
-    public Table setFieldValue(String name, Object value) {
-        setFieldValue(getField(name), value);
-        return tuple;
-    }
-
-    public List<String> getDiscreteFieldNames() {
-
-        var boundeds = getBoundedFieldNames(); 
-        return processFields(field -> {
-            if (!boundeds.contains(field.getName())) {
-                return field.getName();
-            }
-            return null;
-        });
-    }
-
-    public List<String> getBoundedFieldNames() {
-        return processFields(field -> {
-            Constraints col = field.getAnnotation(Constraints.class);
-            if (col.bounded() || col.lowerBound()) {
-                return field.getName();
-            }
-            return null;
-        });
-    }
-
-    public Class<?>[] getFieldClasses() {
-        return processFields(Field::getType).toArray(Class<?>[]::new);
-    }
-
-    public String[] getFieldNames() {
-        return processFields(Field::getName).toArray(String[]::new);
-    }
-
-    public Constraints[] getFieldConstraints() {
-        return processFields(field -> field.getAnnotation(Constraints.class)).toArray(Constraints[]::new);
-    }
-
-    private <R> List<R> processFields(Function<Field,R> func) {
-        return processFields(func, fields);
-    }
-
-    private <R> List<R> processFields(Function<Field,R> func, Field[] fields) {
-
-        List<R> attributes = new ArrayList<>();
-        for (Field field : fields) {
-            Optional
-                .ofNullable(func.apply(field))
-                .ifPresent(attributes::add);
         }
 
-        return attributes;
+        return referencingFields;
     }
 
     // Default-valued instance methods
-
-    private Field getField(String name) {
-        return getField(model, name);
-    }
 
     private Table setFieldValue(Field field, Object value) {
         return setFieldValue(tuple, field, value);
@@ -254,11 +146,34 @@ public class Reflection {
         return getFieldValue(tuple, field);
     }
 
-    private Class<?> getModel() {
-        return model;
+    // Primary methods
+
+    static private Method getSetter(Class<?> model, String attribute) {
+
+        try {
+            String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
+            Class<?> attType = getModelInstance(model.getSimpleName()).reflect.fields.type(attribute);
+            if (attType.equals(LocalDate.class)) {
+                attType = String.class;
+            }
+            return model.getDeclaredMethod(method, attType);
+        } catch (NoSuchMethodException e) {
+            error(e);
+        }
+
+        return null;
     }
 
-    // Primary methods
+    static private Object invoke(Method method, Table tuple, Object... args) {
+
+        try {
+            return method.invoke(tuple, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            error(e);
+        }
+
+        return null;
+    }
 
     static private Table setFieldValue(Table tuple, Field field, Object value) {
 
@@ -266,7 +181,7 @@ public class Reflection {
             field.setAccessible(true);
             field.set(tuple, value);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return tuple;
@@ -278,7 +193,7 @@ public class Reflection {
             field.setAccessible(true);
             return field.get(tuple);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return null;
@@ -287,11 +202,10 @@ public class Reflection {
     static private Field getField(Class<?> model, String fieldName) {
 
         Field field = null;
-
         try {
             field = model.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return field;
@@ -300,14 +214,12 @@ public class Reflection {
     static private Table getInstance(Constructor<?> constructor, Object[] args) {
 
         Table instance = null;
-
         try {
             instance = (Table) constructor.newInstance(args);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            System.err.println("Cause of InvocationTargetException: " + e.getCause());
+            error(e, "Cause of InvocationTargetException: %s", e.getCause());
         } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return instance;
@@ -316,11 +228,10 @@ public class Reflection {
     static private Constructor<?> getConstructor(Class<?> model, Class<?>[] types) {
 
         Constructor<?> constructor = null;
-
         try {
             constructor = model.getConstructor(types);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return constructor;
@@ -329,17 +240,98 @@ public class Reflection {
     static private Class<?> getModel(String modelName) {
 
         if (!Table.hasSubClass(modelName)) {
-            throw new IllegalArgumentException("Invalid model name: " + modelName);
+            String s = "Invalid model name: %s";
+            throw new IllegalArgumentException(format(s, modelName));
         }
 
         Class<?> model = null;
-
         try {
             model = Class.forName(qualifiedPackageName + modelName);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            error(e);
         }
 
         return model;
+    }
+
+    public class FieldUtils {
+
+        public Field[] fields;
+
+        public int count;
+        public String[] names;
+        public Class<?>[] types;
+        public Constraints[] constraints;
+        public List<String> bounded, discrete;
+
+        private Map<String,Field> fieldByName;
+
+        private FieldUtils() {
+
+            Field[] modelFields = tuple.getClass().getDeclaredFields();
+            Field[] effectiveFields = new Field[modelFields.length+1];
+            effectiveFields[0] = Reflection.getField(Table.class, "id");
+
+            for (int i=0;i<modelFields.length;i++) {
+                effectiveFields[i+1] = modelFields[i];
+            }
+
+            this.fields = effectiveFields;
+
+            this.count = fields.length;
+            this.names = new String[count];
+            this.types = new Class<?>[count];
+
+            this.constraints = new Constraints[count];
+            this.fieldByName = new HashMap<>();
+
+            this.bounded = new ArrayList<>();
+            this.discrete = new ArrayList<>();
+
+            for (int i=0;i<count;i++) {
+
+                fieldByName.put(fields[i].getName(), fields[i]);
+
+                names[i] = fields[i].getName();
+                types[i] = fields[i].getType();
+                constraints[i] = fields[i].getAnnotation(Constraints.class);
+
+                if (constraints[i].bounded() || constraints[i].lowerBound()) {
+                    bounded.add(names[i]);
+                } else {
+                    discrete.add(names[i]);
+                }
+            }
+        }
+
+        public Class<?> type(int i) {
+            return fields[i].getType();
+        }
+
+        public Class<?> type(String name) {
+            return fieldByName.get(name).getType();
+        }
+
+        public Object get(int i) {
+            return getFieldValue(fields[i]);
+        }
+
+        public Object get(String name) {
+            return getFieldValue(fieldByName.get(name));
+        }
+
+        public Table set(int i, Object value) {
+            setFieldValue(fields[i], value);
+            return tuple;
+        }
+
+        public Table set(String name, Object value) {
+            setFieldValue(fieldByName.get(name), value);
+            return tuple;
+        }
+
+        public Table callSetter(String attribute, Object value) {
+            return (Table) invoke(getSetter(tuple.getClass(), attribute), tuple, value);
+        }
     }
 }

@@ -45,7 +45,7 @@ public class Client extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Client").reflect.setFieldValue(attName, value));
+        return search(getModelInstance("Client").reflect.fields.set(attName, value));
     }
 
     public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {

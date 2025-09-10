@@ -1,5 +1,6 @@
 package orm;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 import orm.util.Constraints;
@@ -98,7 +99,7 @@ class SQLiteQueryConstructor {
             boolean first = true;
             for (i=1;i<columns.size();i++) {
 
-                Object curr = instance.reflect.getFieldValue(i);
+                Object curr = instance.reflect.fields.get(i);
                 if (curr == null) {
                     continue;
                 }
@@ -124,7 +125,7 @@ class SQLiteQueryConstructor {
             boolean first = true;
             for (int i=1;i<columns.size();i++) {
 
-                Object curr = instance.reflect.getFieldValue(i);
+                Object curr = instance.reflect.fields.get(i);
                 if (curr == null) {
                     continue;
                 }
@@ -175,7 +176,7 @@ class SQLiteQueryConstructor {
 
             for (int j=0;j<discreteCriterias.size();j++) {
 
-                Object curr = discreteCriterias.elementAt(j).reflect.getFieldValue(i);
+                Object curr = discreteCriterias.elementAt(j).reflect.fields.get(i);
                 if (curr == null) {
                     continue;
                 }
@@ -262,26 +263,26 @@ class SQLiteQueryConstructor {
         private DataDefinition() {
 
             StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(");
-            String[] fieldNames = instance.reflect.getFieldNames();
-            Constraints[] contraints = instance.reflect.getFieldConstraints();
+            String[] names = Arrays.asList(instance.reflect.fields.names).toArray(String[]::new);
+            Constraints[] constraints = instance.reflect.fields.constraints;
             Vector<String> foreignKeys = new Vector<>();
             boolean first = true;
 
-            for (int i=0;i<instance.reflect.getFieldsNumber();i++) {
+            for (int i=0;i<instance.reflect.fields.count;i++) {
 
-                if (contraints[i].foreignKey()) {
+                if (constraints[i].foreignKey()) {
                     String foreignKey = "FOREIGN KEY (id_%s) REFERENCES %ss(id)";
-                    foreignKeys.add(String.format(foreignKey, fieldNames[i], fieldNames[i]));
-                    fieldNames[i] = "id_" + fieldNames[i];
+                    foreignKeys.add(String.format(foreignKey, names[i], names[i]));
+                    names[i] = "id_" + names[i];
                 }
 
                 table
                     .append(first ? "" : ", ")
-                    .append(fieldNames[i] + " " + contraints[i].type())
-                    .append(contraints[i].nullable() ? "" : " NOT NULL")
-                    .append(contraints[i].primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "");
+                    .append(names[i] + " " + constraints[i].type())
+                    .append(constraints[i].nullable() ? "" : " NOT NULL")
+                    .append(constraints[i].primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "");
 
-                columns.add(new Column(fieldNames[i], contraints[i]));
+                columns.add(new Column(names[i], constraints[i]));
                 first = false;
             }
 

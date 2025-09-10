@@ -59,7 +59,7 @@ public class Pair<U, V> {
         return
             attributeName != null && first != null && second != null
             && first.getClass().equals(second.getClass())
-            && r.getBoundedFieldNames().contains(attributeName)
-            && r.getFieldClass(attributeName).equals(first.getClass());
+            && r.fields.bounded.contains(attributeName)
+            && r.fields.type(attributeName).equals(first.getClass());
     }
 }

@@ -107,9 +107,9 @@ public abstract class Table {
         StringBuilder s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
 
         boolean first = true;
-        for (int i=1;i<reflect.getFieldsNumber();i++) {
+        for (int i=1;i<reflect.fields.count;i++) {
 
-            Object curr = reflect.getFieldValue(i);
+            Object curr = reflect.fields.get(i);
             if (curr == null) {
                 continue;
             }
@@ -359,9 +359,9 @@ public abstract class Table {
     public boolean isValid() {
 
         boolean valid = true;
-        for (int i=1;i<reflect.getFieldsNumber();i++) {
-            Constraints col = reflect.getFieldConstraints()[i];
-            if (!col.nullable() && reflect.getFieldValue(i) == null) {
+        for (int i=1;i<reflect.fields.count;i++) {
+            Constraints col = reflect.fields.constraints[i];
+            if (!col.nullable() && reflect.fields.get(i) == null) {
                 valid = false;
                 break;
             }

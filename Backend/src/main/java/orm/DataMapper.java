@@ -43,6 +43,13 @@ class DataMapper {
         );
     }
 
+    static Class<?> setterType(Class<?> attribute) {
+        if (attribute.equals(LocalDate.class)) {
+            return String.class;
+        }
+        return attribute;
+    }
+
     static void bindValues(PreparedStatement pstmt, Vector<Object> atts) throws SQLException {
 
         int i=1;
@@ -63,11 +70,11 @@ class DataMapper {
 
         while (rs.next()) {
             Table tuple = getModelInstance(className);
-            for (int i=0;i<tuple.reflect.getFieldsNumber();i++) {
+            for (int i=0;i<tuple.reflect.fields.count;i++) {
                 String colName = tuple.query.getColumn(i).name;
-                Class<?> attClass = tuple.reflect.getFieldClass(i);
+                Class<?> attClass = tuple.reflect.fields.type(i);
                 Object value = getValue(rs, colName, attClass);
-                tuple.reflect.setFieldValue(i, value);
+                tuple.reflect.fields.set(i, value);
             }
             tuples.add(tuple);
         }

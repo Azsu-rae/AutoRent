@@ -67,7 +67,7 @@ public class Vehicle extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Vehicle").reflect.setFieldValue(attName, value));
+        return search(getModelInstance("Vehicle").reflect.fields.set(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {

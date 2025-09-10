@@ -6,12 +6,14 @@ import orm.util.Pair;
 import java.util.Vector;
 
 import static orm.util.Database.*;
+import static orm.util.Utils.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
         readSampleData();
+        display();
     }
 
     private static void tutorial() {
