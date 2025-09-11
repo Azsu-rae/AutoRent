@@ -100,19 +100,7 @@ public class Database {
         int index = occurences.computeIfAbsent(key, k -> 0);
         occurences.put(key, index+1);
 
-        Vector<Table> problem = null;
-        try {
-            problem = Table.search(ofThisModel);
-            return problem.elementAt(index);
-        } catch (Exception e) {
-            error(e, new String[] {
-                String.format("search size: %d, index: %d", problem == null ? null : problem.size(), index),
-                String.format("Getting a sample of %s for %s", ofThisModel, forThisModel)
-            });
-            System.exit(1);
-        }
-
-        return null;
+        return Table.search(ofThisModel).elementAt(index);
     }
 
     public static boolean input(Vector<? extends Table> tuples) {

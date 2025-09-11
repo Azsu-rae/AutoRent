@@ -35,6 +35,10 @@ public class Reflection {
     private Table tuple;
     public FieldUtils fields;
 
+    public Reflection(String modelName) {
+        this(getModelInstance(modelName));
+    }
+
     public Reflection(Table tuple) {
         this.tuple = tuple;
         this.fields = new FieldUtils();
