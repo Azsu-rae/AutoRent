@@ -1,7 +1,7 @@
 package orm.util;
 
 import static orm.util.Reflection.getModelInstance;
-import static orm.util.Utils.*;
+import static orm.util.Console.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,12 +54,14 @@ public class Database {
             JSONArray tuples = new JSONArray(readJson(modelName));
 
             for (int i=0;i<tuples.length();i++) {
+
                 JSONObject tuple = tuples.getJSONObject(i);
                 Table instance = getModelInstance(modelName);
+
                 for (String field : instance.reflect.fields.names) {
                     if (tuple.has(field)) {
                         Object value = tuple.get(field);
-                        if (Table.getModelNames().stream().map(String::toLowerCase).toList().contains(field)) {
+                        if (Table.getModelNames().contains(value)) {
                             value = getSample((String)tuple.get(field), modelName);
                         } else if (value instanceof java.math.BigDecimal) {
                             value = ((java.math.BigDecimal) value).doubleValue();
@@ -70,7 +72,12 @@ public class Database {
                 parsed.add(instance);
             }
 
-            input(parsed);
+            if (input(parsed)) {
+                print("inputed %d %s in the database", parsed.size(), modelName);
+            } else {
+                String s = "Why didn't the sample input?\n\n%s";
+                throw new IllegalArgumentException(String.format(s, Console.toString(parsed)));
+            }
         }
     }
 
@@ -93,7 +100,19 @@ public class Database {
         int index = occurences.computeIfAbsent(key, k -> 0);
         occurences.put(key, index+1);
 
-        return Table.search(ofThisModel).elementAt(index);
+        Vector<Table> problem = null;
+        try {
+            problem = Table.search(ofThisModel);
+            return problem.elementAt(index);
+        } catch (Exception e) {
+            error(e, new String[] {
+                String.format("search size: %d, index: %d", problem == null ? null : problem.size(), index),
+                String.format("Getting a sample of %s for %s", ofThisModel, forThisModel)
+            });
+            System.exit(1);
+        }
+
+        return null;
     }
 
     public static boolean input(Vector<? extends Table> tuples) {

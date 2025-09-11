@@ -6,7 +6,7 @@ import orm.util.Pair;
 import java.util.Vector;
 
 import static orm.util.Database.*;
-import static orm.util.Utils.*;
+import static orm.util.Console.*;
 
 public class Main {
 

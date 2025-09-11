@@ -15,7 +15,7 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static orm.util.Utils.*;
+import static orm.util.Console.*;
 
 import java.lang.reflect.*;
 import java.time.LocalDate;
@@ -239,7 +239,7 @@ public class Reflection {
 
         if (!Table.hasSubClass(modelName)) {
             String s = "Invalid model name: %s";
-            throw new IllegalArgumentException(format(s, modelName));
+            throw new IllegalArgumentException(String.format(s, modelName));
         }
 
         Class<?> model = null;
@@ -334,6 +334,16 @@ public class Reflection {
         public Table set(String name, Object value) {
             setFieldValue(fieldByName.get(name), value);
             return tuple;
+        }
+
+        public Table setDiscrete(String attName, Object value) {
+
+            if (!discrete.contains(attName)) {
+                String s = "%s is not a discrete criteria!";
+                throw new IllegalArgumentException(String.format(s, attName));
+            }
+
+            return set(attName, value);
         }
 
         public Table callSetter(String attribute, Object value) {

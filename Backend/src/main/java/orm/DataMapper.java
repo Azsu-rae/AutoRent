@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import static orm.util.Reflection.getModelInstance;
-import static orm.util.Utils.format;
 
 class DataMapper {
 
@@ -100,7 +99,7 @@ class DataMapper {
         }
 
         String s = "idToInstance exception: (isSearchable, size, className) = (%s, %s, %s)";
-        throw new IllegalArgumentException(format(s, Table.isSearchable(c), found, className));
+        throw new IllegalArgumentException(String.format(s, Table.isSearchable(c), found, className));
     }
 
     private static void addType(Class<?> type, ResultSetGetter resultSetGetter, PreparedStatementSetter pstmtSetter) {

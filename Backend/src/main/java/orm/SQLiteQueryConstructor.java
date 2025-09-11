@@ -6,8 +6,6 @@ import java.util.Vector;
 import orm.util.Constraints;
 import orm.util.Pair;
 
-import static orm.util.Utils.format;
-
 class SQLiteQueryConstructor {
 
     final private Table instance;
@@ -150,7 +148,7 @@ class SQLiteQueryConstructor {
 
                 if (!criteria.isValidCriteriaFor(instance.reflect)) {
                     String s = "Invalid bounded criteria: %s!";
-                    throw new IllegalArgumentException(format(s, criteria));
+                    throw new IllegalArgumentException(String.format(s, criteria));
                 }
 
                 if (!criteria.attributeName.equals(colName)) {
@@ -231,7 +229,7 @@ class SQLiteQueryConstructor {
 
             if (upperBoundName.equals("")) {
                 String s = "Couldn't find a name for the upper bound in class %s!";
-                throw new IllegalStateException(format(s, instance.getClass().getSimpleName() + "!"));
+                throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName() + "!"));
             }
 
             return upperBoundName;

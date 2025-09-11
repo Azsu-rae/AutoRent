@@ -7,10 +7,11 @@ import orm.util.Constraints;
 
 import java.util.Vector;
 import java.util.Objects;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import orm.util.Console;
+import static orm.util.Console.*;
 import static orm.util.Reflection.getModelInstance;
 
 public class Reservation extends Table {
@@ -54,7 +55,7 @@ public class Reservation extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Reservation").reflect.fields.set(attName, value));
+        return search(getModelInstance("Reservation").reflect.fields.setDiscrete(attName, value));
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
@@ -122,6 +123,10 @@ public class Reservation extends Table {
             throw new IllegalStateException("Booking a reservation with an invalid object!");
         }
 
+        if (!db()) {
+            return false;
+        }
+
         Vector<Table> conflicts = new Vector<>();
         for (Table tuple : search(new Reservation().setVehicle(vehicle), "startDate", startDate.toString(), endDate.toString())) {
             Reservation r = (Reservation) tuple;
@@ -131,7 +136,15 @@ public class Reservation extends Table {
             }
         }
 
-        return (conflicts.size() == 0);
+        boolean hasConflict = (conflicts.size() != 0);
+        if (hasConflict) {
+            print(
+                "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n",
+                conflicts.size(), this, Console.toString(conflicts)
+            );
+        }
+
+        return hasConflict;
     }
 
     public boolean cancel() {

@@ -1,13 +1,10 @@
 package orm.util;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Vector;
 
 import orm.Table;
 
-public class Utils {
+public class Console {
 
     public static void error(Exception e) {
         e.printStackTrace();
@@ -53,10 +50,6 @@ public class Utils {
         print(s.toString());
     }
 
-    public static String format(String s, Object... args) {
-        return String.format("\n" + s, args);
-    }
-
     public static String toString(Vector<? extends Table> tuples) {
 
         StringBuilder s = new StringBuilder();
@@ -68,18 +61,5 @@ public class Utils {
         }
 
         return s.toString();
-    }
-
-    public static Object type(String s) {
-
-        if (s == null) {
-            return null;
-        }
-
-        try {
-            return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (DateTimeParseException e) {
-            return s;
-        }
     }
 }
