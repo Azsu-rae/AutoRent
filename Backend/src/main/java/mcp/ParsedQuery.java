@@ -1,111 +1,86 @@
 package mcp;
 
+import static orm.util.Reflection.getModelInstance;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import orm.Table;
 import orm.util.Pair;
-import orm.util.Reflection;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Arrays;
+public class ParsedQuery {
 
-class ParsedQuery {
+    private String[] operations = {"search", "add", "edit", "delete"};
+    private String operation;
+    private String modelName;
 
-   final private String operation;
-   final private String model;
+    public class Args {
 
-   final private Reflection reflect;
-   final private Vector<Table> tuples;
-   final private Map<String,Vector<Object>> attributes;
-   final private Vector<Pair<Object,Object>> boundedCriterias;
+        Vector<Pair<Object,Object>> bounedCriterias;
+        Map<String,List<Object>> attributes;
+        Vector<Table> tuples;
 
-   ParsedQuery(String operation, String model) {
+        public Result areValid() {
 
-       boolean nil = operation == null || model == null;
-       boolean op = Arrays.asList("search", "create", "update", "delete").contains(operation);
-       boolean mdl = Table.hasSubClass(model);
+            switch (operation) {
+                case "search":
+                    return forSearch();
+                case "add":
+                    return forAdd();
+                case "edit":
+                    return forEdit();
+                case "delete":
+                    return forDelete();
+                default:
+                    return null;
+            }
+        }
 
-       if (nil || !op || !mdl) {
-           String s = "Invalid operation: %s or model: %s";
-           throw new IllegalArgumentException(String.format(s, operation, model));
-       }
+        private Result forEdit() {
 
-       this.operation = operation;
-       this.model = model;
+            boolean valid = true;
 
-       this.reflect = new Reflection(model);
-       this.tuples = new Vector<>();
-       this.attributes = new HashMap<>();
-       this.boundedCriterias = new Vector<>();
-   }
+            for (Table tuple : tuples) {
+                valid = valid && Table.isTuple(tuple);
+            }
 
-   public boolean execute() {
+            if (!valid) {
+                return new Result("Cannot have an invalid tuple while attempting an edit!", false, null);
+            }
 
-       switch (operation) {
-            case "search":
-               return search();
-            case "create":
-               return create();
-            case "update":
-               return update();
-            case "delete":
-               return delete();
-       }
-   }
+            for (String key : attributes.keySet()) {
+                valid = valid && (attributes.get(key).size() <= 1);
+            }
 
-   public void setBoundedCriteria(String name, Pair<Object,Object> value) {
+            if (!valid) {
+                return new Result("One value per attribute when editting!", false, null);
+            }
 
-       if (!value.isValidCriteriaFor(reflect)) {
-           String s = "Invalid attribute : %s for model: %s";
-           throw new IllegalArgumentException(String.format(s, value.toString(), model));
-       }
+            return new Result(null, true, null);
+        }
 
-       boundedCriterias.add(value);
-   }
+        private Result forAdd() {
+            return null;
+        }
 
-   public void setAttribute(String name, Object value) {
+        private Result forDelete() {
+            return null;
+        }
 
-       if (!reflect.fields.type(name).equals(value.getClass())) {
-           String s = "Invalid type: %s for attribute: %s of model:  %s";
-           throw new IllegalArgumentException(String.format(s, value.getClass().getSimpleName(), name, model));
-       }
+        private Result forSearch() {
+            return null;
+        }
+    }
 
-       attributes.computeIfAbsent(name, k -> new Vector<>()).add(value);
-   }
+    public class Result extends Pair<String,Boolean> {
 
-   private Vector<Table> search() {
+        Vector<Table> set;
 
-       Vector<Table> discreteCriterias = new Vector<>();
-       for (Map.Entry<String,Vector<Object>> entry : attributes.entrySet()) {
-
-            int count = 1;
-           for (Object att : entry.getValue()) {
-
-               if (count > discreteCriterias.size()) {
-                    discreteCriterias.add(Reflection.getModelInstance(model));
-               }
-
-               discreteCriterias.elementAt(count-1).reflect.setAttribute(entry.getKey(), att);
-               count++;
-           }
-       }
-
-       return Table.search(discreteCriterias, boundedCriterias);
-   }
-
-   private boolean create(Table tuple) {
-
-       return true;
-   }
-
-   private boolean delete() {
-
-        return true;
-   }
-
-   private boolean update() {
-
-       return true;
-   }
+        public Result(String message, Boolean success, Vector<Table> set) {
+            super(message, success);
+            this.set = set;
+        }
+    }
 }

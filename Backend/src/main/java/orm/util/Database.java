@@ -20,7 +20,7 @@ public class Database {
 
     private static String path = "./Backend/ressources/samples/";
 
-    private static HashMap<Pair<String,String>,Integer> occurences = new HashMap<>();
+    private static HashMap<Aggregation,Integer> occurences = new HashMap<>();
 
     public static void display() {
         for (String className : Table.getModelNames()) {
@@ -96,7 +96,7 @@ public class Database {
 
     private static Table getSample(String ofThisModel, String forThisModel) {
 
-        Pair<String,String> key = new Pair<>(ofThisModel, forThisModel);
+        Aggregation key = new Aggregation(ofThisModel, forThisModel);
         int index = occurences.computeIfAbsent(key, k -> 0);
         occurences.put(key, index+1);
 
@@ -121,5 +121,11 @@ public class Database {
         }
 
         return success;
+    }
+
+    static private class Aggregation extends Pair<String,String> {
+        Aggregation(String composite, String component) {
+            super(composite, component);
+        }
     }
 }

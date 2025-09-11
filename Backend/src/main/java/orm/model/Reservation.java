@@ -62,7 +62,7 @@ public class Reservation extends Table {
         return search(new Reservation(), attributeName, lowerBound, upperBound);
     }
 
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
 
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Reservation());
@@ -154,7 +154,7 @@ public class Reservation extends Table {
 
     public Reservation setClient(Client c) {
 
-        if (!isValidField(c)) {
+        if (!isTuple(c)) {
             return this;
         }
 
@@ -165,7 +165,7 @@ public class Reservation extends Table {
 
     public Reservation setVehicle(Vehicle v) {
 
-        if (!isValidField(v)) {
+        if (!isTuple(v)) {
             return this;
         }
 

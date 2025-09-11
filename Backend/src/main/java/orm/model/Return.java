@@ -52,7 +52,7 @@ public class Return extends Table {
         return search(new Return(), attributeName, lowerBound, upperBound);
     }
 
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
 
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Return());
@@ -61,7 +61,7 @@ public class Return extends Table {
 
     public Return setReservation(Reservation r) {
 
-        if (!isValidField(r)) {
+        if (!isTuple(r)) {
             return this;
         }
 

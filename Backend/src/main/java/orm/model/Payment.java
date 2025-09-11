@@ -52,7 +52,7 @@ public class Payment extends Table {
         return search(new Payment(), attributeName, lowerBound, upperBound);
     }
 
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
 
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Payment());
@@ -61,7 +61,7 @@ public class Payment extends Table {
 
     public Payment setReservation(Reservation r) {
 
-        if (!isValidField(r)) {
+        if (!isTuple(r)) {
             return this;
         }
 

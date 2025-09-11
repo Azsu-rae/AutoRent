@@ -1,19 +1,14 @@
 package mcp;
-// 
-// import java.util.Optional;
-// import java.util.Vector;
-// 
-// import orm.Table;
-// import orm.util.Database;
-// 
-// public class ModelContextProtocol {
-// 
-//     public static void test() {
-// 
-//         var query = ParsedQuery.create("search", "Vehicle");
-//         query.ifPresent(q -> q.setCriteria("fuelType", "Diesel"));
-// 
-//         var tuples = query.map(ParsedQuery::execute);
-// //        Database.print(, "I don't know if that works");
-//     }
-// }
+
+public class ModelContextProtocol {
+
+    public static void prompt(String query) {
+
+        ParsedQuery parsedQuery = parseQuery(query);
+    }
+
+    private static ParsedQuery parseQuery(String query) {
+
+        return null;
+    }
+}

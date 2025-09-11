@@ -53,7 +53,7 @@ public class User extends Table {
         return search(new User(), attributeName, lowerBound, upperBound);
     }
 
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
 
         Vector<Table> tuples = new Vector<>();
         tuples.add(new User());

@@ -6,6 +6,8 @@ import java.util.Vector;
 import orm.util.Constraints;
 import orm.util.Pair;
 
+import orm.Table.Range;
+
 class SQLiteQueryConstructor {
 
     final private Table instance;
@@ -24,17 +26,6 @@ class SQLiteQueryConstructor {
 
         this.define = new DataDefinition();
         this.manipulate = new DataManipulation();
-    }
-
-    class Column {
-
-        String name;
-        Constraints constraints;
-
-        private Column(String name, Constraints constraints) {
-            this.name = name;
-            this.constraints = constraints;
-        }
     }
 
     Column getColumn(int i) {
@@ -64,9 +55,7 @@ class SQLiteQueryConstructor {
             close = false;
         }
 
-        Pair<String,Vector<Object>> select(
-            Vector<? extends Table> discreteCriterias,
-            Vector<Pair<Object,Object>> boundedCriterias) {
+        Statement select(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
             init("SELECT * FROM " + tableName);
 
@@ -74,11 +63,11 @@ class SQLiteQueryConstructor {
 
                 Column col = getColumn(i);
 
-                if (col.constraints.upperBound()) {
+                if (col.constraints().upperBound()) {
                     continue;
                 }
 
-                if (col.constraints.bounded() && col.constraints.lowerBound()) {
+                if (col.constraints().bounded() && col.constraints().lowerBound()) {
                     appendBoundedCondition(boundedCriterias);
                 } else {
                     appendDiscreteCondition(discreteCriterias);
@@ -86,10 +75,10 @@ class SQLiteQueryConstructor {
             }
             queryString.append((close ? ")" : ""));
 
-            return new Pair<>(queryString.toString() + ";", queryInputs);
+            return new Statement(queryString.toString() + ";", queryInputs);
         }
 
-        Pair<String,Vector<Object>> insert() {
+        Statement insert() {
 
             init("INSERT INTO " + tableName + "(");
             StringBuilder valuesQuery = new StringBuilder("VALUES (");
@@ -102,7 +91,7 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                queryString.append((first ? "" : ", ") + getColumn(i).name);
+                queryString.append((first ? "" : ", ") + getColumn(i).name());
                 valuesQuery.append((first ? "" : ", ") + "?");
                 queryInputs.add(curr);
                 first = false;
@@ -112,10 +101,10 @@ class SQLiteQueryConstructor {
             valuesQuery.append(");");
             String pstmt = queryString.toString() + valuesQuery.toString();
 
-            return new Pair<>(pstmt, queryInputs);
+            return new Statement(pstmt, queryInputs);
         }
 
-        Pair<String,Vector<Object>> update() {
+        Statement update() {
 
             StringBuilder query = new StringBuilder("UPDATE " + tableName + " SET ");
             Vector<Object> inputs = new Vector<>();
@@ -128,23 +117,23 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                query.append((!first ? ", " : "") + getColumn(i).name + " = ? "); 
+                query.append((!first ? ", " : "") + getColumn(i).name() + " = ? "); 
                 inputs.add(curr);
                 first = false;
             }
             query.append("WHERE id=?;");
             inputs.add(instance.id);
 
-            return new Pair<>(query.toString(), inputs);
+            return new Statement(query.toString(), inputs);
         }
 
-        private void appendBoundedCondition(Vector<Pair<Object,Object>> boundedCriterias) {
+        private void appendBoundedCondition(Vector<Range> boundedCriterias) {
 
             if (boundedCriterias == null || checkedBoundedCriterias == boundedCriterias.size()) {
                 return;
             }
 
-            for (Pair<Object,Object> criteria : boundedCriterias) {
+            for (Range criteria : boundedCriterias) {
 
                 if (!criteria.isValidCriteriaFor(instance.reflect)) {
                     String s = "Invalid bounded criteria: %s!";
@@ -157,8 +146,8 @@ class SQLiteQueryConstructor {
 
                 appendConnector(" OR ");
 
-                Object lowerBound = criteria.first, upperBound = criteria.second;
-                if (col.constraints.lowerBound()) {
+                Object lowerBound = criteria.lowerBound(), upperBound = criteria.upperBound();
+                if (col.constraints().lowerBound()) {
                     appendOverlap(colName, lowerBound, upperBound);
                 } else {
                     queryString.append(colName + " BETWEEN ? AND ?");
@@ -183,8 +172,8 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                queryString.append(getColumn(i).name);
-                if (getColumn(i).constraints.searchedText()) {
+                queryString.append(getColumn(i).name());
+                if (getColumn(i).constraints().searchedText()) {
                     queryString.append(" LIKE ?");
                     queryInputs.add(String.valueOf(curr)+"%");
                 } else {
@@ -221,8 +210,8 @@ class SQLiteQueryConstructor {
 
             String upperBoundName = "";
             for (int j=i+1;j<columns.size();j++) {
-                if (getColumn(j).constraints.upperBound()) {
-                    upperBoundName = getColumn(j).name;
+                if (getColumn(j).constraints().upperBound()) {
+                    upperBoundName = getColumn(j).name();
                     break;
                 }
             }
@@ -294,6 +283,36 @@ class SQLiteQueryConstructor {
 
         String table() {
             return tableCreationQuery;
+        }
+    }
+
+    class Column extends Pair<String,Constraints> {
+
+        private Column(String name, Constraints constraints) {
+            super(name, constraints);
+        }
+
+        String name() {
+            return first;
+        }
+
+        Constraints constraints() {
+            return second;
+        }
+    }
+
+    class Statement extends Pair<String,Vector<Object>> {
+
+        private Statement(String template, Vector<Object> values) {
+            super(template, values);
+        }
+
+        String template() {
+            return first;
+        }
+
+        Vector<Object> values() {
+            return second;
         }
     }
 }

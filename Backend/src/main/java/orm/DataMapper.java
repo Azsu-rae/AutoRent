@@ -63,7 +63,7 @@ class DataMapper {
         while (rs.next()) {
             Table tuple = getModelInstance(className);
             for (int i=0;i<tuple.reflect.fields.count;i++) {
-                String colName = tuple.query.getColumn(i).name;
+                String colName = tuple.query.getColumn(i).name();
                 Class<?> attClass = tuple.reflect.fields.type(i);
                 Object value = getValue(rs, colName, attClass);
                 tuple.reflect.fields.set(i, value);

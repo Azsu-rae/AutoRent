@@ -52,7 +52,7 @@ public class Client extends Table {
         return search(new Client(), boundedAttributeName, lowerBound, upperBound);
     }
 
-    public static Vector<Table> searchRanges(Vector<Pair<Object,Object>> boundedCriterias) {
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
 
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Client());

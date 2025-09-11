@@ -138,10 +138,10 @@ public abstract class Table {
         Vector<Table> discreteContainer = new Vector<>();
         discreteContainer.add(discreteCriteria);
 
-        Vector<Pair<Object,Object>> boundedContainer = null;
+        Vector<Range> boundedContainer = null;
         if (boundedAttributeName != null && lowerBound != null && upperBound != null) {
             boundedContainer = new Vector<>();
-            boundedContainer.add(new Pair<>(boundedAttributeName, lowerBound, upperBound));
+            boundedContainer.add(new Range(boundedAttributeName, lowerBound, upperBound));
         }
 
         return search(discreteContainer, boundedContainer);
@@ -149,7 +149,7 @@ public abstract class Table {
 
     public static Vector<Table> search(
         Vector<? extends Table> discreteCriterias,
-        Vector<Pair<Object,Object>> boundedCriterias) {
+        Vector<Range> boundedCriterias) {
 
         if (discreteCriterias == null || discreteCriterias.size() == 0) {
             String s = "Give at least one discrete criteria when searching!";
@@ -162,17 +162,17 @@ public abstract class Table {
             throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName()));
         }
 
-        var scratched = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
+        var statement = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
         Vector<Table> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
+             PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
 
-            bindValues(pstmt, scratched.second);
+            bindValues(pstmt, statement.values());
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            error(e, "Search query: %s", scratched.first);
+            error(e, "Search query: %s", statement.template());
         }
 
         return tuples;
@@ -185,22 +185,22 @@ public abstract class Table {
             throw new IllegalArgumentException(String.format(s, this));
         }
 
-        var scratched = query.manipulate.insert();
+        var statement = query.manipulate.insert();
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              Statement stmt = conn.createStatement();) {
 
             stmt.execute(query.define.table());
 
-            var pstmt = conn.prepareStatement(scratched.first);
-            bindValues(pstmt, scratched.second);
+            var pstmt = conn.prepareStatement(statement.template());
+            bindValues(pstmt, statement.values());
             pstmt.executeUpdate();
             pstmt.close();
 
         } catch (SQLException e) {
             error(e, new String[] {
                 String.format("Table creation query:\n\n%s", query.define.table()),
-                String.format("Insertion query: %s", scratched.first)
+                String.format("Insertion query: %s", statement.template())
             });
             return false;
         }
@@ -220,16 +220,16 @@ public abstract class Table {
             throw new IllegalArgumentException(String.format(s, this));
         }
 
-        var scratched = query.manipulate.update();
+        var statement = query.manipulate.update();
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             PreparedStatement pstmt = conn.prepareStatement(scratched.first)) {
+             PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
 
-            bindValues(pstmt, scratched.second);
+            bindValues(pstmt, statement.values());
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            error(e, "Updating query: %s", scratched.first);
+            error(e, "Updating query: %s", statement.template());
             return false;
         }
 
@@ -318,7 +318,7 @@ public abstract class Table {
         return valid;
     }
 
-    protected boolean isValidField(Table tuple) {
+    static public boolean isTuple(Table tuple) {
 
         if (tuple == null) {
             return false;
@@ -342,6 +342,32 @@ public abstract class Table {
             return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format: " + s);
+        }
+    }
+
+    static public class Range extends Pair<Object,Object> {
+
+        public String attributeName;
+
+        public Range(String attributeName, Object lowerBound, Object upperBound) {
+            super(lowerBound, upperBound);
+            this.attributeName = attributeName;
+        }
+
+        public Object lowerBound() {
+            return first;
+        }
+
+        public Object upperBound() {
+            return second;
+        }
+
+        public boolean isValidCriteriaFor(Reflection r) {
+            return
+                attributeName != null && first != null && second != null
+                && first.getClass().equals(second.getClass())
+                && r.fields.bounded.contains(attributeName)
+                && r.fields.type(attributeName).equals(first.getClass());
         }
     }
 }
