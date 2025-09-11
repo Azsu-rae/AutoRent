@@ -72,14 +72,9 @@ public class Main {
         // this approach is more readable and should allow the user to create an object without having to
         // write too many 'null' values in a constructor.
 
-        // For tables like vehicles that have non-string attributes, you can send those attribute in the
-        // form of a string. Not advisable unless necessary (helps when reading from a chunk of data
-        // like a file).
+        // For tables like vehicles that have non-string attributes,
 
-        // both lines below create the same object
-
-        Vehicle v;
-        v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
+        Vehicle v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
 
         // For tables that have foreign keys, you have to pass the foreing key's java instantiation.
         // if the sent tuples don't have an ID field, the construction will fail and throw an exception.
@@ -104,7 +99,7 @@ public class Main {
         //  \-> for continuous-valued attriubtes  (like the price per day of a car or a date range)
         //
         // Both of these can be in vectors when the criterias's values within a same attribute are multiple
-        // (for discrete criterias) or when we have multiple ranges
+        // (for discrete criterias) or when we have multiple range-type attributes
         //
         // The tuples can be stored in any Table-inherited references.
 
@@ -129,24 +124,25 @@ public class Main {
         print(vehicles, "Vehicles");
 
         // returns all sedans
-        Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
-        Vector<Table> sedans = Vehicle.search(sedanFilter); 
+        Vector<Table> sedans = Vehicle.search("vehicleType", "Sedan"); 
         print(sedans, "Sedans");
 
-        // the name of the criteria must be passed to the Pair<> when creating a range, 
+        // the name of the criteria must be passed to the Pair<> when creating a filter,
         // it has to be the exact same as the class attribute.
-        // Passing an incorrect attribute name will throw an exception, so be careful
-        // of course the range values's types has to be correct. e.g.
+        //
+        // Passing an incorrect attribute name will throw an exception, so be careful.
+        // Of course the range values's type has to be correct. For example
         //
         //              Vehicle.search("year", 2020.0, 2024.0)
         //
         // will throw an exception as 'year' is an integer
-        //
+
         // filter the vehicles by year:
         Vector<Table> newVehicles = Vehicle.search("year", 2020, 2024);
         print(newVehicles, "New Vehicles (2020 - 2024)");
 
         // new Sedans
+        Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
         Vector<Table> newSedans = Vehicle.search(sedanFilter, "year", 2020, 2024); 
         print(newSedans, "New Sedans");
 
@@ -160,12 +156,14 @@ public class Main {
 
         // BMWs and Toyotas
         // You send a Vector of tuples for multiple discrete search criterias,
-        // of course, passing an empty array will, you guessed it, throw an exception
         Vector<Vehicle> BMWsToyotasCriteria = new Vector<>();
         BMWsToyotasCriteria.add(new Vehicle().setBrand("Toyota"));
         BMWsToyotasCriteria.add(new Vehicle().setBrand("BMW"));
         Vector<Table> bt = Vehicle.search(BMWsToyotasCriteria);
         print(bt, "BMWs or Toyotas");
+
+        // NOTE: passing an empty array will throw an exception. If you don't need to filter
+        // and want all tuples use search()
 
         // Recent cheap vehicles (different method for multiple ranges: searchRanges())
         Vector<Pair<Object,Object>> newCheapVehicleCriteria = new Vector<>();
@@ -184,6 +182,7 @@ public class Main {
         //  ->  at least one instance of the model you are searching for. (e.g. Table.search(new Client())
         //      or any varient as long as you provide at least one instance of what you are searching for
         //  ->  The name of model to search in (e.g. Table.search("Reservation")) if there are no criterias
+        //
         //      NOTE: Passing a wrong class name will throw an IllegalArgumentException
 
         // SPECIAL CASE 1: RESERVATION DATE RANGES 
@@ -204,7 +203,7 @@ public class Main {
         for (Table client : clients) {
             if (client.delete()) {}
             // deletes from the database using the ID
-            // the deletion will be cascaded to all the models that reference 
+            // the deletion will be cascaded to all the models that reference
             // a Client object. It will be set to null in case the reference is nullable, deleted otherwise
         }
 
@@ -232,12 +231,9 @@ public class Main {
         createdReservations.add(new Reservation().setStartDate("2024-12-24").setEndDate("2025-01-12"));
 
         for (int i=0;i<createdReservations.size();i++) {
-            Reservation r = createdReservations.elementAt(i);
-            r.setVehicle((Vehicle)vehicles.elementAt(i));
-            Client ci = (Client) clients.elementAt(i);
-            r.setClient(ci);
+            Reservation r = createdReservations.elementAt(i).setVehicle((Vehicle)vehicles.elementAt(i)).setClient((Client) clients.elementAt(i));
             if (!r.add()) {
-                System.err.println("We got a problem!");
+                error("ISSUE!");
             }
         }
 
@@ -296,7 +292,5 @@ public class Main {
          *  All that is left is to check the attributes and constructors of each class to know and that's it!
          *
          */
-
-        System.out.println();
     }
 }
