@@ -17,7 +17,7 @@ class DataMapper {
     private static Map<Class<?>,PreparedStatementSetter> javaClassPstmtSetter;
     private static Map<Class<?>,ResultSetGetter> javaClassResultSetGetter;
 
-    static { // all of the types that any model can have
+    static {
         javaClassPstmtSetter = new HashMap<>();
         javaClassResultSetGetter = new HashMap<>();
         addType(
