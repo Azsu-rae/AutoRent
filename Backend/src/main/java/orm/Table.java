@@ -126,11 +126,6 @@ public abstract class Table {
 
     public static Vector<Table> search(Table discrete, String boundedName, Object lowerBound, Object upperBound) {
 
-        if (discrete == null) {
-            String s = "Give a discrete criteria when searching!";
-            throw new IllegalArgumentException(String.format(s));
-        }
-
         Vector<Table> discreteContainer = new Vector<>();
         discreteContainer.add(discrete);
 
@@ -145,7 +140,7 @@ public abstract class Table {
 
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
-        if (discreteCriterias == null || discreteCriterias.size() == 0) {
+        if (discreteCriterias == null || discreteCriterias.size() == 0 || discreteCriterias.elementAt(0) == null) {
             String s = "Give at least one discrete criteria when searching!";
             throw new IllegalArgumentException(String.format(s));
         }
