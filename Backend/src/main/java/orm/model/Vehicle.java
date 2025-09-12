@@ -48,29 +48,6 @@ public class Vehicle extends Table {
         this.fuelType = fuelType;
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new Vehicle());
-    }
-
-    public static Vector<Table> search() {
-        return search(new Vehicle());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Vehicle").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-        return search(new Vehicle(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Vehicle());
-        return search(tuples, boundedCriterias);
-    }
-
     public Vehicle setPricePerDay(Double pricePerDay) {
         this.pricePerDay = pricePerDay;
         return this;
@@ -141,5 +118,28 @@ public class Vehicle extends Table {
 
     public String getFuelType() {
         return this.fuelType;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("Vehicle");
+    }
+
+    public static Vector<Table> search() {
+        return search(new Vehicle());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Vehicle").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new Vehicle(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Vehicle());
+        return search(tuples, boundedCriterias);
     }
 }

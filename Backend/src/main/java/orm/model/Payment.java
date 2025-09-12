@@ -36,32 +36,9 @@ public class Payment extends Table {
         this.method = method;
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new Payment());
-    }
-
-    public static Vector<Table> search() {
-        return search(new Payment());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Payment").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-        return search(new Payment(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Payment());
-        return search(tuples, boundedCriterias);
-    }
-
     public Payment setReservation(Reservation r) {
 
-        if (!isTuple(r)) {
+        if (r == null || !r.isTupleOrElseThrow()) {
             return this;
         }
 
@@ -98,5 +75,28 @@ public class Payment extends Table {
 
     public Double getAmount() {
         return this.amount;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("Payment");
+    }
+
+    public static Vector<Table> search() {
+        return search(new Payment());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Payment").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new Payment(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Payment());
+        return search(tuples, boundedCriterias);
     }
 }

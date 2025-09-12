@@ -55,7 +55,7 @@ class SQLiteQueryConstructor {
             close = false;
         }
 
-        Statement select(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
+        PreparedQuery select(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
             init("SELECT * FROM " + tableName);
 
@@ -75,10 +75,10 @@ class SQLiteQueryConstructor {
             }
             queryString.append((close ? ")" : ""));
 
-            return new Statement(queryString.toString() + ";", queryInputs);
+            return new PreparedQuery(queryString.toString() + ";", queryInputs);
         }
 
-        Statement insert() {
+        PreparedQuery insert() {
 
             init("INSERT INTO " + tableName + "(");
             StringBuilder valuesQuery = new StringBuilder("VALUES (");
@@ -101,10 +101,10 @@ class SQLiteQueryConstructor {
             valuesQuery.append(");");
             String pstmt = queryString.toString() + valuesQuery.toString();
 
-            return new Statement(pstmt, queryInputs);
+            return new PreparedQuery(pstmt, queryInputs);
         }
 
-        Statement update() {
+        PreparedQuery update() {
 
             StringBuilder query = new StringBuilder("UPDATE " + tableName + " SET ");
             Vector<Object> inputs = new Vector<>();
@@ -124,7 +124,7 @@ class SQLiteQueryConstructor {
             query.append("WHERE id=?;");
             inputs.add(instance.id);
 
-            return new Statement(query.toString(), inputs);
+            return new PreparedQuery(query.toString(), inputs);
         }
 
         private void appendBoundedCondition(Vector<Range> boundedCriterias) {
@@ -301,9 +301,9 @@ class SQLiteQueryConstructor {
         }
     }
 
-    class Statement extends Pair<String,Vector<Object>> {
+    class PreparedQuery extends Pair<String,Vector<Object>> {
 
-        private Statement(String template, Vector<Object> values) {
+        private PreparedQuery(String template, Vector<Object> values) {
             super(template, values);
         }
 

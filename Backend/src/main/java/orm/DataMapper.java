@@ -90,7 +90,7 @@ class DataMapper {
         c.id = id;
 
         Integer found = null;
-        if (Table.isSearchable(c)) {
+        if (Table.isSearchable(className)) {
             Vector<Table> r = Table.search(c);
             found = r.size();
             if (r.size() > 0) {
@@ -99,7 +99,7 @@ class DataMapper {
         }
 
         String s = "idToInstance exception: (isSearchable, size, className) = (%s, %s, %s)";
-        throw new IllegalArgumentException(String.format(s, Table.isSearchable(c), found, className));
+        throw new IllegalArgumentException(String.format(s, Table.isSearchable(className), found, className));
     }
 
     private static void addType(Class<?> type, ResultSetGetter resultSetGetter, PreparedStatementSetter pstmtSetter) {

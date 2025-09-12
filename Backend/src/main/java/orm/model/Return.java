@@ -2,7 +2,6 @@ package orm.model;
 
 import orm.Table;
 
-import orm.util.Pair;
 import orm.util.Constraints;
 
 import java.time.LocalDate;
@@ -36,32 +35,9 @@ public class Return extends Table {
         this.additionalFees = additionalFees;
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new Return());
-    }
-
-    public static Vector<Table> search() {
-        return search(new Return());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Return").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-        return search(new Return(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Return());
-        return search(tuples, boundedCriterias);
-    }
-
     public Return setReservation(Reservation r) {
 
-        if (!isTuple(r)) {
+        if (r == null || !r.isTupleOrElseThrow()) {
             return this;
         }
 
@@ -98,5 +74,28 @@ public class Return extends Table {
 
     public Double getAdditionalFees() {
         return this.additionalFees;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("Return");
+    }
+
+    public static Vector<Table> search() {
+        return search(new Return());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Return").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new Return(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Return());
+        return search(tuples, boundedCriterias);
     }
 }

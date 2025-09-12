@@ -1,8 +1,5 @@
 package orm.util;
 
-import static orm.util.Reflection.getModelInstance;
-import static orm.util.Console.*;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,11 +13,13 @@ import org.json.JSONObject;
 
 import orm.Table;
 
+import static orm.util.Reflection.getModelInstance;
+import static orm.util.Console.*;
+
 public class Database {
 
-    private static String path = "./Backend/ressources/samples/";
-
     private static HashMap<Aggregation,Integer> occurences = new HashMap<>();
+    private static String path = "./Backend/ressources/samples/";
 
     public static void display() {
         for (String className : Table.getModelNames()) {
@@ -31,17 +30,15 @@ public class Database {
     }
 
     public static void clear() {
-
         for (String className : Table.getModelNames()) {
             if (Table.isSearchable(className)) {
-
                 String s;
                 if (delete(Table.search(className))) {
                     s = "Deleted: %s";
                 } else {
                     s = "Deletion failed for: %s";
                 }
-                print(String.format(s, className));
+                print(s, className);
             }
         }
     }
@@ -107,7 +104,7 @@ public class Database {
 
         boolean success = true;
         for (Table tuple : tuples) {
-            success = success && tuple.add();
+            success = success && tuple.add() >= 1;
         }
 
         return success;
@@ -117,7 +114,7 @@ public class Database {
 
         boolean success = true;
         for (Table tuple : tuples) {
-            success = success && tuple.delete();
+            success = success && tuple.delete() >= 1;
         }
 
         return success;

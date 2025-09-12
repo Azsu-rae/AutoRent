@@ -79,9 +79,9 @@ public class Reflection {
                     for (Field relevantField : getReferencingFieldsFrom(referencerName)) {
 
                         if (relevantField.getAnnotation(Constraints.class).nullable()) {
-                            success = success && setFieldValue(referencer, relevantField, null).edit();
+                            success = success && setFieldValue(referencer, relevantField, null).edit() >= 1;
                         } else {
-                            success = success && referencer.delete();
+                            success = success && referencer.delete() >= 1;
                         }
                     }
                 }

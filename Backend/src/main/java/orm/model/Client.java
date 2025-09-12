@@ -36,29 +36,6 @@ public class Client extends Table {
         this.email = email;
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new Client());
-    }
-
-    public static Vector<Table> search() {
-        return search(new Client());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Client").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Client(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Client());
-        return search(tuples, boundedCriterias);
-    }
-
     public Client setSurname(String surname) {
         this.surname = surname;
         return this;
@@ -103,5 +80,28 @@ public class Client extends Table {
 
     public String getDrivingLicence() {
         return this.drivingLicence;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("Client");
+    }
+
+    public static Vector<Table> search() {
+        return search(new Client());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Client").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
+        return search(new Client(), boundedAttributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Client());
+        return search(tuples, boundedCriterias);
     }
 }

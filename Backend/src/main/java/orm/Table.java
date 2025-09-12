@@ -32,11 +32,7 @@ import static orm.DataMapper.fetchResutls;
 public abstract class Table {
 
     private static String dbPath = "./Backend/ressources/databases/AutoRent.db";
-
     private static Set<Class<? extends Table>> models = new HashSet<>();
-    protected static void registerModel(Class<? extends Table> model) {
-        models.add(model);
-    }
 
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
@@ -104,40 +100,6 @@ public abstract class Table {
         return this.id.equals(tuple.getId());
     }
 
-    public static boolean isSearchable(String modelName) {
-        return isSearchable(getModelInstance(modelName));
-    }
-
-    public static boolean isSearchable(Table tuple) {
-        return tuple.db();
-    }
-
-    public static Vector<Table> search(String className) {
-        return search(getModelInstance(className));
-    }
-
-    public static Vector<Table> search(Table discreteCriteria) {
-        return search(discreteCriteria, null, null, null);
-    }
-
-    public static Vector<Table> search(Vector<? extends Table> discreteCriterias) {
-        return search(discreteCriterias, null);
-    }
-
-    public static Vector<Table> search(Table discrete, String boundedName, Object lowerBound, Object upperBound) {
-
-        Vector<Table> discreteContainer = new Vector<>();
-        discreteContainer.add(discrete);
-
-        Vector<Range> boundedContainer = null;
-        if (boundedName != null && lowerBound != null && upperBound != null) {
-            boundedContainer = new Vector<>();
-            boundedContainer.add(new Range(boundedName, lowerBound, upperBound));
-        }
-
-        return search(discreteContainer, boundedContainer);
-    }
-
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
         if (discreteCriterias == null || discreteCriterias.size() == 0 || discreteCriterias.elementAt(0) == null) {
@@ -151,53 +113,53 @@ public abstract class Table {
             throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName()));
         }
 
-        var statement = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
+        var preparedQuery = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
         Vector<Table> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
+             PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template())) {
 
-            bindValues(pstmt, statement.values());
+            bindValues(pstmt, preparedQuery.values());
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            error(e, "Search query: %s", statement.template());
+            error(e, "Search query: %s", preparedQuery.template());
         }
 
         return tuples;
     }
 
-    public boolean add() {
+    public int add() {
 
         if (!isValid()) {
             String s = "Attempting to add an invalid tuple:\n\n%s";
             throw new IllegalArgumentException(String.format(s, this));
         }
 
-        var statement = query.manipulate.insert();
+        var preparedQuery = query.manipulate.insert();
+        int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              Statement stmt = conn.createStatement();) {
 
             stmt.execute(query.define.table());
 
-            var pstmt = conn.prepareStatement(statement.template());
-            bindValues(pstmt, statement.values());
-            pstmt.executeUpdate();
+            var pstmt = conn.prepareStatement(preparedQuery.template());
+            bindValues(pstmt, preparedQuery.values());
+            affected = pstmt.executeUpdate();
             pstmt.close();
 
         } catch (SQLException e) {
             error(e, new String[] {
                 String.format("Table creation query:\n\n%s", query.define.table()),
-                String.format("Insertion query: %s", statement.template())
+                String.format("Insertion query: %s", preparedQuery.template())
             });
-            return false;
         }
 
-        return true;
+        return affected;
     }
 
-    public boolean edit() {
+    public int edit() {
 
         if (!db()) {
             String s = "No database or no table found for the class: %s while attempting deletion!";
@@ -210,22 +172,22 @@ public abstract class Table {
         }
 
         var statement = query.manipulate.update();
+        int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
 
             bindValues(pstmt, statement.values());
-            pstmt.executeUpdate();
+            affected = pstmt.executeUpdate();
 
         } catch (SQLException e) {
             error(e, "Updating query: %s", statement.template());
-            return false;
         }
 
-        return true;
+        return affected;
     }
 
-    public boolean delete() {
+    public int delete() {
 
         if (!db()) {
             String s = "No database or no table found while attempting deletion for class: %s";
@@ -243,34 +205,24 @@ public abstract class Table {
         }
 
         String sql = String.format("DELETE FROM %s WHERE id=?", query.tableName);
+        int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, this.id);
-            pstmt.executeUpdate();
+            affected = pstmt.executeUpdate();
 
         } catch (SQLException e) {
             error(e, "Deletion query: %s", sql);
-            return false;
         }
 
-        return true;
+        return affected;
     }
 
-    public static boolean hasSubClass(String className) {
-        return getModelNames().contains(className);
-    }
+    // Verification methods
 
-    public static List<String> getModelNames() {
-        return getModels().stream().map(Class::getSimpleName).toList();
-    }
-
-    public static Set<Class<? extends Table>> getModels() {
-        return Collections.unmodifiableSet(models);
-    }
-
-    protected boolean db() {
+    public boolean db() {
 
         File db = new File(dbPath);
         if (!db.exists() || !db.isFile()) {
@@ -308,18 +260,21 @@ public abstract class Table {
     }
 
     static public boolean isTuple(Table tuple) {
-
-        if (tuple == null) {
-            return false;
-        }
-
-        if (!tuple.isValid() || tuple.getId() == null) {
-            String s = "Invalid %s:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, tuple.getClass().getSimpleName(), tuple));
-        }
-
-        return true;
+        return tuple.isValid() && tuple.getId() != null;
     }
+
+    public boolean isTupleOrElseThrow() {
+        if (!isTuple(this)) {
+            String s = "Illegal attempt of insertion! Invalid %s:\n\n%s";
+            throw new IllegalArgumentException(String.format(s, getClass().getSimpleName(), this));
+        } return true;
+    }
+
+    public static boolean isSearchable(String modelName) {
+        return getModelInstance(modelName).db();
+    }
+
+    // Utilities
 
     protected static LocalDate stringToDate(String s) {
 
@@ -332,6 +287,52 @@ public abstract class Table {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format: " + s);
         }
+    }
+
+    // Model-related methods
+
+    protected static void registerModel(Class<? extends Table> model) {
+        models.add(model);
+    }
+
+    public static Set<Class<? extends Table>> getModels() {
+        return Collections.unmodifiableSet(models);
+    }
+
+    public static List<String> getModelNames() {
+        return getModels().stream().map(Class::getSimpleName).toList();
+    }
+
+    public static boolean hasSubClass(String className) {
+        return getModelNames().contains(className);
+    }
+
+    // Overloads
+
+    public static Vector<Table> search(String className) {
+        return search(getModelInstance(className));
+    }
+
+    public static Vector<Table> search(Table discreteCriteria) {
+        return search(discreteCriteria, null, null, null);
+    }
+
+    public static Vector<Table> search(Vector<? extends Table> discreteCriterias) {
+        return search(discreteCriterias, null);
+    }
+
+    public static Vector<Table> search(Table discrete, String boundedName, Object lowerBound, Object upperBound) {
+
+        Vector<Table> discreteContainer = new Vector<>();
+        discreteContainer.add(discrete);
+
+        Vector<Range> boundedContainer = null;
+        if (boundedName != null && lowerBound != null && upperBound != null) {
+            boundedContainer = new Vector<>();
+            boundedContainer.add(new Range(boundedName, lowerBound, upperBound));
+        }
+
+        return search(discreteContainer, boundedContainer);
     }
 
     static public class Range extends Pair<Object,Object> {
@@ -354,9 +355,9 @@ public abstract class Table {
         public boolean isValidCriteriaFor(Reflection r) {
             return
                 attributeName != null && first != null && second != null
+                && r.fields.type(attributeName).equals(first.getClass())
                 && first.getClass().equals(second.getClass())
-                && r.fields.bounded.contains(attributeName)
-                && r.fields.type(attributeName).equals(first.getClass());
+                && r.fields.bounded.contains(attributeName);
         }
     }
 }

@@ -46,44 +46,21 @@ public class Reservation extends Table {
         setTotalAmountAndStatus();
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new Reservation());
-    }
-
-    public static Vector<Table> search() {
-        return search(new Reservation());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Reservation").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-        return search(new Reservation(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Reservation());
-        return search(tuples, boundedCriterias);
-    }
-
     @Override
-    public boolean add() {
+    public int add() {
 
         if (hasConflict()) {
-            return false;
+            return 0;
         }
 
         return super.add();
     }
 
     @Override
-    public boolean edit() {
+    public int edit() {
 
         if (hasConflict()) {
-            return false;
+            return 0;
         }
 
         return super.add();
@@ -138,7 +115,7 @@ public class Reservation extends Table {
 
         boolean hasConflict = (conflicts.size() != 0);
         if (hasConflict) {
-            print(
+            error(
                 "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n",
                 conflicts.size(), this, Console.toString(conflicts)
             );
@@ -149,12 +126,12 @@ public class Reservation extends Table {
 
     public boolean cancel() {
         this.status = "Canceled";
-        return edit();
+        return edit() >= 1;
     }
 
     public Reservation setClient(Client c) {
 
-        if (!isTuple(c)) {
+        if (c == null || !c.isTupleOrElseThrow()) {
             return this;
         }
 
@@ -165,7 +142,7 @@ public class Reservation extends Table {
 
     public Reservation setVehicle(Vehicle v) {
 
-        if (!isTuple(v)) {
+        if (v == null || !v.isTupleOrElseThrow()) {
             return this;
         }
 
@@ -208,5 +185,28 @@ public class Reservation extends Table {
 
     public String getEndDate() {
         return this.endDate.toString();
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("Reservation");
+    }
+
+    public static Vector<Table> search() {
+        return search(new Reservation());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("Reservation").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new Reservation(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new Reservation());
+        return search(tuples, boundedCriterias);
     }
 }

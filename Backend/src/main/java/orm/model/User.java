@@ -37,29 +37,6 @@ public class User extends Table {
         this.role = role;
     }
 
-    public static boolean isSearchable() {
-        return isSearchable(new User());
-    }
-
-    public static Vector<Table> search() {
-        return search(new User());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("User").reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
-        return search(new User(), attributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new User());
-        return search(tuples, boundedCriterias);
-    }
-
     public User setSurname(String surname) {
         this.surname = surname;
         return this;
@@ -103,5 +80,28 @@ public class User extends Table {
 
     public String getRole() {
         return this.role;
+    }
+
+    public static boolean isSearchable() {
+        return isSearchable("User");
+    }
+
+    public static Vector<Table> search() {
+        return search(new User());
+    }
+
+    public static Vector<Table> search(String attName, Object value) {
+        return search(getModelInstance("User").reflect.fields.setDiscrete(attName, value));
+    }
+
+    public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
+        return search(new User(), attributeName, lowerBound, upperBound);
+    }
+
+    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
+
+        Vector<Table> tuples = new Vector<>();
+        tuples.add(new User());
+        return search(tuples, boundedCriterias);
     }
 }
