@@ -6,12 +6,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>asura.autorent</groupId>
+    <groupId>asura</groupId>
     <artifactId>AutoRent</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>Backend</module>
+        <module>backend</module>
+        <module>frontend</module>
     </modules>
+
 </project>
