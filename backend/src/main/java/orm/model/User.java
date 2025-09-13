@@ -37,6 +37,10 @@ public class User extends Table {
         this.role = role;
     }
 
+    public static boolean authenticate(String email, char[] password) {
+        return search(new User().setEmail(email).setPassword(String.valueOf(password))).size() >= 1;
+    }
+
     public User setSurname(String surname) {
         this.surname = surname;
         return this;

@@ -5,7 +5,6 @@ import orm.Table.Range;
 
 import java.util.Vector;
 
-
 import static orm.util.Database.*;
 import static orm.util.Console.*;
 
@@ -13,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        tutorial();
+        System.out.println("this shouldn't be the one running");
     }
 
     private static void tutorial() {
