@@ -1,13 +1,20 @@
 package panel;
 
 import javax.swing.*;
+import java.awt.BorderLayout;
+
+import component.*;
 
 import util.Listener;
 import util.Source;
 
-import java.awt.*;
+public class Dashboard extends Panel implements Source {
 
-public class Dashboard extends JPanel implements Source {
+    public Dashboard(Listener listener) {
+
+        setLayout(new BorderLayout());
+        add(new Sidebar(), BorderLayout.WEST);
+    }
 
     @Override
     public void notifyListener(Listener listener) {

@@ -12,8 +12,13 @@ public class Button extends JButton {
 
         super(name);
         setBackground(new Color(75, 110, 175)); // Blue background
+        setFocusPainted(false);     // no ugly focus border
+        setMargin(new Insets(10, 20, 10, 10)); // padding (top, left, bottom, right)
+        setBorderPainted(false);    // no border
         setForeground(Color.WHITE);
-        setCursor(new Cursor(Cursor.HAND_CURSOR)); // Hand cursor on hover
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // hand on hover
+        setFont(new Font("Segoe UI", Font.BOLD, 16));
+        setHorizontalAlignment(SwingConstants.LEFT); // text aligned left
 
         // Hover effect
         addMouseListener(new MouseAdapter() {

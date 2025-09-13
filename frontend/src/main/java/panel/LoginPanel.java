@@ -8,8 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-import component.Button;
-import component.Label;
+import component.*;
 
 import util.*;
 import util.Listener.Event;
@@ -17,12 +16,11 @@ import orm.model.User;
 
 import static component.Factory.*;
 
-public class LoginPanel extends JPanel implements Source {
+public class LoginPanel extends Panel implements Source {
 
     public LoginPanel(Listener listener) {
 
         setLayout(new GridBagLayout());
-        setBackground(new Color(25, 32, 55)); 
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
