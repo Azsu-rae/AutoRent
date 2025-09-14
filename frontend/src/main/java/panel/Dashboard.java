@@ -3,7 +3,7 @@ package panel;
 import javax.swing.*;
 import java.awt.BorderLayout;
 
-import component.*;
+import ui.component.*;
 
 import util.Listener;
 import util.Source;

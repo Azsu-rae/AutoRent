@@ -6,13 +6,13 @@ import java.awt.Insets;
 
 import javax.swing.*;
 
-import component.*;
+import ui.component.*;
 
 import util.*;
 import util.Listener.Event;
 import orm.model.User;
 
-import static component.Factory.*;
+import static ui.Factory.*;
 
 public class LoginPanel extends Panel implements Source {
 

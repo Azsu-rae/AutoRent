@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 
 import javax.swing.*;
 
-import component.*;
+import ui.component.*;
 
 public class Sidebar extends JPanel {
 
