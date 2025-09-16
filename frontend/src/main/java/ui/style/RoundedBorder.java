@@ -1,9 +1,11 @@
 package ui.style;
 
 import java.awt.*;
+
 import javax.swing.border.Border;
 
 public class RoundedBorder implements Border {
+
     private int radius;
 
     public RoundedBorder(int radius) {
@@ -12,17 +14,19 @@ public class RoundedBorder implements Border {
 
     @Override
     public Insets getBorderInsets(Component c) {
-        return new Insets(this.radius+1, this.radius+1, this.radius+1, this.radius+1);
+        return new Insets(5, 10, 5, 10); // top, left, bottom, right padding
     }
 
     @Override
     public boolean isBorderOpaque() {
-        return false;
+        return false; // background can show through rounded corners
     }
 
     @Override
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        g.setColor(Color.GRAY); // border color
-        g.drawRoundRect(x, y, width-1, height-1, radius, radius/25);
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(Color.GRAY);
+        g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+        g2.dispose();
     }
 }

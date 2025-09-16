@@ -8,7 +8,7 @@ import ui.component.*;
 import util.Listener;
 import util.Source;
 
-public class Dashboard extends Panel implements Source {
+public class Dashboard extends MyPanel implements Source {
 
     public Dashboard(Listener listener) {
 

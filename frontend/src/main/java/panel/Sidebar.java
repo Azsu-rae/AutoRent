@@ -9,25 +9,25 @@ import ui.component.*;
 
 public class Sidebar extends JPanel {
 
-    Button dashboardBtn;
-    Button vehiclesBtn;
-    Button clientsBtn;
-    Button reservationsBtn;
+    MyButton homeBtn;
+    MyButton vehiclesBtn;
+    MyButton clientsBtn;
+    MyButton reservationsBtn;
 
     public Sidebar() {
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        dashboardBtn = new Button("Dashboard");
-        dashboardBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        vehiclesBtn = new Button("Vehicles");
+        homeBtn = new MyButton("Home");
+        homeBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        vehiclesBtn = new MyButton("Vehicles");
         vehiclesBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        clientsBtn = new Button("Clients");
+        clientsBtn = new MyButton("Clients");
         clientsBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        reservationsBtn = new Button("Reservations");
+        reservationsBtn = new MyButton("Reservations");
         reservationsBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        add(dashboardBtn);
+        add(homeBtn);
         add(Box.createVerticalStrut(10));
         add(vehiclesBtn);
         add(Box.createVerticalStrut(10));

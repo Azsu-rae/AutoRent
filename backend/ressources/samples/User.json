@@ -3,6 +3,7 @@
         "name": "John",
         "surname": "Doe",
         "email": "john@example.com",
+        "username": "joker",
         "password": "password123",
         "role": "Admin"
     },
@@ -10,6 +11,7 @@
         "name": "Jane",
         "surname": "Smith",
         "email": "jane.smith@email.com",
+        "username": "flower",
         "password": "pass456",
         "role": "Manager"
     },
@@ -17,6 +19,7 @@
         "name": "Alice",
         "surname": "Johnson",
         "email": "alice.j@email.com",
+        "username": "user123",
         "password": "password789",
         "role": "Manager"
     }

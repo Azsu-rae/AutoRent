@@ -3,6 +3,8 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
+import ui.style.RoundedBorder;
+
 public class Factory {
 
     public enum Field {
@@ -24,7 +26,9 @@ public class Factory {
 
         field.setBackground(new Color(69, 73, 74)); // Dark gray background
         field.setForeground(Color.WHITE); // White text
-        field.setBorder(BorderFactory.createLineBorder(new Color(87, 90, 92))); // Subtle border
+        field.setBorder(new RoundedBorder(15));
+        field.setOpaque(false);
+//        field.setBorder(BorderFactory.createLineBorder(new Color(87, 90, 92))); // Subtle border
 
         return field;
     }

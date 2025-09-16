@@ -1,8 +1,6 @@
 package orm.model;
 
 import orm.Table;
-
-import orm.util.Pair;
 import orm.util.Constraints;
 
 import java.util.Vector;
@@ -22,6 +20,9 @@ public class User extends Table {
     @Constraints(type = "TEXT", nullable = false)
     private String email;
     @Constraints(type = "TEXT", nullable = false)
+    private String username;
+
+    @Constraints(type = "TEXT", nullable = false)
     private String password;
     @Constraints(type = "TEXT", nullable = false)
     private String role;
@@ -37,8 +38,9 @@ public class User extends Table {
         this.role = role;
     }
 
-    public static boolean authenticate(String email, char[] password) {
-        return search(new User().setEmail(email).setPassword(String.valueOf(password))).size() >= 1;
+    public static boolean authenticate(String id, String password) {
+        return search(new User().setEmail(id).setPassword(password)).size() >= 1
+            || search(new User().setUsername(id).setPassword(password)).size() >= 1;
     }
 
     public User setSurname(String surname) {
@@ -66,6 +68,11 @@ public class User extends Table {
         return this;
     }
 
+    public User setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
     public String getSurname() {
         return this.surname;
     }
@@ -80,6 +87,10 @@ public class User extends Table {
 
     public String getPassword() {
         return this.password;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getRole() {

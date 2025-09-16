@@ -3,7 +3,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import panel.Dashboard;
-import panel.LoginPanel;
+import panel.SignIn;
 import util.Listener;
 
 import static orm.util.Database.*;
@@ -16,7 +16,7 @@ public class MainApp extends JFrame implements Listener {
     MainApp() {
 
         super("AutoRent");
-        panels.add(new LoginPanel(this), "Login");
+        panels.add(new SignIn(this), "Login");
         panels.add(new Dashboard(this), "Dashboard");
 
         setContentPane(panels);
