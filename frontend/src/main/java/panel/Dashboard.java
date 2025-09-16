@@ -10,7 +10,6 @@ import util.Source;
 public class Dashboard extends MyPanel implements Source {
 
     public Dashboard(Listener listener) {
-
         setLayout(new BorderLayout());
         add(new Sidebar(), BorderLayout.WEST);
     }
