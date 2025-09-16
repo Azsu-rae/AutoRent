@@ -8,7 +8,7 @@ import java.awt.Insets;
 import javax.swing.*;
 
 import ui.component.*;
-v
+
 import util.*;
 import util.Listener.Event;
 
