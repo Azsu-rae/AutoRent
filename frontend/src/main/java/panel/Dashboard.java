@@ -1,6 +1,5 @@
 package panel;
 
-import javax.swing.*;
 import java.awt.BorderLayout;
 
 import ui.component.*;
