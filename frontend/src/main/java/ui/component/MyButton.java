@@ -1,6 +1,9 @@
 package ui.component;
 
 import javax.swing.*;
+
+import ui.style.MyStyle;
+
 import java.awt.*;
 
 import java.awt.event.MouseAdapter;
@@ -12,29 +15,33 @@ public class MyButton extends JButton {
 
         super(name);
 
-        setBackground(new Color(75, 110, 220)); // Blue background
+        setBackground(MyStyle.BUTTON);
+        setFont(MyStyle.BUTTON_FONT);
         setForeground(Color.WHITE);
-        setFont(new Font("Segoe UI", Font.BOLD, 16));
 
         setContentAreaFilled(false);
         setBorderPainted(false);
-        setFocusPainted(false);     // no ugly focus border
+        setFocusPainted(false);
 
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));  // hand on hover
-        setHorizontalAlignment(SwingConstants.LEFT);                // text aligned left
-        setMargin(new Insets(5, 20, 5, 10));                        // padding (top, left, bottom, right)
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setHorizontalAlignment(SwingConstants.CENTER);
 
         // Hover effect
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setBackground(new Color(50, 80, 160)); // Lighter blue on hover
+                setBackground(new Color(50, 80, 160));
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                setBackground(new Color(75, 110, 220)); // Original blue
+                setBackground(new Color(75, 110, 220));
             }
         });
+    }
+
+    public MyButton(String name, int alignment) {
+        this(name);
+        setHorizontalAlignment(alignment);
     }
 
     @Override
