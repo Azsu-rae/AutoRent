@@ -11,6 +11,12 @@ public class Factory {
         TEXT, PASSWORD
     }
 
+    static public JTextField field(int columns, Field type, int height, int width) {
+        JTextField field = field(columns, type);
+        field.setPreferredSize(new Dimension(300, 40));
+        return field;
+    }
+
     static public JTextField field(int columns, Field type) {
 
         JTextField field = null;

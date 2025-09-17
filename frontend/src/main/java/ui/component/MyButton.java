@@ -11,6 +11,11 @@ import java.awt.event.MouseEvent;
 
 public class MyButton extends JButton {
 
+    public MyButton(String name, int width, int height) {
+        this(name);
+        setPreferredSize(new Dimension(width, height));
+    }
+
     public MyButton(String name) {
 
         super(name);
@@ -37,11 +42,6 @@ public class MyButton extends JButton {
                 setBackground(new Color(75, 110, 220));
             }
         });
-    }
-
-    public MyButton(String name, int alignment) {
-        this(name);
-        setHorizontalAlignment(alignment);
     }
 
     @Override

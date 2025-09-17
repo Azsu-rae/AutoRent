@@ -16,8 +16,8 @@ public class MainApp extends JFrame implements Listener {
     MainApp() {
 
         super("AutoRent");
-        panels.add(new SignIn(this), "Login");
         panels.add(new Dashboard(this), "Dashboard");
+        panels.add(new SignIn(this), "Login");
 
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

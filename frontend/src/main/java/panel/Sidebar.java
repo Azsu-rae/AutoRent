@@ -1,41 +1,54 @@
 package panel;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.*;
 
 import ui.component.*;
 
-public class Sidebar extends JPanel {
+import util.Listener;
+import util.Source;
 
-    MyButton homeBtn;
-    MyButton vehiclesBtn;
-    MyButton clientsBtn;
-    MyButton reservationsBtn;
+import util.Listener.Event;
 
-    public Sidebar() {
+public class Sidebar extends MyPanel implements Source {
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    Listener listener;
+    GridBagConstraints gbc = new GridBagConstraints();
 
-        homeBtn = new MyButton("Home");
-        homeBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        vehiclesBtn = new MyButton("Vehicles");
-        vehiclesBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        clientsBtn = new MyButton("Clients");
-        clientsBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        reservationsBtn = new MyButton("Reservations");
-        reservationsBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+    public Sidebar(Listener listener) {
 
-        add(homeBtn);
-        add(Box.createVerticalStrut(10));
-        add(vehiclesBtn);
-        add(Box.createVerticalStrut(10));
-        add(clientsBtn);
-        add(Box.createVerticalStrut(10));
-        add(reservationsBtn);
+        this.listener = listener;
 
-        add(Box.createVerticalGlue());
+        setLayout(new GridBagLayout());
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.gridx = 0; gbc.gridy = -1;
+
+        setUpButton("Home", Integer.MAX_VALUE, 40, Event.HOME);
+        setUpButton("Vehicles", Integer.MAX_VALUE, 40, Event.VEHICLES);
+        setUpButton("Clients", Integer.MAX_VALUE, 40, Event.CLIENTS);
+        setUpButton("Reservations", Integer.MAX_VALUE, 40, Event.RESERVATIONS);
+        setUpButton("Sign out", Integer.MAX_VALUE, 40, Event.LOG_OUT);
 
         setOpaque(false);
+    }
+
+    private void setUpButton(String name, int width, int height, Event event) {
+
+        MyButton btn = new MyButton(name);
+        gbc.gridy++; add(btn, gbc);
+        btn.addActionListener(e -> {
+            notifyListener(listener, event);
+        });
+    }
+
+    @Override
+    public void notifyListener(Listener listener, Event event) {
+        listener.onEvent(event);
     }
 }
