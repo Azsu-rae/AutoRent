@@ -18,8 +18,11 @@ import static ui.Factory.*;
 
 public class SignIn extends MyPanel implements Source {
 
+    Listener listener;
+
     public SignIn(Listener listener) {
 
+        this.listener = listener;
         setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -53,7 +56,9 @@ public class SignIn extends MyPanel implements Source {
 
         loginBtn.addActionListener(e -> {
             if (User.authenticate(idField.getText(), String.valueOf(passwordField.getPassword()))) {
-                notifyListener(listener, Event.LOG_IN);
+                idField.setText("");
+                passwordField.setText("");
+                notifyListener(Event.LOG_IN);
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid login!");
             }
@@ -61,7 +66,7 @@ public class SignIn extends MyPanel implements Source {
     }
 
     @Override
-    public void notifyListener(Listener listener, Event event) {
+    public void notifyListener(Event event) {
         listener.onEvent(event);
     }
 }

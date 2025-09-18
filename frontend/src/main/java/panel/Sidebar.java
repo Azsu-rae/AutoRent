@@ -17,8 +17,8 @@ import util.Listener.Event;
 
 public class Sidebar extends MyPanel implements Source {
 
-    Listener listener;
     GridBagConstraints gbc = new GridBagConstraints();
+    Listener listener;
 
     public Sidebar(Listener listener) {
 
@@ -43,12 +43,12 @@ public class Sidebar extends MyPanel implements Source {
         MyButton btn = new MyButton(name);
         gbc.gridy++; add(btn, gbc);
         btn.addActionListener(e -> {
-            notifyListener(listener, event);
+            notifyListener(event);
         });
     }
 
     @Override
-    public void notifyListener(Listener listener, Event event) {
+    public void notifyListener(Event event) {
         listener.onEvent(event);
     }
 }

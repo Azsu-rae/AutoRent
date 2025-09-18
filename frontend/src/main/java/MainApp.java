@@ -16,8 +16,8 @@ public class MainApp extends JFrame implements Listener {
     MainApp() {
 
         super("AutoRent");
-        panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Login");
+        panels.add(new Dashboard(this), "Dashboard");
 
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,6 +38,9 @@ public class MainApp extends JFrame implements Listener {
         switch (e) {
             case LOG_IN:
                 cardLayout.show(panels, "Dashboard");
+                break;
+            case LOG_OUT:
+                cardLayout.show(panels, "Login");
                 break;
             default:
                 break;
