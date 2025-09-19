@@ -7,7 +7,6 @@ import orm.model.Reservation;
 import orm.model.Return;
 import orm.model.User;
 import orm.model.Vehicle;
-import orm.util.Constraints;
 
 import java.util.List;
 import java.util.Map;

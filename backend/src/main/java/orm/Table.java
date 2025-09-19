@@ -100,6 +100,8 @@ public abstract class Table {
         return this.id.equals(tuple.getId());
     }
 
+    // CRUD operations (Create, Read, Update, Delete)
+
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
         if (discreteCriterias == null || discreteCriterias.size() == 0 || discreteCriterias.elementAt(0) == null) {
