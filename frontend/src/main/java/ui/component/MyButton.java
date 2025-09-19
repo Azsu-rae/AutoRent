@@ -2,7 +2,7 @@ package ui.component;
 
 import javax.swing.*;
 
-import ui.style.MyStyle;
+import ui.style.*;
 
 import java.awt.*;
 
@@ -10,6 +10,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MyButton extends JButton {
+
+    public MyButton(String name, int alignment) {
+        this(name);
+        setHorizontalAlignment(alignment);
+    }
 
     public MyButton(String name, int width, int height) {
         this(name);
@@ -20,8 +25,8 @@ public class MyButton extends JButton {
 
         super(name);
 
-        setBackground(MyStyle.BUTTON);
-        setFont(MyStyle.BUTTON_FONT);
+        setBackground(MyColor.BUTTON);
+        setFont(MyFont.BUTTON);
         setForeground(Color.WHITE);
 
         setContentAreaFilled(false);

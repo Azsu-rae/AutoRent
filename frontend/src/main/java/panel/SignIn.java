@@ -1,6 +1,5 @@
 package panel;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -21,10 +20,9 @@ public class SignIn extends MyPanel implements Source {
     Listener listener;
 
     public SignIn(Listener listener) {
-
         this.listener = listener;
-        setLayout(new GridBagLayout());
 
+        setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -56,8 +54,7 @@ public class SignIn extends MyPanel implements Source {
 
         loginBtn.addActionListener(e -> {
             if (User.authenticate(idField.getText(), String.valueOf(passwordField.getPassword()))) {
-                idField.setText("");
-                passwordField.setText("");
+                idField.setText(""); passwordField.setText("");
                 notifyListener(Event.LOG_IN);
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid login!");
