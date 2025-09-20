@@ -321,6 +321,17 @@ public class Reflection {
             return type;
         }
 
+        public Object[] get() {
+            Object[] values = new Object[fields.length];
+            for (int i=0;i<fields.length;i++) {
+                values[i] = get(i);
+                if (values[i] instanceof Table) {
+                    values[i] = ((Table) values[i]).getId();
+                }
+            }
+            return values;
+        }
+
         public Object get(int i) {
             return getFieldValue(fields[i]);
         }
@@ -349,8 +360,12 @@ public class Reflection {
             return set(attName, value);
         }
 
-        public Table callSetter(String attribute, Object value) {
-            return (Table) invoke(getSetter(tuple.getClass(), attribute), tuple, value);
+        public boolean hasSetter(String name) {
+            return getSetter(tuple.getClass(), name) != null;
+        }
+
+        public void callSetter(String attribute, Object value) {
+            invoke(getSetter(tuple.getClass(), attribute), tuple, value);
         }
     }
 }

@@ -2,15 +2,15 @@ package panel;
 
 import javax.swing.*;
 
-import panel.table.Reservations;
+import panel.table.*;
 
 public class Models extends JTabbedPane {
 
     public Models() {
 
-        // Create tabbed pane
-        JPanel reservationPanel = new Reservations();
-        addTab("Reservations", reservationPanel);
-        // Add other tabs (Vehicles, Clients, etc.) similarly
+        addTab("Clients", new Clients());
+        addTab("Vehicles", new Vehicles());
+        addTab("Reservations", new Reservations());
+        addTab("Users", new Users());
     }
 }
