@@ -24,8 +24,6 @@ public class Client extends Table {
     private String drivingLicence;
     @Constraints(type = "TEXT", nullable = false)
     private String phoneNumber;
-    @Constraints(type = "TEXT", nullable = false)
-    private String nationality;
 
     public Client() {}
 
@@ -62,15 +60,6 @@ public class Client extends Table {
 
         this.drivingLicence = drivingLicence;
         return this;
-    }
-
-    public Table setNationality(String nationality) {
-        this.nationality = nationality;
-        return this;
-    }
-
-    public String getNationality() {
-        return nationality;
     }
 
     public String getSurname() {

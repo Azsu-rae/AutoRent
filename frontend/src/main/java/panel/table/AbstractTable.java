@@ -1,32 +1,32 @@
 package panel.table;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.function.Function;
 import java.awt.*;
-import java.time.LocalDate;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import java.util.*;
+import java.util.List;
+import java.util.function.Function;
+
+import java.time.LocalDate;
+
 import orm.Table;
-import orm.model.Reservation;
-import orm.util.Console;
-import orm.util.Reflection;
-import ui.component.MyPanel;
+import orm.util.*;
+
+import ui.component.*;
+import ui.Factory;
+import ui.Factory.Field;
 
 import static orm.util.Reflection.getModelInstance;
 
 public class AbstractTable extends MyPanel {
 
+    Form form;
     JTable table;
     DefaultTableModel model;
 
-    Map<String,JTextField> fields = new HashMap<>();
-    Parser parse = new Parser();
     String[] modelColumns;
     Reflection reflect;
     String modelName;
@@ -36,6 +36,7 @@ public class AbstractTable extends MyPanel {
 
         reflect = getModelInstance(modelName).reflect;
         modelColumns = reflect.fields.names;
+
         model = new DefaultTableModel(columns(), 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -43,25 +44,12 @@ public class AbstractTable extends MyPanel {
             }
         };
         table = new JTable(model);
+        form = new Form();
 
         setLayout(new BorderLayout());
         add(new JScrollPane(table), BorderLayout.CENTER);
-
-        // Buttons
-        JPanel buttonPanel = new JPanel();
-        JButton addButton = new JButton("Add Reservation");
-        addButton.addActionListener(e -> addReservation());
-        JButton deleteButton = new JButton("Delete Selected");
-        deleteButton.addActionListener(e -> deleteReservation());
-        buttonPanel.add(addButton);
-        buttonPanel.add(deleteButton);
-
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(form(), BorderLayout.CENTER);
-        southPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        add(southPanel, BorderLayout.SOUTH);
-        load(); // Initial data load
+        add(form, BorderLayout.SOUTH);
+        loadData(); // Initial data load
     }
 
     private String[] columns() {
@@ -85,58 +73,7 @@ public class AbstractTable extends MyPanel {
         }
     }
 
-    private JPanel form() {
-
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 5, 5));
-        for (String columnName : modelColumns) {
-            if (reflect.fields.hasSetter(columnName)) {
-                var field = new JTextField();
-                formPanel.add(new JLabel(column(columnName) + ":"));
-                formPanel.add(field);
-                fields.put(columnName, field);
-            }
-        }
-
-        return formPanel;
-    }
-
-    private void addReservation() {
-        try {
-            Table tuple = parse.fields();
-            if (tuple.add() > 0) {
-                JOptionPane.showMessageDialog(this, modelName + " added successfully!");
-                load(); // Refresh table
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to add!");
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-            Console.error(e);
-        }
-    }
-
-    private void deleteReservation() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow >= 0) {
-            try {
-                int id = (Integer) model.getValueAt(selectedRow, 0);
-                Reservation reservation = (Reservation) Table.search(new Reservation().reflect.fields.set("id", id)).elementAt(0);
-                if (reservation.delete() > 0) {
-                    JOptionPane.showMessageDialog(this, "Reservation deleted successfully!");
-                    load();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to delete reservation.");
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-                Console.error(e);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a reservation to delete.");
-        }
-    }
-
-    private void load() {
+    private void loadData() {
 
         // Clear existing rows
         model.setRowCount(0);
@@ -149,30 +86,95 @@ public class AbstractTable extends MyPanel {
         }
     }
 
-    class Parser {
+    class Form extends MyPanel {
 
-        Map<Class<?>,Function<String,Object>> parser = new HashMap<>();
-        Parser() {
+        static Map<Class<?>,Function<String,Object>> parser = new HashMap<>();
+        static {
             parser.put(Integer.class, Integer::parseInt);
             parser.put(Double.class,  Double::parseDouble);
             parser.put(String.class,  String::valueOf);
             parser.put(LocalDate.class,  String::valueOf);
         }
 
-        Table fields() {
+        Map<String,JTextField> fields = new HashMap<>();
+
+        Form() {
+
+            var fieldsPanel = new MyPanel();
+            fieldsPanel.setLayout(new GridLayout(0, 2, 5, 5));
+            for (String columnName : modelColumns) {
+                if (reflect.fields.hasSetter(columnName)) {
+                    var field = Factory.field(Field.TEXT);
+                    fieldsPanel.add(new MyLabel(column(columnName) + ":"));
+                    fieldsPanel.add(field);
+                    fields.put(columnName, field);
+                }
+            }
+
+            var buttonPanel = new MyPanel();
+            addButton(buttonPanel, "Add", e -> add());
+            addButton(buttonPanel, "Delete", e -> delete());
+
+            setLayout(new BorderLayout());
+            add(fieldsPanel, BorderLayout.CENTER);
+            add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        void addButton(MyPanel panel, String name, ActionListener l) {
+            var btn = new MyButton(name);
+            btn.addActionListener(l);
+            panel.add(btn);
+        }
+
+        Table parseFields() {
 
             Table tuple = getModelInstance(modelName);
             for (Map.Entry<String,JTextField> field : fields.entrySet()) {
-                Object value = field(field.getKey(), field.getValue());
+                Object value = getValue(field.getKey(), field.getValue());
                 tuple.reflect.fields.callSetter(field.getKey(), value);
             }
 
             return tuple;
         }
 
-        Object field(String name, JTextField field) {
+        Object getValue(String name, JTextField field) {
             return parser.get(reflect.fields.type(name)).apply(field.getText());
+        }
+
+        private void add() {
+            try {
+                Table tuple = parseFields();
+                if (tuple.add() > 0) {
+                    JOptionPane.showMessageDialog(this, modelName + " added successfully!");
+                    loadData(); // Refresh table
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add!");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+                Console.error(e);
+            }
+        }
+
+        private void delete() {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow >= 0) {
+                try {
+                    int id = (Integer) model.getValueAt(selectedRow, 0);
+                    var reservation = Table.search(getModelInstance(modelName).reflect.fields.set("id", id)).elementAt(0);
+                    if (reservation.delete() > 0) {
+                        JOptionPane.showMessageDialog(this, "Reservation deleted successfully!");
+                        loadData();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to delete reservation.");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+                    Console.error(e);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a reservation to delete.");
+            }
         }
     }
 }
-

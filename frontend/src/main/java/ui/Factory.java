@@ -18,14 +18,20 @@ public class Factory {
     }
 
     static public JTextField field(int columns, Field type) {
+        JTextField field = field(type);
+        field.setColumns(columns);
+        return field;
+    }
+
+    static public JTextField field(Field type) {
 
         JTextField field = null;
         switch (type) {
             case TEXT:
-                field = new JTextField(columns);
+                field = new JTextField();
                 break;
             case PASSWORD:
-                field = new JPasswordField(columns);
+                field = new JPasswordField();
             default:
                 break;
         }
