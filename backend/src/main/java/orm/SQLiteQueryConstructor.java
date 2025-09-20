@@ -148,7 +148,7 @@ class SQLiteQueryConstructor {
 
                 Object lowerBound = criteria.lowerBound(), upperBound = criteria.upperBound();
                 if (col.constraints().lowerBound()) {
-                    appendOverlap(colName, lowerBound, upperBound);
+                    appendOverlap(colName, col.constraints().boundedPair(), lowerBound, upperBound);
                 } else {
                     queryString.append(colName + " BETWEEN ? AND ?");
                     queryInputs.add(lowerBound);
@@ -206,27 +206,7 @@ class SQLiteQueryConstructor {
             return false;
         }
 
-        private String getUpperBoundName() {
-
-            String upperBoundName = "";
-            for (int j=i+1;j<columns.size();j++) {
-                if (getColumn(j).constraints().upperBound()) {
-                    upperBoundName = getColumn(j).name();
-                    break;
-                }
-            }
-
-            if (upperBoundName.equals("")) {
-                String s = "Couldn't find a name for the upper bound in class %s!";
-                throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName() + "!"));
-            }
-
-            return upperBoundName;
-        }
-
-        private void appendOverlap(String attName, Object lowerBound, Object upperBound) {
-
-            String lowerBoundName = attName, upperBoundName = getUpperBoundName();
+        private void appendOverlap(String lowerBoundName, String upperBoundName, Object lowerBound, Object upperBound) {
 
             String overlapCondition = 
                 "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +

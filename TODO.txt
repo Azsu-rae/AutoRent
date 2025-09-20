@@ -1,2 +1,4 @@
 
 . Add on focus coloring of the borders on the Sign In page
+
+. Add a logger for error()

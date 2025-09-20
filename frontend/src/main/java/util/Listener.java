@@ -3,8 +3,9 @@ package util;
 public interface Listener {
 
     public enum Event {
+        HOME, MODELS,
         LOG_IN, LOG_OUT,
-        HOME, VEHICLES, CLIENTS, RESERVATIONS,
+        VEHICLES, CLIENTS, RESERVATIONS, USERS
     }
 
     void onEvent(Event e);

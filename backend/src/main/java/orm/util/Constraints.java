@@ -11,9 +11,11 @@ public @interface Constraints {
     boolean nullable() default true; // Nothing can compensate for nullable() except primaryKey of course
 
     boolean bounded() default false;
-    boolean lowerBound() default false;     // A lowerBound must be directly or indirectly followed by it's 
-    boolean upperBound() default false;     // corresponding upperBound before having any other lowerBound
-    boolean searchedText() default false;   // Whether to use the LIKE operator
+    boolean lowerBound() default false;
+    boolean upperBound() default false;
+    String boundedPair() default "";
+
+    boolean searchedText() default false;   // use the LIKE operator
 
     boolean primaryKey() default false;
     boolean foreignKey() default false;

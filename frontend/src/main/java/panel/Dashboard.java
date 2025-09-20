@@ -16,6 +16,7 @@ public class Dashboard extends MyPanel implements Source, Listener {
 
         setLayout(new BorderLayout());
         add(new Sidebar(this), BorderLayout.WEST);
+        add(new Models(), BorderLayout.CENTER);
     }
 
     @Override

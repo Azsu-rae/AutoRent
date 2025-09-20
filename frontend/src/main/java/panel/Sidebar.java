@@ -27,9 +27,7 @@ public class Sidebar extends MyPanel implements Source {
         gbc.gridx = 0; gbc.gridy = -1;
 
         setUpButton("Home", Event.HOME);
-        setUpButton("Vehicles", Event.VEHICLES);
-        setUpButton("Clients", Event.CLIENTS);
-        setUpButton("Reservations", Event.RESERVATIONS);
+        setUpButton("Models", Event.MODELS);
         setUpButton("Sign out", Event.LOG_OUT);
     }
 

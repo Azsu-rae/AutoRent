@@ -2,7 +2,6 @@ package orm.model;
 
 import orm.Table;
 
-import orm.util.Pair;
 import orm.util.Constraints;
 
 import java.util.Vector;
@@ -27,7 +26,7 @@ public class Reservation extends Table {
 
     @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double totalAmount;
-    @Constraints(type = "DATE", nullable = false, lowerBound = true)
+    @Constraints(type = "DATE", nullable = false, lowerBound = true, boundedPair = "endDate")
     private LocalDate startDate;
     @Constraints(type = "DATE", nullable = false, upperBound = true)
     private LocalDate endDate;
@@ -113,7 +112,7 @@ public class Reservation extends Table {
             }
         }
 
-        boolean hasConflict = (conflicts.size() != 0);
+        boolean hasConflict = (conflicts.size() != 0) && !conflicts.elementAt(0).equals(this);
         if (hasConflict) {
             error(
                 "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n",
