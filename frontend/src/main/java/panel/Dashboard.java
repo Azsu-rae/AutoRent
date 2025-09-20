@@ -1,7 +1,8 @@
 package panel;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
+import panel.table.Home;
 import ui.component.*;
 
 import util.Listener;
@@ -9,14 +10,19 @@ import util.Source;
 
 public class Dashboard extends MyPanel implements Source, Listener {
 
+    CardLayout cardLayout = new CardLayout();
+    MyPanel panels = new MyPanel(cardLayout);
     Listener listener;
 
     public Dashboard(Listener listener) {
         this.listener = listener;
 
+        panels.add(new Home(), "Home");
+        panels.add(new Models(), "Models");
+
         setLayout(new BorderLayout());
         add(new Sidebar(this), BorderLayout.WEST);
-        add(new Models(), BorderLayout.CENTER);
+        add(panels, BorderLayout.CENTER);
     }
 
     @Override
@@ -29,6 +35,12 @@ public class Dashboard extends MyPanel implements Source, Listener {
         switch (event) {
             case LOG_OUT:
                 notifyListener(event);
+                break;
+            case HOME:
+                cardLayout.show(panels, "Home");
+                break;
+            case MODELS:
+                cardLayout.show(panels, "Models");
                 break;
             default:
                 break;

@@ -2,12 +2,10 @@
 import java.awt.*;
 import javax.swing.*;
 
-import orm.model.Reservation;
 import panel.Dashboard;
 import panel.SignIn;
-import util.Listener;
 
-import panel.table.AbstractTable;
+import util.Listener;
 
 import static orm.util.Database.*;
 
@@ -19,8 +17,8 @@ public class MainApp extends JFrame implements Listener {
     MainApp() {
 
         super("AutoRent");
-        panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Login");
+        panels.add(new Dashboard(this), "Dashboard");
 
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
