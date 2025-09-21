@@ -54,6 +54,11 @@ public class MyButton extends JButton {
     @Override
     protected void paintComponent(Graphics g) {
 
+        if (Opts.DEFAULT_THEME) {
+            super.paintComponent(g);
+            return;
+        }
+
         Graphics2D g2 = (Graphics2D) g.create();
 
         g2.setColor(getBackground());

@@ -1,5 +1,5 @@
 package util;
 
 public class Opts {
-    public static boolean DEFAULT_THEME = true;
+    public static final boolean DEFAULT_THEME = true;
 }
