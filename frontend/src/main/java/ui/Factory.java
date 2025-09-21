@@ -3,7 +3,8 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
-import ui.style.RoundedBorder;
+import ui.style.MyBorder;
+import util.Opts;
 
 public class Factory {
 
@@ -35,10 +36,11 @@ public class Factory {
             default:
                 break;
         }
+        if (Opts.DEFAULT_THEME) return field;
 
         field.setBackground(new Color(69, 73, 74)); // Dark gray background
         field.setForeground(Color.WHITE); // White text
-        field.setBorder(new RoundedBorder(15));
+        field.setBorder(new MyBorder.Rounded(15));
         field.setOpaque(false);
 //        field.setBorder(BorderFactory.createLineBorder(new Color(87, 90, 92))); // Subtle border
 

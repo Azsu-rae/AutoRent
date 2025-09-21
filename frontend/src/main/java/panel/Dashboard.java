@@ -2,7 +2,6 @@ package panel;
 
 import java.awt.*;
 
-import panel.table.Home;
 import ui.component.*;
 
 import util.Listener;
@@ -12,8 +11,8 @@ public class Dashboard extends MyPanel implements Source, Listener {
 
     CardLayout cardLayout = new CardLayout();
     MyPanel panels = new MyPanel(cardLayout);
-    Listener listener;
 
+    Listener listener;
     public Dashboard(Listener listener) {
         this.listener = listener;
 

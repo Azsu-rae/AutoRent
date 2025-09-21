@@ -3,6 +3,7 @@ package ui.component;
 import javax.swing.*;
 
 import ui.style.*;
+import util.Opts;
 
 import java.awt.*;
 
@@ -24,6 +25,7 @@ public class MyButton extends JButton {
     public MyButton(String name) {
 
         super(name);
+        if (Opts.DEFAULT_THEME) return;
 
         setBackground(MyColor.BUTTON);
         setFont(MyFont.BUTTON);

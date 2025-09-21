@@ -7,8 +7,6 @@ import orm.util.Constraints;
 import java.time.LocalDate;
 import java.util.Vector;
 
-import static orm.util.Reflection.getModelInstance;
-
 public class Return extends Table {
 
     static {
@@ -85,7 +83,7 @@ public class Return extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Return").reflect.fields.setDiscrete(attName, value));
+        return search("Return", attName, value);
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {

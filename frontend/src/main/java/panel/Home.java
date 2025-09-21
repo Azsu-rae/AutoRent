@@ -1,4 +1,4 @@
-package panel.table;
+package panel;
 
 import ui.component.MyPanel;
 

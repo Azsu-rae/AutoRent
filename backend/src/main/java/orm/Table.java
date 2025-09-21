@@ -23,6 +23,8 @@ import orm.util.Constraints;
 import orm.util.Pair;
 import orm.util.Reflection;
 
+import orm.model.*;
+
 import static orm.util.Console.*;
 import static orm.util.Reflection.getModelInstance;
 
@@ -33,6 +35,14 @@ public abstract class Table {
 
     private static String dbPath = "./Backend/ressources/databases/AutoRent.db";
     private static Set<Class<? extends Table>> models = new HashSet<>();
+    static {
+        new Client();
+        new Vehicle();
+        new Reservation();
+        new Return();
+        new Payment();
+        new User();
+    }
 
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
@@ -134,8 +144,7 @@ public abstract class Table {
     public int add() {
 
         if (!isValid()) {
-            String s = "Attempting to add an invalid tuple:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, this));
+            return 0;
         }
 
         var preparedQuery = query.manipulate.insert();
@@ -164,13 +173,12 @@ public abstract class Table {
     public int edit() {
 
         if (!db()) {
-            String s = "No database or no table found for the class: %s while attempting deletion!";
+            String s = "No database or no table found for the class: %s while attempting editting!";
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
 
         if (!isValid() || id == null) {
-            String s = "Editting attempt on invalid object:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, this));
+            return 0;
         }
 
         var statement = query.manipulate.update();
@@ -196,14 +204,13 @@ public abstract class Table {
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
 
-        if (id == null) {
-            String s = "Pass an ID on a tuple you wish to delete:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, this));
-        }
-
         if (!reflect.cascadeDeletion()) {
             String s = "Faillure to cascade deletion on this %s:\n\n%s";
             throw new IllegalStateException(String.format(s, getClass().getSimpleName(), this));
+        }
+
+        if (id == null) {
+            return 0;
         }
 
         String sql = String.format("DELETE FROM %s WHERE id=?", query.tableName);
@@ -278,9 +285,9 @@ public abstract class Table {
 
     // Utilities
 
-    protected static LocalDate stringToDate(String s) {
+    public static LocalDate stringToDate(String s) {
 
-        if (s == null) {
+        if (s == null || s.equals("")) {
             return null;
         }
 
@@ -313,6 +320,10 @@ public abstract class Table {
 
     public static Vector<Table> search(String className) {
         return search(getModelInstance(className));
+    }
+
+    public static Vector<Table> search(String modelName, String attName, Object value) {
+        return search(getModelInstance(modelName).reflect.fields.setDiscrete(attName, value));
     }
 
     public static Vector<Table> search(Table discreteCriteria) {

@@ -11,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 
 import orm.util.Console;
 import static orm.util.Console.*;
-import static orm.util.Reflection.getModelInstance;
 
 public class Reservation extends Table {
 
@@ -115,7 +114,7 @@ public class Reservation extends Table {
         boolean hasConflict = (conflicts.size() != 0) && !conflicts.elementAt(0).equals(this);
         if (hasConflict) {
             error(
-                "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n",
+                "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n%s",
                 conflicts.size(), this, Console.toString(conflicts)
             );
         }
@@ -195,7 +194,7 @@ public class Reservation extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Reservation").reflect.fields.setDiscrete(attName, value));
+        return search("Reservation", attName, value);
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {

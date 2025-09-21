@@ -22,14 +22,6 @@ import java.time.LocalDate;
 public class Reflection {
 
     static String qualifiedPackageName = "orm.model.";
-    static {
-        new Client();
-        new Vehicle();
-        new Reservation();
-        new Return();
-        new Payment();
-        new User();
-    }
 
     private Table tuple;
     public FieldUtils fields;
@@ -262,6 +254,7 @@ public class Reflection {
         public int count;
         public String[] names;
         public Class<?>[] types;
+        public String[] titleCaseNames;
         public Constraints[] constraints;
         public List<String> bounded, discrete;
 
@@ -282,6 +275,7 @@ public class Reflection {
             this.count = fields.length;
             this.names = new String[count];
             this.types = new Class<?>[count];
+            this.titleCaseNames = new String[count];
 
             this.constraints = new Constraints[count];
             this.fieldByName = new HashMap<>();
@@ -295,6 +289,7 @@ public class Reflection {
 
                 names[i] = fields[i].getName();
                 types[i] = fields[i].getType();
+                titleCaseNames[i] = titleCase(names[i]);
                 constraints[i] = fields[i].getAnnotation(Constraints.class);
 
                 if (constraints[i].bounded() || constraints[i].lowerBound()) {
@@ -302,6 +297,17 @@ public class Reflection {
                 } else {
                     discrete.add(names[i]);
                 }
+            }
+        }
+
+        public String titleCase(String name) {
+            name = name.substring(0, 1).toUpperCase() + name.substring(1);
+            if (orm.Table.hasSubClass(name)) {
+                return name + " ID";
+            } else if (name.equals("Id")) {
+                return "ID";
+            } else {
+                return name.replaceAll("([a-z])([A-Z])", "$1 $2");
             }
         }
 

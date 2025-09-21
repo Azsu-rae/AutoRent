@@ -4,15 +4,15 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-Write-Host ""
-$DB_PATH = "Backend/ressources/databases/AutoRent.db"
-if (Test-Path $DB_PATH) {
-    Remove-Item $DB_PATH
-    Write-Host "Deleted database"
-} else {
-    Write-Host "No database found"
-}
-Write-Host ""
+# Write-Host ""
+# $DB_PATH = "Backend/ressources/databases/AutoRent.db"
+# if (Test-Path $DB_PATH) {
+#     Remove-Item $DB_PATH
+#     Write-Host "Deleted database"
+# } else {
+#     Write-Host "No database found"
+# }
+# Write-Host ""
 
 # Directories and dependencies
 $BE_SRC_DIR = "backend/src/main/java/"

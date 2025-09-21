@@ -2,7 +2,7 @@ package panel;
 
 import javax.swing.*;
 
-import panel.table.*;
+import panel.model.*;
 
 public class Models extends JTabbedPane {
 

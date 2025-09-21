@@ -28,8 +28,9 @@ public class MainApp extends JFrame implements Listener {
 
     public static void main(String[] args) {
 
-        readSampleData();
-        display();
+//        readSampleData();
+//        clear();
+//        display();
 
         SwingUtilities.invokeLater(MainApp::new);
     }

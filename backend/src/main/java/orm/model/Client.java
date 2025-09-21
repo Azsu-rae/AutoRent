@@ -2,11 +2,8 @@ package orm.model;
 
 import orm.Table;
 import orm.util.Constraints;
-import orm.util.Pair;
 
 import java.util.Vector;
-
-import static orm.util.Reflection.getModelInstance;;
 
 public class Client extends Table {
 
@@ -91,7 +88,7 @@ public class Client extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("Client").reflect.fields.setDiscrete(attName, value));
+        return search("Client", attName, value);
     }
 
     public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {

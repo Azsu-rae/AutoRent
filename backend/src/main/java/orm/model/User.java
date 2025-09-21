@@ -5,8 +5,6 @@ import orm.util.Constraints;
 
 import java.util.Vector;
 
-import static orm.util.Reflection.getModelInstance;
-
 public class User extends Table {
 
     static {
@@ -106,7 +104,7 @@ public class User extends Table {
     }
 
     public static Vector<Table> search(String attName, Object value) {
-        return search(getModelInstance("User").reflect.fields.setDiscrete(attName, value));
+        return search("Payment", attName, value);
     }
 
     public static Vector<Table> search(String attributeName, Object lowerBound, Object upperBound) {
