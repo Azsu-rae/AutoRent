@@ -3,6 +3,8 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
+import ui.component.MyLabel;
+import ui.component.MyPanel;
 import ui.style.MyBorder;
 import util.Opts;
 
@@ -10,6 +12,13 @@ public class Factory {
 
     public enum Field {
         TEXT, PASSWORD
+    }
+
+    static public JTextField field(MyPanel panel, String label) {
+        var field = Factory.field(Field.TEXT);
+        panel.add(new MyLabel(label));
+        panel.add(field);
+        return field;
     }
 
     static public JTextField field(int columns, Field type, int height, int width) {

@@ -18,7 +18,7 @@ public class Return extends Table {
 
     @Constraints(type = "DATE", nullable = false, bounded = true)
     private LocalDate returnDate;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String returnState;
     @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double additionalFees;

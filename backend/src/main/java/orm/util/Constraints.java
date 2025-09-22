@@ -16,6 +16,8 @@ public @interface Constraints {
     String boundedPair() default "";
 
     boolean searchedText() default false;   // use the LIKE operator
+    boolean enumerated() default false;
+    boolean unique() default false;
 
     boolean primaryKey() default false;
     boolean foreignKey() default false;

@@ -29,7 +29,7 @@ public class Reservation extends Table {
     private LocalDate startDate;
     @Constraints(type = "DATE", nullable = false, upperBound = true)
     private LocalDate endDate;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String status;
 
     public Reservation() {}

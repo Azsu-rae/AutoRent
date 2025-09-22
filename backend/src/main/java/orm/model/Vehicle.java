@@ -20,15 +20,15 @@ public class Vehicle extends Table {
     @Constraints(type = "DATE", nullable = false, bounded = true)
     private LocalDate maintenanceDate;
 
-    @Constraints(type = "TEXT")
+    @Constraints(type = "TEXT", enumerated = true)
     private String brand;
-    @Constraints(type = "TEXT")
+    @Constraints(type = "TEXT", enumerated = true)
     private String model;
     @Constraints(type = "INTEGER", bounded = true)
     private Integer year;
-    @Constraints(type = "TEXT")
+    @Constraints(type = "TEXT", enumerated = true)
     private String vehicleType;
-    @Constraints(type = "TEXT")
+    @Constraints(type = "TEXT", enumerated = true)
     private String fuelType;
 
     public Vehicle() {}

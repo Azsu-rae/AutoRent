@@ -138,6 +138,8 @@ public abstract class Table {
             error(e, "Search query: %s", preparedQuery.template());
         }
 
+        print(preparedQuery.template());
+
         return tuples;
     }
 
@@ -296,6 +298,22 @@ public abstract class Table {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format: " + s);
         }
+    }
+
+    public Set<String> getAttributeValues(String att) {
+
+        if (!reflect.fields.constraints(att).enumerated()) {
+            String s = "Attempting to get the values of an attribute that is not enumerated: %s";
+            throw new IllegalArgumentException(String.format(s, att));
+        }
+
+        Set<String> values = new HashSet<>();
+        var tuples = search(getClass().getSimpleName());
+        for (var tuple : tuples) {
+            values.add((String)tuple.reflect.fields.get(att));
+        }
+
+        return values;
     }
 
     // Model-related methods

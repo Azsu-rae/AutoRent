@@ -6,11 +6,22 @@ import ui.style.*;
 import util.Opts;
 
 import java.awt.*;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class MyButton extends JButton {
+
+    public boolean defaultEnabled = true;
+
+    public MyButton(MyPanel panel, String name, ActionListener l, boolean defaultEnable) {
+        this(name, defaultEnable);
+        addActionListener(l);
+        panel.add(this);
+    }
+
+    public MyButton(String name, ActionListener l) {
+        this(name);
+        addActionListener(l);
+    }
 
     public MyButton(String name, int alignment) {
         this(name);
@@ -22,9 +33,16 @@ public class MyButton extends JButton {
         setPreferredSize(new Dimension(width, height));
     }
 
+    public MyButton(String name, boolean defaultEnabled) {
+        this(name);
+        setEnabled(defaultEnabled);
+        this.defaultEnabled = defaultEnabled;
+    }
+
     public MyButton(String name) {
 
         super(name);
+        setFocusPainted(false);
         if (Opts.DEFAULT_THEME) return;
 
         setBackground(MyColor.BUTTON);
@@ -33,7 +51,6 @@ public class MyButton extends JButton {
 
         setContentAreaFilled(false);
         setBorderPainted(false);
-        setFocusPainted(false);
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setHorizontalAlignment(SwingConstants.CENTER);

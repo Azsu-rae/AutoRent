@@ -6,5 +6,7 @@
 target/
 bin/
 
+/TODO.txt
+
 /Backend/ressources/databases/AutoRent.db
 /Backend/TODO.txt

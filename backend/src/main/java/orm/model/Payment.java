@@ -18,7 +18,7 @@ public class Payment extends Table {
 
     @Constraints(type = "DATE", nullable = false, bounded = true)
     private LocalDate date;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String method;
     @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double amount;

@@ -1,12 +1,6 @@
 package orm.util;
 
 import orm.Table;
-import orm.model.Client;
-import orm.model.Payment;
-import orm.model.Reservation;
-import orm.model.Return;
-import orm.model.User;
-import orm.model.Vehicle;
 
 import java.util.List;
 import java.util.Map;
@@ -143,12 +137,12 @@ public class Reflection {
 
     // Primary methods
 
-    static private Method getSetter(Class<?> model, String attribute) {
+    static private Method getSetter(Table tuple, String attribute) {
 
         try {
             String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
-            Class<?> attType = getModelInstance(model.getSimpleName()).reflect.fields.effectiveType(attribute);
-            return model.getDeclaredMethod(method, attType);
+            Class<?> attType = tuple.reflect.fields.visibleType(attribute);
+            return tuple.getClass().getDeclaredMethod(method, attType);
         } catch (NoSuchMethodException e) {
             error(e);
         }
@@ -249,6 +243,8 @@ public class Reflection {
 
     public class FieldUtils {
 
+        static HashMap<String,List<String>> modifiable = new HashMap<>();
+
         public Field[] fields;
 
         public int count;
@@ -300,6 +296,18 @@ public class Reflection {
             }
         }
 
+        public List<String> modifiable() {
+            return modifiable.computeIfAbsent(tuple.getClass().getSimpleName(), k -> {
+                var list = new ArrayList<String>();
+                for (String att : tuple.reflect.fields.names) {
+                    if (getSetter(tuple, att) != null) {
+                        list.add(att);
+                    }
+                }
+                return list;
+            });
+        }
+
         public String titleCase(String name) {
             name = name.substring(0, 1).toUpperCase() + name.substring(1);
             if (orm.Table.hasSubClass(name)) {
@@ -311,6 +319,10 @@ public class Reflection {
             }
         }
 
+        public Constraints constraints(String name) {
+            return fieldByName.get(name).getAnnotation(Constraints.class);
+        }
+
         public Class<?> type(int i) {
             return fields[i].getType();
         }
@@ -319,7 +331,7 @@ public class Reflection {
             return fieldByName.get(name).getType();
         }
 
-        public Class<?> effectiveType(String name) {
+        public Class<?> visibleType(String name) {
             Class<?> type = type(name);
             if (type.equals(LocalDate.class)) {
                 type = String.class;
@@ -327,15 +339,22 @@ public class Reflection {
             return type;
         }
 
-        public Object[] get() {
+        public Object[] getAsRow() {
             Object[] values = new Object[fields.length];
-            for (int i=0;i<fields.length;i++) {
-                values[i] = get(i);
-                if (values[i] instanceof Table) {
-                    values[i] = ((Table) values[i]).getId();
-                }
+            int i=0;
+            for (String att : names) {
+                values[i] = getAsColumn(att);
+                i++;
             }
             return values;
+        }
+
+        public Object getAsColumn(String name) {
+            Object value = get(name);
+            if (value instanceof Table) {
+                value = ((Table) value).getId();
+            }
+            return value;
         }
 
         public Object get(int i) {
@@ -366,12 +385,8 @@ public class Reflection {
             return set(attName, value);
         }
 
-        public boolean hasSetter(String name) {
-            return getSetter(tuple.getClass(), name) != null;
-        }
-
         public void callSetter(String attribute, Object value) {
-            invoke(getSetter(tuple.getClass(), attribute), tuple, value);
+            invoke(getSetter(tuple, attribute), tuple, value);
         }
     }
 }

@@ -6,6 +6,9 @@ import panel.Dashboard;
 import panel.SignIn;
 
 import util.Listener;
+import util.Opts;
+
+import static orm.util.Console.*;
 
 import static orm.util.Database.*;
 
@@ -19,6 +22,14 @@ public class MainApp extends JFrame implements Listener {
         super("AutoRent");
         panels.add(new SignIn(this), "Login");
         panels.add(new Dashboard(this), "Dashboard");
+
+        Opts.set(true, this);
+        try {
+            // TODO Look into this
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            error(e);
+        }
 
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

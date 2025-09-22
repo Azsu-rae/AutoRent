@@ -15,11 +15,11 @@ public class Client extends Table {
     private String surname;
     @Constraints(type = "TEXT", nullable = false, searchedText = true)
     private String name;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String email;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String drivingLicence;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String phoneNumber;
 
     public Client() {}

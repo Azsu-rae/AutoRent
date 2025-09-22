@@ -15,14 +15,13 @@ public class User extends Table {
     private String name;
     @Constraints(type = "TEXT", nullable = false, searchedText = true)
     private String surname;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String email;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String username;
-
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, unique = true)
     private String password;
-    @Constraints(type = "TEXT", nullable = false)
+    @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String role;
 
     public User() {}
