@@ -1,5 +1,7 @@
 package orm;
 
+import static orm.util.Console.print;
+
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -39,8 +41,6 @@ class SQLiteQueryConstructor {
 
         int checkedBoundedCriterias, currentAttribute, i;
         boolean where, close;
-
-        String colName;
         Column col;
 
         private DataManipulation() {}
@@ -61,13 +61,13 @@ class SQLiteQueryConstructor {
 
             for (i=0;i<columns.size();i++) {
 
-                Column col = getColumn(i);
+                col = getColumn(i);
 
                 if (col.constraints().upperBound()) {
                     continue;
                 }
 
-                if (col.constraints().bounded() && col.constraints().lowerBound()) {
+                if (col.constraints().bounded() || col.constraints().lowerBound()) {
                     appendBoundedCondition(boundedCriterias);
                 } else {
                     appendDiscreteCondition(discreteCriterias);
@@ -140,7 +140,7 @@ class SQLiteQueryConstructor {
                     throw new IllegalArgumentException(String.format(s, criteria));
                 }
 
-                if (!criteria.attributeName.equals(colName)) {
+                if (!criteria.attributeName.equals(col.name())) {
                     continue;
                 }
 
@@ -148,9 +148,9 @@ class SQLiteQueryConstructor {
 
                 Object lowerBound = criteria.lowerBound(), upperBound = criteria.upperBound();
                 if (col.constraints().lowerBound()) {
-                    appendOverlap(colName, col.constraints().boundedPair(), lowerBound, upperBound);
+                    appendOverlap(col.name(), col.constraints().boundedPair(), lowerBound, upperBound);
                 } else {
-                    queryString.append(colName + " BETWEEN ? AND ?");
+                    queryString.append(col.name() + " BETWEEN ? AND ?");
                     queryInputs.add(lowerBound);
                     queryInputs.add(upperBound);
                 }
@@ -210,7 +210,7 @@ class SQLiteQueryConstructor {
 
             String overlapCondition = 
                 "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +
-                "(" + upperBoundName + "BETWEEN ? AND ?) OR " +
+                "(" + upperBoundName + " BETWEEN ? AND ?) OR " +
                 "(" + lowerBoundName + " < ? AND " + upperBoundName + " > ?)";
 
             queryString.append("(" + overlapCondition.toString() + ")");

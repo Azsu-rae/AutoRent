@@ -1,7 +1,6 @@
 package panel.model;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 
 import javax.swing.*;
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 
 import ui.Factory;
 import ui.component.*;
+import util.Opts;
 import orm.util.*;
 
 import ui.Factory.Field;
@@ -25,6 +25,7 @@ public class Model extends MyPanel {
 
     String ORMModelName;
     Reflection reflect;
+    ToolBar toolBar;
     Table table;
     Form form;
 
@@ -32,10 +33,12 @@ public class Model extends MyPanel {
         this.ORMModelName = ORMModelName;
 
         reflect = getModelInstance(ORMModelName).reflect;
+        toolBar = new ToolBar(this);
         table = new Table();
         form = new Form();
 
         setLayout(new BorderLayout());
+        add(toolBar, BorderLayout.NORTH);
         add(table, BorderLayout.CENTER);
         add(form, BorderLayout.SOUTH);
     }
@@ -203,6 +206,74 @@ public class Model extends MyPanel {
             } catch (Exception e) {
                 return null;
             }
+        }
+    }
+}
+
+
+class ToolBar extends JToolBar {
+
+    Map<String,List<String>> discreteValues = new HashMap<>();
+    Model model;
+
+    ToolBar(Model model) {
+        this.model = model;
+
+        for (var field : model.reflect.fields.names) {
+            if (field.equals("id")) continue;
+            var constraints = model.reflect.fields.constraints(field);
+            String title = model.reflect.fields.titleCase(field);
+            if (constraints.enumerated()) {
+                add(new MyButton(this, "Filter " + title, e -> new MultipleSelections(title, field)));
+            }
+        }
+
+        add(Box.createHorizontalGlue());
+        add(new MyButton("Apply", e -> System.out.println(discreteValues.values())));
+    }
+
+    class MultipleSelections extends JDialog {
+
+        JCheckBox[] checkBoxes;
+        String att;
+
+        public MultipleSelections(String title, String att) {
+            super(Opts.MAIN_FRAME, title, true);
+            this.att = att;
+
+            var checkboxPanel = new MyPanel();
+            checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
+
+            var values = getModelInstance(model.ORMModelName).getAttributeValues(att);
+            checkBoxes = new JCheckBox[values.size()];
+
+            int i=0;
+            for (var value : values) {
+                checkBoxes[i] = new JCheckBox(value);
+                checkboxPanel.add(checkBoxes[i]);
+                i++;
+            }
+
+            var panel = new MyPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.add(new JScrollPane(checkboxPanel));
+            panel.add(new MyButton("Save", e -> saveCriteria(), Component.CENTER_ALIGNMENT));
+            setContentPane(panel);
+
+            setSize(200, 200);
+            setLocationRelativeTo(Opts.MAIN_FRAME);
+            setVisible(true);
+        }
+
+        public void saveCriteria() {
+
+            for (var checkBox : checkBoxes) {
+                if (checkBox.isSelected()) {
+                    discreteValues.computeIfAbsent(att, k -> new ArrayList<>()).add(checkBox.getText());
+                }
+            }
+
+            dispose();
         }
     }
 }

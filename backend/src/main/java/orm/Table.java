@@ -138,8 +138,6 @@ public abstract class Table {
             error(e, "Search query: %s", preparedQuery.template());
         }
 
-        print(preparedQuery.template());
-
         return tuples;
     }
 
@@ -375,6 +373,11 @@ public abstract class Table {
             this.attributeName = attributeName;
         }
 
+        @Override
+        public String toString() {
+            return attributeName + " = " + super.toString();
+        }
+
         public Object lowerBound() {
             return first;
         }
@@ -384,9 +387,13 @@ public abstract class Table {
         }
 
         public boolean isValidCriteriaFor(Reflection r) {
+            String nil = attributeName != null && first != null && second != null ? "not null" : "null";
+            String type = r.fields.type(attributeName).equals(first.getClass()) ? "good type" : "bad type";
+            String sameType = first.getClass().equals(second.getClass()) ? "Same" : "different";
+            String sk= first.getClass().equals(second.getClass()) ? "Same" : "different";
             return
                 attributeName != null && first != null && second != null
-                && r.fields.type(attributeName).equals(first.getClass())
+                && r.fields.visibleType(attributeName).equals(first.getClass())
                 && first.getClass().equals(second.getClass())
                 && r.fields.bounded.contains(attributeName);
         }

@@ -3,6 +3,7 @@ package orm.util;
 import java.util.Vector;
 
 import orm.Table;
+import orm.Table.Range;
 
 public class Console {
 
@@ -28,6 +29,12 @@ public class Console {
 
     public static void print(String s, Object... args) {
         System.out.println(String.format("\n" + s, args));
+    }
+
+    public static void print(Vector<Range> ranges) {
+        for (var range : ranges) {
+            print(range.toString());
+        }
     }
 
     public static void print(Vector<? extends Table> tuples, String name) {

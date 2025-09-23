@@ -46,36 +46,35 @@ public class Database {
     public static void readSampleData() {
 
         for (String modelName : readOrderFile()) {
-
-            Vector<Table> parsed = new Vector<Table>();
-            JSONArray tuples = new JSONArray(readJson(modelName));
-
-            for (int i=0;i<tuples.length();i++) {
-
-                JSONObject tuple = tuples.getJSONObject(i);
-                Table instance = getModelInstance(modelName);
-
-                for (String field : instance.reflect.fields.names) {
-                    if (tuple.has(field)) {
-                        Object value = tuple.get(field);
-                        if (Table.getModelNames().contains(value)) {
-                            value = getSample((String)tuple.get(field), modelName);
-                        } else if (value instanceof java.math.BigDecimal) {
-                            value = ((java.math.BigDecimal) value).doubleValue();
-                        }
-                        instance.reflect.fields.callSetter(field, value);
-                    }
-                }
-                parsed.add(instance);
-            }
-
-            if (input(parsed)) {
-                print("inputed %d %s in the database", parsed.size(), modelName);
-            } else {
-                String s = "Why didn't the sample input?\n\n%s";
-                throw new IllegalArgumentException(String.format(s, Console.toString(parsed)));
-            }
+            read(modelName);
         }
+    }
+
+    public static void read(String model) {
+
+        Vector<Table> parsed = new Vector<Table>();
+        JSONArray tuples = new JSONArray(readJson(model));
+
+        for (int i=0;i<tuples.length();i++) {
+
+            JSONObject tuple = tuples.getJSONObject(i);
+            Table instance = getModelInstance(model);
+
+            for (String field : instance.reflect.fields.names) {
+                if (tuple.has(field)) {
+                    Object value = tuple.get(field);
+                    if (Table.getModelNames().contains(value)) {
+                        value = getSample((String)tuple.get(field), model);
+                    } else if (value instanceof java.math.BigDecimal) {
+                        value = ((java.math.BigDecimal) value).doubleValue();
+                    }
+                    instance.reflect.fields.callSetter(field, value);
+                }
+            }
+            parsed.add(instance);
+        }
+
+        input(parsed);
     }
 
     private static List<String> readOrderFile() {

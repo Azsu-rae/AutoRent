@@ -6,12 +6,20 @@ import orm.Table.Range;
 import java.util.Vector;
 
 import static orm.util.Console.*;
+import static orm.util.Database.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        tutorial();
+//        read("Vehicle");
+//        Vector<Range> ranges = new Vector<>();
+//        ranges.add(new Range("pricePerDay", 30.0, 40.0));
+//        ranges.add(new Range("pricePerDay", 20.0, 25.0));
+//        ranges.add(new Range("year", 2000, 2010));
+//        Vehicle.searchRanges(ranges);
+
+        print("This shouldn't be the one running");
     }
 
     private static void tutorial() {
@@ -107,7 +115,7 @@ public class Main {
         // The tuples can be stored in any Table-inherited references.
 
         Vector<Table> clients = Client.search(); // returns all clients (only two at this point)
-//        print(clients, "Clients");
+        print(clients, "Clients");
 
         // Let's create some vehicles and input them in the DB to see this:
         new Vehicle(35.50, "Rented", "2023-10-15", 2020, "Ford", "Fiesta", "Hatchback", "Diesel").add();
@@ -124,11 +132,11 @@ public class Main {
 
         // returns all vehicles
         Vector<Table> vehicles = Vehicle.search();
-//        print(vehicles, "Vehicles");
+        print(vehicles, "Vehicles");
 
         // returns all sedans
         Vector<Table> sedans = Vehicle.search("vehicleType", "Sedan"); 
-//        print(sedans, "Sedans");
+        print(sedans, "Sedans");
 
         // the name of the criteria must be passed to the Pair<> when creating a filter,
         // it has to be the exact same as the class attribute.
@@ -142,12 +150,12 @@ public class Main {
 
         // filter the vehicles by year:
         Vector<Table> newVehicles = Vehicle.search("year", 2020, 2024);
-//        print(newVehicles, "New Vehicles (2020 - 2024)");
+        print(newVehicles, "New Vehicles (2020 - 2024)");
 
         // new Sedans
         Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
         Vector<Table> newSedans = Vehicle.search(sedanFilter, "year", 2020, 2024); 
-//        print(newSedans, "New Sedans");
+        print(newSedans, "New Sedans");
 
         // Sedans from Nissan
         Vector<Table> sedansFromNissan = Vehicle.search(
@@ -155,7 +163,7 @@ public class Main {
                     .setVehicleType("Sedan")
                     .setBrand("Nissan")
         );
-//        print(sedansFromNissan, "Sedans from Nissan");
+        print(sedansFromNissan, "Sedans from Nissan");
 
         // BMWs and Toyotas
         // You send a Vector of tuples for multiple discrete search criterias,
@@ -163,7 +171,7 @@ public class Main {
         BMWsToyotasCriteria.add(new Vehicle().setBrand("Toyota"));
         BMWsToyotasCriteria.add(new Vehicle().setBrand("BMW"));
         Vector<Table> bt = Vehicle.search(BMWsToyotasCriteria);
-//        print(bt, "BMWs or Toyotas");
+        print(bt, "BMWs or Toyotas");
 
         // NOTE: passing an empty array will throw an exception. If you don't need to filter
         // and want all tuples use search()
@@ -177,7 +185,7 @@ public class Main {
 
         // And you of course also have Cheap and new Toyotas or BMWs! (Not sure)
         Vector<Table> dream = Vehicle.search(BMWsToyotasCriteria, newCheapVehicleCriteria);
-//        print(dream, "The Dream");
+        print(dream, "The Dream");
 
         // If you want to perform a search without having to type in the name of class,
         // (for more general work) it is possible to use Table.search() but then you would
@@ -192,7 +200,7 @@ public class Main {
 
         // For searching through date ranges, we usualy use the ranges:
         Vector<Table> maintenancesIn2024 = Vehicle.search("maintenanceDate", "2024-01-01", "2024-12-31");
-//        print(maintenancesIn2024, "All 2024 Vehicles Maintenances");
+        print(maintenancesIn2024, "All 2024 Vehicles Maintenances");
 
         // But in the case of Reservations, since a reservation's period has two dates, the given range 
         // would include all the reservations whose ranges intersect with the given one. 
@@ -241,7 +249,7 @@ public class Main {
         }
 
         Vector<Table> reservations = Reservation.search();
-//        print(reservations, "Reservations");
+        print(reservations, "Reservations");
 
         // Now to get to the point, we'll try a search
 
@@ -264,7 +272,7 @@ public class Main {
             }
         }
 
-//        print(disjointReservations, "Reservations that don't coinside with the period 2024-12-15, 2024-12-25");
+        print(disjointReservations, "Reservations that don't coinside with the period 2024-12-15, 2024-12-25");
 
         // SPECIAL CASE 2: CLIENT AND USER'S NAMES
 
@@ -273,7 +281,7 @@ public class Main {
 
         // Case insensitive, check for name and surname.
         Vector<Table> clientsWhoseNameStartWithJ = Client.search(new Client().setName("j"));
-//        print(clientsWhoseNameStartWithJ, "Clients Whose Name Start With 'j'");
+        print(clientsWhoseNameStartWithJ, "Clients Whose Name Start With 'j'");
 
         // EDITING:
 

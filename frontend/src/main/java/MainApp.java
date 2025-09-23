@@ -20,9 +20,6 @@ public class MainApp extends JFrame implements Listener {
     MainApp() {
 
         super("AutoRent");
-        panels.add(new SignIn(this), "Login");
-        panels.add(new Dashboard(this), "Dashboard");
-
         Opts.set(true, this);
         try {
             // TODO Look into this
@@ -30,6 +27,9 @@ public class MainApp extends JFrame implements Listener {
         } catch (Exception e) {
             error(e);
         }
+
+        panels.add(new Dashboard(this), "Dashboard");
+        panels.add(new SignIn(this), "Login");
 
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

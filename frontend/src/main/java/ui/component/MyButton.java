@@ -12,20 +12,26 @@ public class MyButton extends JButton {
 
     public boolean defaultEnabled = true;
 
-    public MyButton(MyPanel panel, String name, ActionListener l, boolean defaultEnable) {
+    public MyButton(Container container, String name, ActionListener l, boolean defaultEnable) {
         this(name, defaultEnable);
         addActionListener(l);
-        panel.add(this);
+        container.add(this);
+    }
+
+    public MyButton(Container container, String name, ActionListener l) {
+        this(name);
+        addActionListener(l);
+        container.add(this);
+    }
+
+    public MyButton(String name, ActionListener l, float alignment) {
+        this(name, l);
+        setAlignmentX(alignment);
     }
 
     public MyButton(String name, ActionListener l) {
         this(name);
         addActionListener(l);
-    }
-
-    public MyButton(String name, int alignment) {
-        this(name);
-        setHorizontalAlignment(alignment);
     }
 
     public MyButton(String name, int width, int height) {
@@ -37,6 +43,11 @@ public class MyButton extends JButton {
         this(name);
         setEnabled(defaultEnabled);
         this.defaultEnabled = defaultEnabled;
+    }
+
+    public MyButton(String name, int alignment) {
+        this(name);
+        setHorizontalAlignment(alignment);
     }
 
     public MyButton(String name) {
