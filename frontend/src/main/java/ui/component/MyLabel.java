@@ -9,7 +9,7 @@ import util.Opts;
 public class MyLabel extends JLabel {
     public MyLabel(String content) {
         super(content);
-        if (Opts.DEFAULT_THEME) return;
+        if (!Opts.CUSTOM_THEME) return;
         setForeground(Color.WHITE);
         setFont(MyFont.LABEL); // Font size
     }

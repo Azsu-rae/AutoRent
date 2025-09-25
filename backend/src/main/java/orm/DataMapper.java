@@ -26,7 +26,7 @@ class DataMapper {
             (pstmt, i, value) -> pstmt.setString(i, (String) value)
         );
         addType(
-            Double.class, 
+            Double.class,
             ResultSet::getDouble,
             (pstmt, i, value) -> pstmt.setDouble(i, (Double) value)
         );

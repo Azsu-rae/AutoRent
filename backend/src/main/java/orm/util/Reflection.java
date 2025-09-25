@@ -5,6 +5,7 @@ import orm.Table;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -317,6 +318,15 @@ public class Reflection {
             } else {
                 return name.replaceAll("([a-z])([A-Z])", "$1 $2");
             }
+        }
+
+        public List<String> haveConstraint(Function<Constraints,Boolean> check) {
+            var fields = new ArrayList<String>();
+            for (int i=0;i<count;i++) {
+                if (check.apply(constraints[i])) {
+                    fields.add(names[i]);
+                }
+            } return fields;
         }
 
         public Constraints constraints(String name) {

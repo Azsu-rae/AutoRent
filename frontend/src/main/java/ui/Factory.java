@@ -45,7 +45,7 @@ public class Factory {
             default:
                 break;
         }
-        if (Opts.DEFAULT_THEME) return field;
+        if (!Opts.CUSTOM_THEME) return field;
 
         field.setBackground(new Color(69, 73, 74)); // Dark gray background
         field.setForeground(Color.WHITE); // White text

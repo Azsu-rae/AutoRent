@@ -29,8 +29,9 @@ public class SignIn extends MyPanel implements Source {
         add(new MyLabel("Username or Email"), gbc);
 
         // ID Field
-        JTextField idField = field(15, Field.TEXT, 300, 40);
         gbc.gridx = 0; gbc.gridy = 1;
+
+        JTextField idField = field(15, Field.TEXT, 300, 40);
         add(idField, gbc);
 
         // Password Label
@@ -38,9 +39,10 @@ public class SignIn extends MyPanel implements Source {
         add(new MyLabel("Password"), gbc);
 
         // Password Field
-        JPasswordField passwordField = (JPasswordField) field(15, Field.PASSWORD, 300, 40);
         gbc.insets = new Insets(5, 5, 15, 5);
         gbc.gridx = 0; gbc.gridy = 4;
+
+        JPasswordField passwordField = (JPasswordField) field(15, Field.PASSWORD, 300, 40);
         add(passwordField, gbc);
 
         // Login Button

@@ -2,6 +2,7 @@ package ui.component;
 
 import java.awt.Component;
 import java.awt.LayoutManager;
+import java.awt.event.MouseAdapter;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -12,6 +13,7 @@ import util.Opts;
 public class MyPanel extends JPanel {
 
     public MyPanel(Component... components) {
+        this();
         for (var c : components) {
             add(c);
         }
@@ -23,7 +25,13 @@ public class MyPanel extends JPanel {
     }
 
     public MyPanel() {
-        if (Opts.DEFAULT_THEME) return;
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                Opts.clearEvent();
+            }
+        });
+        if (!Opts.CUSTOM_THEME) return;
         setBackground(MyColor.PANEL);
 //        setOpaque(false);
     }

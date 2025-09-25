@@ -387,10 +387,6 @@ public abstract class Table {
         }
 
         public boolean isValidCriteriaFor(Reflection r) {
-            String nil = attributeName != null && first != null && second != null ? "not null" : "null";
-            String type = r.fields.type(attributeName).equals(first.getClass()) ? "good type" : "bad type";
-            String sameType = first.getClass().equals(second.getClass()) ? "Same" : "different";
-            String sk= first.getClass().equals(second.getClass()) ? "Same" : "different";
             return
                 attributeName != null && first != null && second != null
                 && r.fields.visibleType(attributeName).equals(first.getClass())

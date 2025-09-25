@@ -19,6 +19,9 @@ public class Main {
 //        ranges.add(new Range("year", 2000, 2010));
 //        Vehicle.searchRanges(ranges);
 
+//        readSampleData();
+//        print(Table.search("Client", "name", "j"), "Client with a name that start with 'j'");
+
         print("This shouldn't be the one running");
     }
 

@@ -19,8 +19,10 @@ public class MainApp extends JFrame implements Listener {
 
     MainApp() {
 
+        // Setup
         super("AutoRent");
-        Opts.set(true, this);
+        Opts.useCustomTheme(false);
+        Opts.setMainFrame(this);
         try {
             // TODO Look into this
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -28,9 +30,11 @@ public class MainApp extends JFrame implements Listener {
             error(e);
         }
 
+        // Main Panels
         panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Login");
 
+        // JFrame settings
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);

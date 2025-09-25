@@ -54,7 +54,7 @@ public class MyButton extends JButton {
 
         super(name);
         setFocusPainted(false);
-        if (Opts.DEFAULT_THEME) return;
+        if (!Opts.CUSTOM_THEME) return;
 
         setBackground(MyColor.BUTTON);
         setFont(MyFont.BUTTON);
@@ -82,7 +82,7 @@ public class MyButton extends JButton {
     @Override
     protected void paintComponent(Graphics g) {
 
-        if (Opts.DEFAULT_THEME) {
+        if (!Opts.CUSTOM_THEME) {
             super.paintComponent(g);
             return;
         }

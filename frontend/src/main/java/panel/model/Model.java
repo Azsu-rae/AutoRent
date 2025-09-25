@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import ui.Factory;
 import ui.component.*;
 import util.Opts;
+import util.ToClear;
 import orm.util.*;
 
 import ui.Factory.Field;
@@ -25,6 +26,7 @@ public class Model extends MyPanel {
 
     String ORMModelName;
     Reflection reflect;
+
     ToolBar toolBar;
     Table table;
     Form form;
@@ -43,7 +45,7 @@ public class Model extends MyPanel {
         add(form, BorderLayout.SOUTH);
     }
 
-    class Table extends JScrollPane {
+    class Table extends JScrollPane implements ToClear {
 
         DefaultTableModel model;
         JTable table;
@@ -69,20 +71,27 @@ public class Model extends MyPanel {
                 }
             });
 
-            loadData();
-            setViewportView(table);
+            Opts.addToClear(this);
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row == -1) {
-                        table.clearSelection();
-                        for (var btn : form.btns) {
-                            btn.setEnabled(btn.defaultEnabled);
-                        }
+                        clear();
                     }
                 }
             });
+
+            loadData();
+            setViewportView(table);
+        }
+
+        @Override
+        public void clear() {
+            table.clearSelection();
+            for (var btn : form.btns) {
+                btn.setEnabled(btn.defaultEnabled);
+            }
         }
 
         orm.Table get(int selectedRow) {
@@ -210,7 +219,6 @@ public class Model extends MyPanel {
     }
 }
 
-
 class ToolBar extends JToolBar {
 
     Map<String,List<String>> discreteValues = new HashMap<>();
@@ -219,13 +227,9 @@ class ToolBar extends JToolBar {
     ToolBar(Model model) {
         this.model = model;
 
-        for (var field : model.reflect.fields.names) {
-            if (field.equals("id")) continue;
-            var constraints = model.reflect.fields.constraints(field);
-            String title = model.reflect.fields.titleCase(field);
-            if (constraints.enumerated()) {
-                add(new MyButton(this, "Filter " + title, e -> new MultipleSelections(title, field)));
-            }
+        for (var enumerated : model.reflect.fields.haveConstraint(Constraints::enumerated)) {
+            var title =  model.reflect.fields.titleCase(enumerated);
+            add(new MyButton(this, title, e -> new MultipleSelections(title, enumerated)));
         }
 
         add(Box.createHorizontalGlue());
@@ -256,10 +260,12 @@ class ToolBar extends JToolBar {
 
             var panel = new MyPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.add(new JScrollPane(checkboxPanel));
+            var scrollPane = new JScrollPane(checkboxPanel);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+            panel.add(scrollPane);
             panel.add(new MyButton("Save", e -> saveCriteria(), Component.CENTER_ALIGNMENT));
-            setContentPane(panel);
 
+            setContentPane(panel);
             setSize(200, 200);
             setLocationRelativeTo(Opts.MAIN_FRAME);
             setVisible(true);
