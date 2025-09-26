@@ -2,11 +2,11 @@ package orm;
 
 import java.io.File;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import java.time.LocalDate;
@@ -33,31 +33,31 @@ import static orm.DataMapper.fetchResutls;
 
 public abstract class Table {
 
+    // database path relative to the project's root directory
     private static String dbPath = "./Backend/ressources/databases/AutoRent.db";
+
+    // loading subclasses into the JVM
     private static Set<Class<? extends Table>> models = new HashSet<>();
     static {
-        new Client();
-        new Vehicle();
-        new Reservation();
-        new Return();
-        new Payment();
-        new User();
+        Reflection.loadModels(new String[] {"Client", "Vehicle", "Reservation", "Return", "Payment", "User"});
     }
 
+    // ID given by the DB, so no setter
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
     public Integer getId() {
         return this.id;
     }
 
+    // Reflection is used to access subclasse (model) specifics
+    public final Reflection reflect;
     final SQLiteQueryConstructor query;
-    final public Reflection reflect;
-
     protected Table() {
         this.reflect = new Reflection(this);
         this.query = new SQLiteQueryConstructor(this);
     }
 
+    // print in a tree-like structure (to represent aggregations)
     @Override
     public String toString() {
 
@@ -91,6 +91,7 @@ public abstract class Table {
         return s.toString();
     }
 
+    // checks equality using the ID
     @Override
     public boolean equals(Object obj) {
 
@@ -110,7 +111,7 @@ public abstract class Table {
         return this.id.equals(tuple.getId());
     }
 
-    // CRUD operations (Create, Read, Update, Delete)
+    // CRUD operations: (Create, Read, Update, Delete) = (add, search, edit, delete)
 
     public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
 
@@ -231,6 +232,7 @@ public abstract class Table {
 
     // Verification methods
 
+    // checks if there's a DB and that the SQLite table is created
     public boolean db() {
 
         File db = new File(dbPath);
@@ -254,6 +256,7 @@ public abstract class Table {
         return ans;
     }
 
+    // checks if there are any non-nullable attributes that are, well, null
     public boolean isValid() {
 
         boolean valid = true;
@@ -268,10 +271,12 @@ public abstract class Table {
         return valid;
     }
 
+    // checks if it is a tuple, meaning a line from a sqlite table
     static public boolean isTuple(Table tuple) {
         return tuple.isValid() && tuple.getId() != null;
     }
 
+    // throws an exception if it's not
     public boolean isTupleOrElseThrow() {
         if (!isTuple(this)) {
             String s = "Illegal attempt of insertion! Invalid %s:\n\n%s";
@@ -279,12 +284,14 @@ public abstract class Table {
         } return true;
     }
 
+    // wrapper arround the db()
     public static boolean isSearchable(String modelName) {
         return getModelInstance(modelName).db();
     }
 
     // Utilities
 
+    // accepts null values but throws at invalid formats
     public static LocalDate stringToDate(String s) {
 
         if (s == null || s.equals("")) {
@@ -298,9 +305,10 @@ public abstract class Table {
         }
     }
 
+    // Getting all the different values a specific attribute can take
     public Set<String> getAttributeValues(String att) {
 
-        if (!reflect.fields.constraints(att).enumerated()) {
+        if (!reflect.fields.constraintsOf(att).enumerated()) {
             String s = "Attempting to get the values of an attribute that is not enumerated: %s";
             throw new IllegalArgumentException(String.format(s, att));
         }
@@ -309,9 +317,7 @@ public abstract class Table {
         var tuples = search(getClass().getSimpleName());
         for (var tuple : tuples) {
             values.add((String)tuple.reflect.fields.get(att));
-        }
-
-        return values;
+        } return values;
     }
 
     // Model-related methods
@@ -332,7 +338,7 @@ public abstract class Table {
         return getModelNames().contains(className);
     }
 
-    // Overloads
+    // Overloads for convenience
 
     public static Vector<Table> search(String className) {
         return search(getModelInstance(className));
@@ -364,8 +370,10 @@ public abstract class Table {
         return search(discreteContainer, boundedContainer);
     }
 
+    // Used for to search for specific ranges
     static public class Range extends Pair<Object,Object> {
 
+        // In the case of an attribute having a 'lowerBound' & 'upperBound', use the lowerBound name
         public String attributeName;
 
         public Range(String attributeName, Object lowerBound, Object upperBound) {
@@ -389,7 +397,7 @@ public abstract class Table {
         public boolean isValidCriteriaFor(Reflection r) {
             return
                 attributeName != null && first != null && second != null
-                && r.fields.visibleType(attributeName).equals(first.getClass())
+                && r.fields.visibleTypeOf(attributeName).equals(first.getClass())
                 && first.getClass().equals(second.getClass())
                 && r.fields.bounded.contains(attributeName);
         }

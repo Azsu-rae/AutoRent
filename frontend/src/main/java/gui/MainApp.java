@@ -1,12 +1,10 @@
+package gui;
 
 import java.awt.*;
 import javax.swing.*;
 
-import panel.Dashboard;
-import panel.SignIn;
-
-import util.Listener;
-import util.Opts;
+import gui.util.*;
+import gui.dashboard.Dashboard;
 
 import static orm.util.Console.*;
 

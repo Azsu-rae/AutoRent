@@ -1,7 +1,5 @@
 package orm;
 
-import static orm.util.Console.print;
-
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -12,12 +10,12 @@ import orm.Table.Range;
 
 class SQLiteQueryConstructor {
 
-    final private Table instance;
-    final private Vector<Column> columns;
+    final Table instance;
+    final Vector<Column> columns;
 
     final String tableName;
-    final public DataDefinition define;
-    final public DataManipulation manipulate;
+    final DataDefinition define;
+    final DataManipulation manipulate;
 
     SQLiteQueryConstructor(Table instance) {
 
@@ -28,10 +26,6 @@ class SQLiteQueryConstructor {
 
         this.define = new DataDefinition();
         this.manipulate = new DataManipulation();
-    }
-
-    Column getColumn(int i) {
-        return columns.elementAt(i);
     }
 
     class DataManipulation {
@@ -61,7 +55,7 @@ class SQLiteQueryConstructor {
 
             for (i=0;i<columns.size();i++) {
 
-                col = getColumn(i);
+                col = columns.elementAt(i);
 
                 if (col.constraints().upperBound()) {
                     continue;
@@ -91,7 +85,7 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                queryString.append((first ? "" : ", ") + getColumn(i).name());
+                queryString.append((first ? "" : ", ") + columns.elementAt(i).name());
                 valuesQuery.append((first ? "" : ", ") + "?");
                 queryInputs.add(curr);
                 first = false;
@@ -117,7 +111,7 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                query.append((!first ? ", " : "") + getColumn(i).name() + " = ? "); 
+                query.append((!first ? ", " : "") + columns.elementAt(i).name() + " = ? "); 
                 inputs.add(curr);
                 first = false;
             }
@@ -172,8 +166,8 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                queryString.append(getColumn(i).name());
-                if (getColumn(i).constraints().searchedText()) {
+                queryString.append(columns.elementAt(i).name());
+                if (columns.elementAt(i).constraints().searchedText()) {
                     queryString.append(" LIKE ?");
                     queryInputs.add(String.valueOf(curr)+"%");
                 } else {

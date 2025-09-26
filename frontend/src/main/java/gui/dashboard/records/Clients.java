@@ -1,4 +1,4 @@
-package panel.model;
+package panel;
 
 public class Clients extends Model {
 

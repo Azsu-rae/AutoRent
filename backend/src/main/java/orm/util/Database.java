@@ -3,13 +3,9 @@ package orm.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import orm.Table;
 
@@ -18,8 +14,14 @@ import static orm.util.Console.*;
 
 public class Database {
 
-    private static HashMap<Aggregation,Integer> occurences = new HashMap<>();
+    private static Map<Aggregation,Integer> occurences = new HashMap<>();
     private static String path = "./Backend/ressources/samples/";
+
+    public static void readSampleData() {
+        for (String modelName : readOrderFile()) {
+            read(modelName);
+        }
+    }
 
     public static void display() {
         for (String className : Table.getModelNames()) {
@@ -43,35 +45,49 @@ public class Database {
         }
     }
 
-    public static void readSampleData() {
-
-        for (String modelName : readOrderFile()) {
-            read(modelName);
-        }
+    public static boolean input(Vector<? extends Table> tuples) {
+        boolean success = true;
+        for (Table tuple : tuples) {
+            success = success && tuple.add() >= 1;
+        } return success;
     }
 
-    public static void read(String model) {
+    public static boolean delete(Vector<? extends Table> tuples) {
+        boolean success = true;
+        for (Table tuple : tuples) {
+            success = success && tuple.delete() >= 1;
+        } return success;
+    }
 
-        Vector<Table> parsed = new Vector<Table>();
-        JSONArray tuples = new JSONArray(readJson(model));
+    private static Table getSample(String ofThisModel, String forThisModel) {
+
+        var key = new Aggregation(ofThisModel, forThisModel);
+        int index = occurences.computeIfAbsent(key, k -> 0);
+        occurences.put(key, index+1);
+
+        return Table.search(ofThisModel).elementAt(index);
+    }
+
+    private static void read(String model) {
+
+        var parsed = new Vector<Table>();
+        var tuples = new JSONArray(readJson(model));
 
         for (int i=0;i<tuples.length();i++) {
 
-            JSONObject tuple = tuples.getJSONObject(i);
-            Table instance = getModelInstance(model);
+            var tuple = tuples.getJSONObject(i);
+            var instance = getModelInstance(model);
 
             for (String field : instance.reflect.fields.names) {
                 if (tuple.has(field)) {
                     Object value = tuple.get(field);
                     if (Table.getModelNames().contains(value)) {
-                        value = getSample((String)tuple.get(field), model);
+                        value = getSample((String)value, model);
                     } else if (value instanceof java.math.BigDecimal) {
                         value = ((java.math.BigDecimal) value).doubleValue();
-                    }
-                    instance.reflect.fields.callSetter(field, value);
+                    } instance.reflect.fields.callSetter(field, value);
                 }
-            }
-            parsed.add(instance);
+            } parsed.add(instance);
         }
 
         input(parsed);
@@ -90,36 +106,7 @@ public class Database {
         }
     }
 
-    private static Table getSample(String ofThisModel, String forThisModel) {
-
-        Aggregation key = new Aggregation(ofThisModel, forThisModel);
-        int index = occurences.computeIfAbsent(key, k -> 0);
-        occurences.put(key, index+1);
-
-        return Table.search(ofThisModel).elementAt(index);
-    }
-
-    public static boolean input(Vector<? extends Table> tuples) {
-
-        boolean success = true;
-        for (Table tuple : tuples) {
-            success = success && tuple.add() >= 1;
-        }
-
-        return success;
-    }
-
-    public static boolean delete(Vector<? extends Table> tuples) {
-
-        boolean success = true;
-        for (Table tuple : tuples) {
-            success = success && tuple.delete() >= 1;
-        }
-
-        return success;
-    }
-
-    static private class Aggregation extends Pair<String,String> {
+    private static class Aggregation extends Pair<String,String> {
         Aggregation(String composite, String component) {
             super(composite, component);
         }
