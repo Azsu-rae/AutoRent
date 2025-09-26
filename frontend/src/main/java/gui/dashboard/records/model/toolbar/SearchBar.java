@@ -16,7 +16,7 @@ class SearchBar extends MyPanel {
         add(searchField);
         add(new MyButton("Search", e -> {
             for (var att : atts) {
-                toolBar.addCriteria(toolBar.discreteValues, att, searchField.getText());
+                toolBar.addDiscreteCriteria(att, searchField.getText());
             }
         }));
     }

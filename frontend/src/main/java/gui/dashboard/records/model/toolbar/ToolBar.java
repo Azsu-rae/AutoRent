@@ -1,24 +1,25 @@
 package gui.dashboard.records.model.toolbar;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.JToolBar;
+import javax.swing.*;
+
+import java.util.*;
+import java.util.List;
 
 import gui.component.MyButton;
 import gui.dashboard.records.model.Model;
+
 import orm.Table.Range;
 import orm.util.Constraints;
+import orm.Table;
+import static orm.util.Reflection.getModelInstance;
 
 public class ToolBar extends JToolBar {
 
+    Vector<Range> boundedValues = new Vector<>();
     Map<String,List<String>> discreteValues = new HashMap<>();
-    Map<String,List<Range>> boundedValues = new HashMap<>();
-    <T> void addCriteria(Map<String,List<T>> map, String att, T value) {
-        map.computeIfAbsent(att, k -> new ArrayList<>()).add(value);
+    void addDiscreteCriteria(String att, String value) {
+        discreteValues.computeIfAbsent(att, k -> new ArrayList<>()).add(value);
     }
 
     Model model;
@@ -47,8 +48,15 @@ public class ToolBar extends JToolBar {
 
         add(Box.createHorizontalGlue());
         add(new MyButton("Apply", e -> {
-            System.out.println(discreteValues.values());
-            System.out.println(boundedValues.values());
+            var discreteCriterias = new Vector<Table>();
+            for (var discrete : discreteValues.entrySet()) {
+                for (int i=0;i<discrete.getValue().size();i++) {
+                    if (i >= discreteCriterias.size()) {
+                        discreteCriterias.add(getModelInstance(model.ORMModelName));
+                    } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), discrete.getValue().get(i));
+                }
+                model.table.loadData(Table.search(discreteCriterias, boundedValues));
+            }
         }));
     }
 }

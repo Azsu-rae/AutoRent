@@ -77,7 +77,7 @@ class RangeSelection extends MyDialog {
         Object parsedUpper = toolBar.model.parser.parse(att, upper);
         var range = new Range(att, parsedLower, parsedUpper);
         if (range.isValidCriteriaFor(toolBar.model.reflect)) {
-            toolBar.addCriteria(toolBar.boundedValues, att, range);
+            toolBar.boundedValues.add(range);
             dispose();
         } else {
             dispose();

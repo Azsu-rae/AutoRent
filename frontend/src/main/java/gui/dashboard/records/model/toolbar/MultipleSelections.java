@@ -1,7 +1,5 @@
 package gui.dashboard.records.model.toolbar;
 
-import java.util.ArrayList;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -49,13 +47,10 @@ class MultipleSelections extends MyDialog {
     }
 
     public void saveCriteria() {
-
         for (var checkBox : checkBoxes) {
             if (checkBox.isSelected()) {
-                toolBar.addCriteria(toolBar.discreteValues, att, checkBox.getText());
+                toolBar.addDiscreteCriteria(att, checkBox.getText());
             }
-        }
-
-        dispose();
+        } dispose();
     }
 }

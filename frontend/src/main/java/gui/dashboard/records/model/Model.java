@@ -17,8 +17,8 @@ public class Model extends MyPanel {
     public Reflection reflect;
     public Parser parser;
 
+    public Table table;
     ToolBar toolBar;
-    Table table;
     Form form;
 
     public String ORMModelName;

@@ -12,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import gui.util.Opts;
 import gui.util.ToClear;
 
-class Table extends JScrollPane implements ToClear {
+public class Table extends JScrollPane implements ToClear {
 
     DefaultTableModel defaultTableModel;
     JTable table;
@@ -68,9 +68,12 @@ class Table extends JScrollPane implements ToClear {
     }
 
     void loadData() {
+        loadData(orm.Table.search(model.ORMModelName));
+    }
+
+    public void loadData(Vector<orm.Table> tuples) {
         defaultTableModel.setRowCount(0);
-        Vector<orm.Table> tuples = orm.Table.search(model.ORMModelName);
-        for (orm.Table tuple : tuples) {
+        for (var tuple : tuples) {
             Object[] row = model.parser.getAsRow(tuple);
             defaultTableModel.addRow(row);
         }
