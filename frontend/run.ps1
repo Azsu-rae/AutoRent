@@ -53,4 +53,4 @@ Write-Host ""
 
 # Run program (use `;` for Windows classpath, `:` for Linux/macOS)
 $classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR;$FE_OUT_DIR"
-java -cp $classpath MainApp
+java -cp $classpath gui.MainApp
