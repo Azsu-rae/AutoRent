@@ -1,10 +1,7 @@
-package ui.component;
+package gui.component;
 
 import java.awt.*;
 import javax.swing.*;
-
-import ui.style.*;
-import util.Opts;
 
 public class MyLabel extends JLabel {
     public MyLabel(String content) {

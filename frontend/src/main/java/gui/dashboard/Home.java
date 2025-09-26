@@ -1,6 +1,4 @@
-package panel;
-
-import ui.component.MyPanel;
+package gui.dashboard;
 
 public class Home extends MyPanel {
 

@@ -1,4 +1,4 @@
-package panel;
+package gui.dashboard.records;
 
 public class Vehicles extends Model {
 

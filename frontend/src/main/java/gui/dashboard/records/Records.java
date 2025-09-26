@@ -1,8 +1,4 @@
-package panel;
-
-import javax.swing.*;
-
-import panel.model.*;
+package gui.dashborad.records;
 
 public class Models extends JTabbedPane {
 

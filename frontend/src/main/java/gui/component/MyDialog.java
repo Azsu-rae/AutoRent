@@ -1,8 +1,6 @@
-package ui.component;
+package gui.component;
 
 import javax.swing.JDialog;
-
-import util.Opts;
 
 public class MyDialog extends JDialog {
     public MyDialog(String title) {

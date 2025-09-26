@@ -1,15 +1,5 @@
 package gui;
 
-import java.awt.*;
-import javax.swing.*;
-
-import gui.util.*;
-import gui.dashboard.Dashboard;
-
-import static orm.util.Console.*;
-
-import static orm.util.Database.*;
-
 public class MainApp extends JFrame implements Listener {
 
     CardLayout cardLayout = new CardLayout();

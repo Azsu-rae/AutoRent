@@ -1,11 +1,4 @@
-package panel.model;
-
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import javax.swing.JTextField;
+package gui.dashboard.records.model;
 
 public class Parser {
 

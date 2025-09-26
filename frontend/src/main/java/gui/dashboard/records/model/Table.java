@@ -1,15 +1,4 @@
-package panel.model;
-
-import java.util.Vector;
-
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableModel;
-
-import util.Opts;
-import util.ToClear;
+package gui.dashboard.records.model;
 
 class Table extends JScrollPane implements ToClear {
 

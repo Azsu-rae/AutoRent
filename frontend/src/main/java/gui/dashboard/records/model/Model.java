@@ -1,27 +1,4 @@
-package panel.model;
-
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
-import java.util.*;
-import java.util.List;
-import java.util.function.Function;
-
-import java.time.LocalDate;
-
-import ui.Factory;
-import ui.component.*;
-import util.Opts;
-import util.ToClear;
-import orm.Table.Range;
-import orm.util.*;
-
-import ui.Factory.Field;
-
-import static orm.util.Reflection.getModelInstance;
+package gui.dashboard.records.model;
 
 public class Model extends MyPanel {
 

@@ -1,6 +1,4 @@
-package ui.style;
-
-import java.awt.Font;
+package gui.style;
 
 public class MyFont {
     static public final Font BUTTON = new Font("Segoe UI", Font.BOLD, 16);

@@ -1,6 +1,4 @@
-package ui.style;
-
-import java.awt.Color;
+package gui.style;
 
 public class MyColor {
 

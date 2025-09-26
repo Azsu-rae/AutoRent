@@ -1,4 +1,4 @@
-package util;
+package gui.util;
 
 public interface Listener {
 

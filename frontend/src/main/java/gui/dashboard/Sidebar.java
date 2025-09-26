@@ -1,17 +1,4 @@
-package panel;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.*;
-
-import ui.component.*;
-
-import util.Listener;
-import util.Source;
-
-import util.Listener.Event;
+package gui.dashboard;
 
 public class Sidebar extends MyPanel implements Source {
 

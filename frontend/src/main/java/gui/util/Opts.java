@@ -1,9 +1,4 @@
-package util;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JFrame;
+package gui.util;
 
 public class Opts {
 

@@ -1,15 +1,4 @@
-package panel.model;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.JTextField;
-
-import ui.Factory;
-import ui.component.MyButton;
-import ui.component.MyPanel;
+package gui.dashboard.records.model;
 
 public class Form {
 

@@ -1,12 +1,5 @@
 package panel;
 
-import java.awt.*;
-
-import ui.component.*;
-
-import util.Listener;
-import util.Source;
-
 public class Dashboard extends MyPanel implements Source, Listener {
 
     CardLayout cardLayout = new CardLayout();

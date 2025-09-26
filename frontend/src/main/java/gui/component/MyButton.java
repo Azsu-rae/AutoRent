@@ -1,11 +1,7 @@
-package ui.component;
-
-import javax.swing.*;
-
-import ui.style.*;
-import util.Opts;
+package gui.component;
 
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.*;
 
 public class MyButton extends JButton {

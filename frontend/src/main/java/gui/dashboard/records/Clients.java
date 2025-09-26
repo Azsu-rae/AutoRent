@@ -1,4 +1,4 @@
-package panel;
+package gui.dashboard.records;
 
 public class Clients extends Model {
 

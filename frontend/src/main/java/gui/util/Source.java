@@ -1,6 +1,4 @@
-package util;
-
-import util.Listener.Event;
+package gui.util;
 
 public interface Source {
     void notifyListener(Event event);

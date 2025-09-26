@@ -1,8 +1,4 @@
-package ui.style;
-
-import java.awt.*;
-
-import javax.swing.border.Border;
+package gui.style;
 
 public class MyBorder {
 

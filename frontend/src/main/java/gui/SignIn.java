@@ -1,16 +1,4 @@
-package panel;
-
-import java.awt.*;
-import javax.swing.*;
-
-import ui.component.*;
-
-import util.*;
-import util.Listener.Event;
-
-import orm.model.User;
-
-import static ui.Factory.*;
+package gui;
 
 public class SignIn extends MyPanel implements Source {
 

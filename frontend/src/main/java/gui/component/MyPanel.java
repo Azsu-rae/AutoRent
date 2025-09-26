@@ -1,4 +1,4 @@
-package ui.component;
+package gui.component;
 
 import java.awt.Component;
 import java.awt.LayoutManager;
@@ -6,9 +6,6 @@ import java.awt.event.MouseAdapter;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-
-import ui.style.MyColor;
-import util.Opts;
 
 public class MyPanel extends JPanel {
 

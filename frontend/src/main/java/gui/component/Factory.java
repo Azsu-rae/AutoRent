@@ -1,12 +1,7 @@
-package ui;
+package gui.component;
 
 import javax.swing.*;
 import java.awt.*;
-
-import ui.component.MyLabel;
-import ui.component.MyPanel;
-import ui.style.MyBorder;
-import util.Opts;
 
 public class Factory {
 
