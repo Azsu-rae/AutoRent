@@ -1,5 +1,10 @@
 package gui.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+
 public class Opts {
 
     public static boolean CUSTOM_THEME;

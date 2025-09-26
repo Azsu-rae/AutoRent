@@ -1,26 +1,40 @@
 package gui.dashboard.records.model;
 
+import java.awt.event.MouseAdapter;
+import java.util.Vector;
+
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+
+import gui.util.Opts;
+import gui.util.ToClear;
+
 class Table extends JScrollPane implements ToClear {
 
-    DefaultTableModel model;
+    DefaultTableModel defaultTableModel;
     JTable table;
 
-    Table() {
+    Model model;
+    Table(Model model) {
+        this.model = model;
 
-        model = new DefaultTableModel(parser.titleCaseNames, 0) {
+        defaultTableModel = new DefaultTableModel(model.parser.titleCaseNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        table = new JTable(model);
+        table = new JTable(defaultTableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(e -> {
             if (e.getValueIsAdjusting()) return; // ignore intermediate "drag" events
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                form.onSelection(get(selectedRow));
-                for (var btn : form.btns) {
+                model.form.onSelection(get(selectedRow));
+                for (var btn : model.form.btns) {
                     btn.setEnabled(true);
                 }
             }
@@ -44,29 +58,29 @@ class Table extends JScrollPane implements ToClear {
     @Override
     public void clear() {
         table.clearSelection();
-        for (var btn : form.btns) {
+        for (var btn : model.form.btns) {
             btn.setEnabled(btn.defaultEnabled);
         }
     }
 
     orm.Table get(int selectedRow) {
-        return orm.Table.search(ORMModelName, "id", (Integer) model.getValueAt(selectedRow, 0)).elementAt(0);
+        return orm.Table.search(model.ORMModelName, "id", (Integer) defaultTableModel.getValueAt(selectedRow, 0)).elementAt(0);
     }
 
     void loadData() {
-        model.setRowCount(0);
-        Vector<orm.Table> tuples = orm.Table.search(ORMModelName);
+        defaultTableModel.setRowCount(0);
+        Vector<orm.Table> tuples = orm.Table.search(model.ORMModelName);
         for (orm.Table tuple : tuples) {
-            Object[] row = parser.getAsRow(tuple);
-            model.addRow(row);
+            Object[] row = model.parser.getAsRow(tuple);
+            defaultTableModel.addRow(row);
         }
     }
 
     void onAdd() {
 
-        var tuple = form.parseFields();
+        var tuple = model.form.parseFields();
         if (tuple.add() > 0) {
-            JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
+            JOptionPane.showMessageDialog(this, model.ORMModelName + " added successfully!");
             loadData();
         } else {
             JOptionPane.showMessageDialog(this, "Please Enter a Valid Input!");
@@ -79,7 +93,7 @@ class Table extends JScrollPane implements ToClear {
         if (selectedRow >= 0) {
 
             var toEdit = get(selectedRow);
-            var newValue = form.parseFields();
+            var newValue = model.form.parseFields();
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
             }

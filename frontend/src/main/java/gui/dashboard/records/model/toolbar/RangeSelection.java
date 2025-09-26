@@ -1,22 +1,32 @@
 package gui.dashboard.records.model.toolbar;
 
+import javax.swing.*;
+import java.awt.*;
+
+import gui.component.*;
+import gui.util.Opts;
+
+import orm.Table.Range;
+
 class RangeSelection extends MyDialog {
 
     JTextField lower, upper;
     String att;
 
-    RangeSelection(String title, String att) {
+    ToolBar toolBar;
+    RangeSelection(ToolBar toolBar, String title, String att) {
         super(title);
         this.att = att;
+        this.toolBar = toolBar;
 
         String lowerBound = null, upperBound = null;
-        var constraint = model.reflect.fields.constraintsOf(att);
+        var constraint = toolBar.model.reflect.fields.constraintsOf(att);
         if (constraint.lowerBound()) {
-            lowerBound = model.parser.titleCase(att) + ":";
-            upperBound = model.parser.titleCase(constraint.boundedPair()) + ":";
+            lowerBound = toolBar.model.parser.titleCase(att) + ":";
+            upperBound = toolBar.model.parser.titleCase(constraint.boundedPair()) + ":";
         } else if (constraint.bounded()) {
-            lowerBound = model.parser.getMin(att);
-            upperBound = model.parser.getMax(att);
+            lowerBound = toolBar.model.parser.getMin(att);
+            upperBound = toolBar.model.parser.getMax(att);
         }
 
         var panel = new MyPanel();
@@ -63,11 +73,11 @@ class RangeSelection extends MyDialog {
 
     public void saveCriteria() {
 
-        Object parsedLower = model.parser.parse(att, lower);
-        Object parsedUpper = model.parser.parse(att, upper);
+        Object parsedLower = toolBar.model.parser.parse(att, lower);
+        Object parsedUpper = toolBar.model.parser.parse(att, upper);
         var range = new Range(att, parsedLower, parsedUpper);
-        if (range.isValidCriteriaFor(model.reflect)) {
-            addCriteria(boundedValues, att, range);
+        if (range.isValidCriteriaFor(toolBar.model.reflect)) {
+            toolBar.addCriteria(toolBar.boundedValues, att, range);
             dispose();
         } else {
             dispose();

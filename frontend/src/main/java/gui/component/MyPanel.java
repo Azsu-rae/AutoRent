@@ -4,8 +4,10 @@ import java.awt.Component;
 import java.awt.LayoutManager;
 import java.awt.event.MouseAdapter;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+import gui.style.MyColor;
+import gui.util.Opts;
 
 public class MyPanel extends JPanel {
 

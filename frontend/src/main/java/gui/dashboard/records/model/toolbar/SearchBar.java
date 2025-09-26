@@ -1,14 +1,22 @@
 package gui.dashboard.records.model.toolbar;
 
+import java.awt.*;
+
+import gui.component.*;
+import gui.component.Factory.Field;
+
 class SearchBar extends MyPanel {
-    SearchBar(String[] atts) {
+    ToolBar toolBar;
+
+    SearchBar(ToolBar toolBar, String[] atts) {
+        this.toolBar = toolBar;
         setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(new MyLabel("Search" + model.parser.denominator(atts)));
+        add(new MyLabel("Search" + toolBar.model.parser.denominator(atts)));
         var searchField = Factory.field(20, Field.TEXT);
         add(searchField);
         add(new MyButton("Search", e -> {
             for (var att : atts) {
-                addCriteria(discreteValues, att, searchField.getText());
+                toolBar.addCriteria(toolBar.discreteValues, att, searchField.getText());
             }
         }));
     }

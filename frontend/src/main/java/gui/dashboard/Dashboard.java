@@ -1,4 +1,10 @@
-package panel;
+package gui.dashboard;
+
+import java.awt.*;
+
+import gui.util.*;
+import gui.component.MyPanel;
+import gui.dashboard.records.Records;
 
 public class Dashboard extends MyPanel implements Source, Listener {
 
@@ -10,7 +16,7 @@ public class Dashboard extends MyPanel implements Source, Listener {
         this.listener = listener;
 
         panels.add(new Home(), "Home");
-        panels.add(new Models(), "Models");
+        panels.add(new Records(), "Records");
 
         setLayout(new BorderLayout());
         add(new Sidebar(this), BorderLayout.WEST);
@@ -32,7 +38,7 @@ public class Dashboard extends MyPanel implements Source, Listener {
                 cardLayout.show(panels, "Home");
                 break;
             case MODELS:
-                cardLayout.show(panels, "Models");
+                cardLayout.show(panels, "Records");
                 break;
             default:
                 break;

@@ -1,7 +1,13 @@
 package gui.component;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+import gui.style.MyBorder;
+import gui.util.Opts;
 
 public class Factory {
 

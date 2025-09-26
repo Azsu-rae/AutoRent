@@ -1,8 +1,17 @@
 package gui.dashboard.records.model.toolbar;
 
+import java.awt.*;
+
+import gui.component.*;
+import gui.component.Factory.Field;
+
+import gui.util.Opts;
+
 class SearchProfile extends MyDialog {
-    SearchProfile(String[] atts) {
+    ToolBar toolBar;
+    SearchProfile(ToolBar toolBar, String[] atts) {
         super("Search Profile");
+        this.toolBar = toolBar;
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
         var gbc = new GridBagConstraints();
@@ -12,7 +21,7 @@ class SearchProfile extends MyDialog {
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(model.parser.titleCase(atts[0])), gbc);
+        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[0])), gbc);
 
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -21,7 +30,7 @@ class SearchProfile extends MyDialog {
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(model.parser.titleCase(atts[1])), gbc);
+        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[1])), gbc);
 
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -30,7 +39,7 @@ class SearchProfile extends MyDialog {
         gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(model.parser.titleCase(atts[2])), gbc);
+        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[2])), gbc);
 
         gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;

@@ -1,5 +1,14 @@
 package gui;
 
+import javax.swing.*;
+import java.awt.*;
+
+import gui.util.*;
+
+import gui.dashboard.Dashboard;
+
+import static orm.util.Console.error;
+
 public class MainApp extends JFrame implements Listener {
 
     CardLayout cardLayout = new CardLayout();

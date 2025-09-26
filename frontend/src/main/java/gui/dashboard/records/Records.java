@@ -1,8 +1,10 @@
-package gui.dashborad.records;
+package gui.dashboard.records;
 
-public class Models extends JTabbedPane {
+import javax.swing.JTabbedPane;
 
-    public Models() {
+public class Records extends JTabbedPane {
+
+    public Records() {
         addTab("Clients", new Clients());
         addTab("Vehicles", new Vehicles());
         addTab("Reservations", new Reservations());

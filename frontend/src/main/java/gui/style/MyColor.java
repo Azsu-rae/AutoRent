@@ -1,5 +1,7 @@
 package gui.style;
 
+import java.awt.*;
+
 public class MyColor {
 
     static public final Color BUTTON = new Color(75, 110, 220);

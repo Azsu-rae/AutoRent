@@ -1,7 +1,11 @@
 package gui.component;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+
+import javax.swing.JLabel;
+
+import gui.style.MyFont;
+import gui.util.Opts;
 
 public class MyLabel extends JLabel {
     public MyLabel(String content) {

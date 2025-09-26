@@ -1,5 +1,8 @@
 package gui.style;
 
+import javax.swing.border.Border;
+import java.awt.*;
+
 public class MyBorder {
 
     public static class Rounded implements Border {

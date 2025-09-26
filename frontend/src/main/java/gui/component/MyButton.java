@@ -1,8 +1,21 @@
 package gui.component;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+import javax.swing.SwingConstants;
+
+import gui.style.MyColor;
+import gui.style.MyFont;
+import gui.util.Opts;
 
 public class MyButton extends JButton {
 

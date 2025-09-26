@@ -1,5 +1,14 @@
 package gui.dashboard;
 
+import javax.swing.*;
+import java.awt.*;
+
+import gui.component.MyButton;
+import gui.component.MyPanel;
+import gui.util.Listener;
+import gui.util.Listener.Event;
+import gui.util.Source;
+
 public class Sidebar extends MyPanel implements Source {
 
     GridBagConstraints gbc = new GridBagConstraints();
