@@ -4,7 +4,6 @@ package gui.dashboard.records.model.toolbar;
 import javax.swing.*;
 
 import java.util.*;
-import java.util.List;
 
 import gui.component.MyButton;
 import gui.dashboard.records.model.Model;
@@ -12,7 +11,10 @@ import gui.dashboard.records.model.Model;
 import orm.Table.Range;
 import orm.util.Constraints;
 import orm.Table;
+
+import static orm.util.Console.print;
 import static orm.util.Reflection.getModelInstance;
+import orm.util.Console;
 
 public class ToolBar extends JToolBar {
 
@@ -47,16 +49,32 @@ public class ToolBar extends JToolBar {
         }
 
         add(Box.createHorizontalGlue());
+        add(new MyButton("Reset", e -> model.table.loadData()));
         add(new MyButton("Apply", e -> {
+
             var discreteCriterias = new Vector<Table>();
             for (var discrete : discreteValues.entrySet()) {
                 for (int i=0;i<discrete.getValue().size();i++) {
+
+                    Object value = discrete.getValue().get(i);
+                    if (value == null || value.equals("")) {
+                        Console.print("Skipping %s", value);
+                        continue;
+                    } Console.print("do we ever get here?");
+
                     if (i >= discreteCriterias.size()) {
                         discreteCriterias.add(getModelInstance(model.ORMModelName));
-                    } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), discrete.getValue().get(i));
+                    } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value);
+
                 }
-                model.table.loadData(Table.search(discreteCriterias, boundedValues));
-            }
+            } model.table.loadData(Table.search(discreteCriterias, boundedValues));
+
+            Console.print("discreteValues: %s", discreteValues.values());
+            Console.print(discreteCriterias, "Parsed Discrete Criterias");
+            Console.print(boundedValues);
+
+            discreteValues = new HashMap<>();
+            boundedValues = new Vector<>();
         }));
     }
 }

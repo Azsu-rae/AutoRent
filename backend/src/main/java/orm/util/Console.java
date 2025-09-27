@@ -27,6 +27,10 @@ public class Console {
         System.err.println(String.format("\n" + s, args));
     }
 
+    public static void print(Object o) {
+        print("%s", o);
+    }
+
     public static void print(String s, Object... args) {
         System.out.println(String.format("\n" + s, args));
     }

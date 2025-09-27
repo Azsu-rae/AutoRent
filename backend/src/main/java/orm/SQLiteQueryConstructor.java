@@ -166,15 +166,20 @@ class SQLiteQueryConstructor {
                     continue;
                 }
 
-                queryString.append(columns.elementAt(i).name());
                 if (columns.elementAt(i).constraints().searchedText()) {
-                    queryString.append(" LIKE ?");
-                    queryInputs.add(String.valueOf(curr)+"%");
-                } else {
-                    queryString.append(" IN (?");
-                    queryInputs.add(curr);
-                    close = true;
+                    boolean needOr = false;
+                    for (var att : instance.reflect.fields.haveConstraint(Constraints::searchedText)) {
+                        queryString.append((needOr ? " OR " : "") + att);
+                        queryString.append(" LIKE ?");
+                        queryInputs.add(String.valueOf(curr)+"%");
+                        needOr = true;
+                    } continue;
                 }
+
+                queryString.append(columns.elementAt(i).name());
+                queryString.append(" IN (?");
+                queryInputs.add(curr);
+                close = true;
             }
         }
 

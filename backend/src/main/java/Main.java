@@ -12,16 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-//        read("Vehicle");
-//        Vector<Range> ranges = new Vector<>();
-//        ranges.add(new Range("pricePerDay", 30.0, 40.0));
-//        ranges.add(new Range("pricePerDay", 20.0, 25.0));
-//        ranges.add(new Range("year", 2000, 2010));
-//        Vehicle.searchRanges(ranges);
-
-//        readSampleData();
-//        print(Table.search("Client", "name", "j"), "Client with a name that start with 'j'");
-
+        readSampleData();
+        print(Client.search("name", "s"), "clientsWhoseNameStartWithJ");
+        print(Client.search("surname", "s"), "clientsWhoseNameStartWithJ");
         print("This shouldn't be the one running");
     }
 

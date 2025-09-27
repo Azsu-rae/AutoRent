@@ -67,7 +67,7 @@ public class Table extends JScrollPane implements ToClear {
         return orm.Table.search(model.ORMModelName, "id", (Integer) defaultTableModel.getValueAt(selectedRow, 0)).elementAt(0);
     }
 
-    void loadData() {
+    public void loadData() {
         loadData(orm.Table.search(model.ORMModelName));
     }
 

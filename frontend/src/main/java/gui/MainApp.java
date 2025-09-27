@@ -8,6 +8,7 @@ import gui.util.*;
 import gui.dashboard.Dashboard;
 
 import static orm.util.Console.error;
+import static orm.util.Database.*;
 
 public class MainApp extends JFrame implements Listener {
 
@@ -41,8 +42,6 @@ public class MainApp extends JFrame implements Listener {
     public static void main(String[] args) {
 
 //        readSampleData();
-//        clear();
-//        display();
 
         SwingUtilities.invokeLater(MainApp::new);
     }

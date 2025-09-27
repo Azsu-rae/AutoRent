@@ -42,7 +42,7 @@ class SearchProfile extends MyDialog {
 
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(addField(atts[0], Factory.field(Field.TEXT)), gbc);
+        panel.add(addField(atts[0], Factory.field(20, Field.TEXT)), gbc);
 
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -51,7 +51,7 @@ class SearchProfile extends MyDialog {
 
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(addField(atts[1], Factory.field(Field.TEXT)), gbc);
+        panel.add(addField(atts[1], Factory.field(20, Field.TEXT)), gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -61,7 +61,7 @@ class SearchProfile extends MyDialog {
         gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(addField(atts[2], Factory.field(Field.TEXT)), gbc);
+        panel.add(addField(atts[2], Factory.field(20, Field.TEXT)), gbc);
 
         gbc.gridwidth = 2;
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.0;
@@ -69,13 +69,15 @@ class SearchProfile extends MyDialog {
         panel.add(new MyButton("Save", e -> saveCriteria()), gbc);
 
         setContentPane(panel);
-        setSize(200, 175);
+        pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }
 
     void saveCriteria() {
+        System.out.println(fields.keySet());
         for (var att : atts) {
+            System.out.println("Attempting to get: " + att);
             toolBar.addDiscreteCriteria(att, fields.get(att).getText());
         } dispose();
     }

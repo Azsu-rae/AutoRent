@@ -6,10 +6,11 @@ import gui.component.*;
 import gui.component.Factory.Field;
 
 class SearchBar extends MyPanel {
-    ToolBar toolBar;
 
+    ToolBar toolBar;
     SearchBar(ToolBar toolBar, String[] atts) {
         this.toolBar = toolBar;
+
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(new MyLabel("Search" + toolBar.model.parser.denominator(atts)));
         var searchField = Factory.field(20, Field.TEXT);
