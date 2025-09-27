@@ -50,31 +50,36 @@ public class ToolBar extends JToolBar {
 
         add(Box.createHorizontalGlue());
         add(new MyButton("Reset", e -> model.table.loadData()));
-        add(new MyButton("Apply", e -> {
+        add(new MyButton("Apply", e -> onApply()));
+    }
 
-            var discreteCriterias = new Vector<Table>();
-            for (var discrete : discreteValues.entrySet()) {
-                for (int i=0;i<discrete.getValue().size();i++) {
+    void onApply() {
+        var discreteCriterias = new Vector<Table>();
+        for (var discrete : discreteValues.entrySet()) {
+            for (int i=0;i<discrete.getValue().size();i++) {
 
-                    Object value = discrete.getValue().get(i);
-                    if (value == null || value.equals("")) {
-                        Console.print("Skipping %s", value);
-                        continue;
-                    } Console.print("do we ever get here?");
+                Object value = discrete.getValue().get(i);
+                if (value == null || value.equals("")) {
+                    Console.print("Skipping %s", value);
+                    continue;
+                } Console.print("do we ever get here?");
 
-                    if (i >= discreteCriterias.size()) {
-                        discreteCriterias.add(getModelInstance(model.ORMModelName));
-                    } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value);
+                if (i >= discreteCriterias.size()) {
+                    discreteCriterias.add(getModelInstance(model.ORMModelName));
+                } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value);
 
-                }
-            } model.table.loadData(Table.search(discreteCriterias, boundedValues));
+            }
+        }
 
-            Console.print("discreteValues: %s", discreteValues.values());
-            Console.print(discreteCriterias, "Parsed Discrete Criterias");
-            Console.print(boundedValues);
+        if (discreteCriterias.size() == 0) {
+            discreteCriterias.add(getModelInstance(model.ORMModelName));
+        } model.table.loadData(Table.search(discreteCriterias, boundedValues));
 
-            discreteValues = new HashMap<>();
-            boundedValues = new Vector<>();
-        }));
+        Console.print("discreteValues: %s", discreteValues.values());
+        Console.print(discreteCriterias, "Parsed Discrete Criterias");
+        Console.print(boundedValues);
+
+        discreteValues = new HashMap<>();
+        boundedValues = new Vector<>();
     }
 }

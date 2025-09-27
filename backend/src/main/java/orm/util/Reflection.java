@@ -143,6 +143,17 @@ public class Reflection {
 
     // Primary methods
 
+    static private boolean hasSetter(Table tuple, String attribute) {
+        try {
+            String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
+            Class<?> attType = tuple.reflect.fields.visibleTypeOf(attribute);
+            tuple.getClass().getDeclaredMethod(method, attType);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
     static private Method getSetter(Table tuple, String attribute) {
         try {
             String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
@@ -269,7 +280,7 @@ public class Reflection {
             return modifiable.computeIfAbsent(tuple.getClass().getSimpleName(), k -> {
                 var list = new ArrayList<String>();
                 for (String att : tuple.reflect.fields.names) {
-                    if (getSetter(tuple, att) != null) {
+                    if (hasSetter(tuple, att)) {
                         list.add(att);
                     }
                 } return list;
