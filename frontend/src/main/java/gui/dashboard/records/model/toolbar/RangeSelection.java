@@ -7,6 +7,7 @@ import gui.component.*;
 import gui.util.Opts;
 
 import orm.Table.Range;
+import orm.util.Console;
 
 class RangeSelection extends MyDialog {
 
@@ -82,6 +83,7 @@ class RangeSelection extends MyDialog {
         } else {
             dispose();
             JOptionPane.showMessageDialog(this, "Please Enter a Valid Input!");
+            Console.print("Invalid Range: %s", range);
         }
     }
 }

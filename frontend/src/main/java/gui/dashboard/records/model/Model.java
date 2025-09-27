@@ -68,7 +68,7 @@ public class Model extends MyPanel {
 
         public Object parse(String name, JTextField field) {
             try {
-                return parser.get(reflect.fields.typeOf(name)).apply(field.getText());
+                return parser.get(reflect.fields.visibleTypeOf(name)).apply(field.getText());
             } catch (Exception e) {
                 return null;
             }
