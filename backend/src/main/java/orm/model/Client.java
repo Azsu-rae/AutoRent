@@ -25,7 +25,6 @@ public class Client extends Table {
     public Client() {}
 
     public Client(String name, String surname, String email, String phoneNumber, String drivingLicence) {
-
         this.name = name;
         this.surname = surname;
         this.drivingLicence = drivingLicence;
@@ -54,7 +53,6 @@ public class Client extends Table {
     }
 
     public Client setDrivingLicence(String drivingLicence) {
-
         this.drivingLicence = drivingLicence;
         return this;
     }
@@ -96,7 +94,6 @@ public class Client extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Client());
         return search(tuples, boundedCriterias);

@@ -27,7 +27,6 @@ public class User extends Table {
     public User() {}
 
     public User(String name, String surname, String email, String password, String role) {
-
         this.name = name;
         this.surname = surname;
         this.email = email;
@@ -111,7 +110,6 @@ public class User extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new User());
         return search(tuples, boundedCriterias);

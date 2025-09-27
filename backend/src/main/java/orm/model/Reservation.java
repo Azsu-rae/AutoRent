@@ -35,42 +35,31 @@ public class Reservation extends Table {
     public Reservation() {}
 
     public Reservation(Client client, Vehicle vehicle, String startDate, String endDate) {
-
         setClient(client);
         setVehicle(vehicle);
         this.startDate = stringToDate(startDate);
         this.endDate = stringToDate(endDate);
-
         setTotalAmountAndStatus();
     }
 
     @Override
     public int add() {
-
         if (hasConflict()) {
             return 0;
-        }
-
-        return super.add();
+        } return super.add();
     }
 
     @Override
     public int edit() {
-
         if (hasConflict()) {
             return 0;
-        }
-
-        return super.add();
+        } return super.add();
     }
 
     private void setTotalAmountAndStatus() {
-
         if (vehicle != null && startDate != null && endDate != null) {
             totalAmount = (ChronoUnit.DAYS.between(startDate, endDate)+1)*vehicle.getPricePerDay();
-        }
-
-        updateStatus();
+        } updateStatus();
     }
 
     public void updateStatus() {
@@ -85,7 +74,6 @@ public class Reservation extends Table {
     }
 
     private boolean isOngoing() {
-
         LocalDate currentDate = LocalDate.now();
         return 
             (currentDate.isAfter(startDate) || currentDate.isEqual(startDate))
@@ -128,25 +116,18 @@ public class Reservation extends Table {
     }
 
     public Reservation setClient(Client c) {
-
-        if (c == null || !c.isTupleOrElseThrow()) {
-            return this;
-        }
-
-        this.client = c;
-        setTotalAmountAndStatus();
-        return this;
+        if (c != null && c.isTupleOrElseThrow()) {
+            this.client = c;
+            setTotalAmountAndStatus();
+        } return this;
     }
 
     public Reservation setVehicle(Vehicle v) {
 
-        if (v == null || !v.isTupleOrElseThrow()) {
-            return this;
-        }
-
-        this.vehicle = v;
-        setTotalAmountAndStatus();
-        return this;
+        if (v != null && v.isTupleOrElseThrow()) {
+            this.vehicle = v;
+            setTotalAmountAndStatus();
+        } return this;
     }
 
     public Reservation setStartDate(String startDate) {
@@ -202,7 +183,6 @@ public class Reservation extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Reservation());
         return search(tuples, boundedCriterias);

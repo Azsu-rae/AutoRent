@@ -26,7 +26,6 @@ public class Payment extends Table {
     public Payment() {}
 
     public Payment(Reservation reservation, Double amount, String date, String method) {
-
         setReservation(reservation);
         this.amount = amount;
         this.date = stringToDate(date);
@@ -34,13 +33,9 @@ public class Payment extends Table {
     }
 
     public Payment setReservation(Reservation r) {
-
-        if (r == null || !r.isTupleOrElseThrow()) {
-            return this;
-        }
-
-        this.reservation = r;
-        return this;
+        if (r != null && r.isTupleOrElseThrow()) {
+            this.reservation = r;
+        } return this;
     }
 
     public Payment setDate(String date) {
@@ -91,7 +86,6 @@ public class Payment extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Payment());
         return search(tuples, boundedCriterias);

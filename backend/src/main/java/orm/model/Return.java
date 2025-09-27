@@ -26,7 +26,6 @@ public class Return extends Table {
     public Return() {}
 
     public Return(Reservation reservation, String returnDate, String returnState, Double additionalFees) {
-
         setReservation(reservation);
         this.returnDate = stringToDate(returnDate);
         this.returnState = returnState;
@@ -34,13 +33,9 @@ public class Return extends Table {
     }
 
     public Return setReservation(Reservation r) {
-
         if (r == null || !r.isTupleOrElseThrow()) {
-            return this;
-        }
-
-        this.reservation = r;
-        return this;
+            this.reservation = r;
+        } return this;
     }
 
     public Return setReturnDate(String returnDate) {
@@ -91,7 +86,6 @@ public class Return extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Return());
         return search(tuples, boundedCriterias);

@@ -34,7 +34,6 @@ public class Vehicle extends Table {
     public Vehicle() {}
 
     public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model, String vehicleType, String fuelType) {
-
         this.pricePerDay = pricePerDay;
         this.state = state;
         this.maintenanceDate = stringToDate(maintenanceDate);
@@ -134,7 +133,6 @@ public class Vehicle extends Table {
     }
 
     public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-
         Vector<Table> tuples = new Vector<>();
         tuples.add(new Vehicle());
         return search(tuples, boundedCriterias);

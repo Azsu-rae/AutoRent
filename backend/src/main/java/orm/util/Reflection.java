@@ -27,8 +27,8 @@ public class Reflection {
         }
     }
 
-    private Table tuple;
     public FieldUtils fields;
+    private Table tuple;
 
     public Reflection(String modelName) {
         this(getModelInstance(modelName));

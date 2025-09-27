@@ -43,15 +43,13 @@ class DataMapper {
     }
 
     static void bindValues(PreparedStatement pstmt, Vector<Object> atts) throws SQLException {
-
         int i=1;
         for (Object att : atts) {
             if (att instanceof Table) {
                 pstmt.setInt(i, ((Table)att).getId());
             } else {
                 getSetter(att.getClass()).set(pstmt, i, att);
-            }
-            i++;
+            } i++;
         }
     }
 
@@ -67,15 +65,11 @@ class DataMapper {
                 Class<?> attClass = tuple.reflect.fields.typeOf(i);
                 Object value = getValue(rs, colName, attClass);
                 tuple.reflect.fields.set(i, value);
-            }
-            tuples.add(tuple);
-        }
-
-        return tuples;
+            } tuples.add(tuple);
+        } return tuples;
     }
 
     private static Object getValue(ResultSet rs, String columnName, Class<?> attributeClass) throws SQLException {
-
         if (Table.class.isAssignableFrom(attributeClass)) {
             return idToInstance(rs.getInt(columnName), attributeClass.getSimpleName());
         } else {

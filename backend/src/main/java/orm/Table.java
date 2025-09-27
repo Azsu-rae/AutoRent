@@ -19,12 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import orm.util.Console;
 import orm.util.Constraints;
 import orm.util.Pair;
 import orm.util.Reflection;
-
-import orm.model.*;
 
 import static orm.util.Console.*;
 import static orm.util.Reflection.getModelInstance;
