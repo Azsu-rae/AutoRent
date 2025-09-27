@@ -29,8 +29,8 @@ public class MainApp extends JFrame implements Listener {
         }
 
         // Main Panels
-        panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Login");
+        panels.add(new Dashboard(this), "Dashboard");
 
         // JFrame settings
         setContentPane(panels);
@@ -42,6 +42,7 @@ public class MainApp extends JFrame implements Listener {
     public static void main(String[] args) {
 
 //        readSampleData();
+//        display();
 
         SwingUtilities.invokeLater(MainApp::new);
     }
