@@ -1,4 +1,4 @@
-package gui.dashboard.records.model;
+package gui.dashboard.records.record;
 
 import java.awt.BorderLayout;
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.util.function.Function;
 import javax.swing.JTextField;
 
 import gui.component.MyPanel;
-import gui.dashboard.records.model.toolbar.ToolBar;
+import gui.dashboard.records.record.toolbar.ToolBar;
 import orm.util.Reflection;
 
 public class Record extends MyPanel {

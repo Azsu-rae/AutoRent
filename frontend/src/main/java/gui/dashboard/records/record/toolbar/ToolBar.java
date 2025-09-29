@@ -1,4 +1,4 @@
-package gui.dashboard.records.model.toolbar;
+package gui.dashboard.records.record.toolbar;
 
 
 import javax.swing.*;
@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.util.*;
 
 import gui.component.MyButton;
-import gui.dashboard.records.model.Record;
+import gui.dashboard.records.record.Record;
 
 import orm.Table.Range;
 import orm.util.Constraints;

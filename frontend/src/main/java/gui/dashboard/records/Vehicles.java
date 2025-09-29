@@ -1,6 +1,6 @@
 package gui.dashboard.records;
 
-import gui.dashboard.records.model.Record;
+import gui.dashboard.records.record.Record;
 
 public class Vehicles extends Record {
 

@@ -1,4 +1,4 @@
-package gui.dashboard.records.model;
+package gui.dashboard.records.record;
 
 import java.awt.event.MouseAdapter;
 import java.util.Vector;
