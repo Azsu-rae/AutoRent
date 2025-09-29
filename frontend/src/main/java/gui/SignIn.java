@@ -5,7 +5,7 @@ import java.awt.*;
 
 import gui.component.*;
 import gui.component.Factory.Field;
-import static gui.component.Factory.field;
+import static gui.component.Factory.createField;
 
 import gui.util.*;
 import gui.util.Listener.Event;
@@ -31,7 +31,7 @@ public class SignIn extends MyPanel implements Source {
         // ID Field
         gbc.gridx = 0; gbc.gridy = 1;
 
-        JTextField idField = field(15, Field.TEXT, 300, 40);
+        JTextField idField = createField(15, Field.TEXT, 300, 40);
         add(idField, gbc);
 
         // Password Label
@@ -42,7 +42,7 @@ public class SignIn extends MyPanel implements Source {
         gbc.insets = new Insets(5, 5, 15, 5);
         gbc.gridx = 0; gbc.gridy = 4;
 
-        JPasswordField passwordField = (JPasswordField) field(15, Field.PASSWORD, 300, 40);
+        JPasswordField passwordField = (JPasswordField) createField(15, Field.PASSWORD, 300, 40);
         add(passwordField, gbc);
 
         // Login Button

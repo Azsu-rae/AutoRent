@@ -13,7 +13,7 @@ class SearchBar extends MyPanel {
 
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(new MyLabel("Search" + toolBar.model.parser.denominator(atts)));
-        var searchField = Factory.field(20, Field.TEXT);
+        var searchField = Factory.createField(20, Field.TEXT);
         add(searchField);
         add(new MyButton("Search", e -> {
             for (var att : atts) {

@@ -29,8 +29,8 @@ public class MainApp extends JFrame implements Listener {
         }
 
         // Main Panels
-        panels.add(new SignIn(this), "Login");
         panels.add(new Dashboard(this), "Dashboard");
+        panels.add(new SignIn(this), "Login");
 
         // JFrame settings
         setContentPane(panels);

@@ -11,7 +11,8 @@ import orm.util.Console;
 
 class RangeSelection extends MyDialog {
 
-    JTextField lower, upper;
+    JTextField[] fields = new JTextField[2];
+    String[] labels = new String[2];
     String att;
 
     ToolBar toolBar;
@@ -20,62 +21,40 @@ class RangeSelection extends MyDialog {
         this.att = att;
         this.toolBar = toolBar;
 
-        String lowerBound = null, upperBound = null;
         var constraint = toolBar.model.reflect.fields.constraintsOf(att);
         if (constraint.lowerBound()) {
-            lowerBound = toolBar.model.parser.titleCase(att) + ":";
-            upperBound = toolBar.model.parser.titleCase(constraint.boundedPair()) + ":";
+            labels[0] = toolBar.model.parser.titleCase(att) + ":";
+            labels[1] = toolBar.model.parser.titleCase(constraint.boundedPair()) + ":";
         } else if (constraint.bounded()) {
-            lowerBound = toolBar.model.parser.getMin(att);
-            upperBound = toolBar.model.parser.getMax(att);
+            labels[0] = toolBar.model.parser.getMin(att);
+            labels[1] = toolBar.model.parser.getMax(att);
         }
+
+        var fieldsPanel = Factory.createForm(labels, fields);
 
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
-        var gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        var gbc = Factory.initFormGBC();
 
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0; gbc.gridy = 0;
-        gbc.weightx = 0;
-        panel.add(new MyLabel(lowerBound), gbc);
-
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 1; gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        lower = Factory.field(15, Factory.Field.TEXT);
-        panel.add(lower, gbc);
-
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.gridx = 0; gbc.gridy = 1;
-        gbc.weightx = 0;
-        panel.add(new MyLabel(upperBound), gbc);
-
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 1; gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        upper = Factory.field(15, Factory.Field.TEXT);
-        panel.add(upper, gbc);
+        panel.add(fieldsPanel);
 
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.gridx = 0; gbc.gridy = 2;
-        gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 1;
         gbc.weightx = 0;
         panel.add(new MyButton("Save", e -> saveCriteria()), gbc);
 
         setContentPane(panel);
-        setSize(200, 175);
+        pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }
 
     public void saveCriteria() {
 
-        Object parsedLower = toolBar.model.parser.parse(att, lower);
-        Object parsedUpper = toolBar.model.parser.parse(att, upper);
+        Object parsedLower = toolBar.model.parser.parse(att, fields[0]);
+        Object parsedUpper = toolBar.model.parser.parse(att, fields[1]);
         var range = new Range(att, parsedLower, parsedUpper);
         if (range.isValidCriteriaFor(toolBar.model.reflect)) {
             toolBar.boundedValues.add(range);

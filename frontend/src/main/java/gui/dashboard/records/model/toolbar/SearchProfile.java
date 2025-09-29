@@ -9,8 +9,6 @@ import javax.swing.JTextField;
 import java.util.*;
 
 import gui.component.*;
-import gui.component.Factory.Field;
-
 import gui.util.Opts;
 
 class SearchProfile extends MyDialog {
@@ -28,43 +26,19 @@ class SearchProfile extends MyDialog {
         this.toolBar = toolBar;
         this.atts = atts;
 
+        var labels = List.of(atts).stream().map(toolBar.model.parser::titleCase).toArray(String[]::new);
+        var placeholder = new JTextField[atts.length];
+        var form = Factory.createForm(labels, placeholder);
+
+        var gbc = Factory.initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
-        var gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0; gbc.gridy = 0;
+        panel.add(form);
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[0])), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(addField(atts[0], Factory.field(20, Field.TEXT)), gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[1])), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(addField(atts[1], Factory.field(20, Field.TEXT)), gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyLabel(toolBar.model.parser.titleCase(atts[2])), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(addField(atts[2], Factory.field(20, Field.TEXT)), gbc);
-
-        gbc.gridwidth = 2;
-        gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(new MyButton("Save", e -> saveCriteria()), gbc);
 
@@ -75,9 +49,7 @@ class SearchProfile extends MyDialog {
     }
 
     void saveCriteria() {
-        System.out.println(fields.keySet());
         for (var att : atts) {
-            System.out.println("Attempting to get: " + att);
             toolBar.addDiscreteCriteria(att, fields.get(att).getText());
         } dispose();
     }

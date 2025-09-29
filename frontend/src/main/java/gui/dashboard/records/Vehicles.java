@@ -1,8 +1,8 @@
 package gui.dashboard.records;
 
-import gui.dashboard.records.model.Model;
+import gui.dashboard.records.model.Record;
 
-public class Vehicles extends Model {
+public class Vehicles extends Record {
 
     public Vehicles() {
         super("Vehicle");

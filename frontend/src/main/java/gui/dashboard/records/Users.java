@@ -1,8 +1,8 @@
 package gui.dashboard.records;
 
-import gui.dashboard.records.model.Model;
+import gui.dashboard.records.model.Record;
 
-public class Users extends Model {
+public class Users extends Record {
 
     public Users() {
         super("User");

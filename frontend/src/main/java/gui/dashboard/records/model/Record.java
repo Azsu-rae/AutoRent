@@ -12,30 +12,30 @@ import gui.component.MyPanel;
 import gui.dashboard.records.model.toolbar.ToolBar;
 import orm.util.Reflection;
 
-public class Model extends MyPanel {
+public class Record extends MyPanel {
 
     public Reflection reflect;
     public Parser parser;
 
-    public Table table;
+    public RecordGrid recordGrid;
     ToolBar toolBar;
-    Form form;
+    RecordEditor recordEditor;
 
     public String ORMModelName;
-    public Model(String ORMModelName) {
+    public Record(String ORMModelName) {
         this.ORMModelName = ORMModelName;
 
         reflect = new Reflection(ORMModelName);
         parser = new Parser();
 
         toolBar = new ToolBar(this);
-        table = new Table(this);
-        form = new Form(this);
+        recordGrid = new RecordGrid(this);
+        recordEditor = new RecordEditor(this);
 
         setLayout(new BorderLayout());
         add(toolBar, BorderLayout.NORTH);
-        add(table, BorderLayout.CENTER);
-        add(form, BorderLayout.SOUTH);
+        add(recordGrid, BorderLayout.CENTER);
+        add(recordEditor, BorderLayout.SOUTH);
     }
 
     public class Parser {
@@ -55,7 +55,7 @@ public class Model extends MyPanel {
             typeName.put(LocalDate.class,  "Date");
         }
 
-        Model model;
+        Record model;
         String[] titleCaseNames;
         Parser() {
             titleCaseNames = new String[reflect.fields.count];

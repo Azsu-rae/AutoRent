@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.util.*;
 
 import gui.component.MyButton;
-import gui.dashboard.records.model.Model;
+import gui.dashboard.records.model.Record;
 
 import orm.Table.Range;
 import orm.util.Constraints;
@@ -24,8 +24,8 @@ public class ToolBar extends JToolBar {
         discreteValues.computeIfAbsent(att, k -> new ArrayList<>()).add(value);
     }
 
-    Model model;
-    public ToolBar(Model model) {
+    Record model;
+    public ToolBar(Record model) {
         this.model = model;
 
         var searchedTexts = model.reflect.fields.haveConstraint(Constraints::searchedText);
@@ -49,7 +49,7 @@ public class ToolBar extends JToolBar {
         }
 
         add(Box.createHorizontalGlue());
-        add(new MyButton("Reset", e -> model.table.loadData()));
+        add(new MyButton("Reset", e -> model.recordGrid.loadData()));
         add(new MyButton("Apply", e -> onApply()));
     }
 
@@ -72,7 +72,7 @@ public class ToolBar extends JToolBar {
 
         if (discreteCriterias.size() == 0) {
             discreteCriterias.add(getModelInstance(model.ORMModelName));
-        } model.table.loadData(Table.search(discreteCriterias, boundedValues));
+        } model.recordGrid.loadData(Table.search(discreteCriterias, boundedValues));
 
         discreteValues = new HashMap<>();
         boundedValues = new Vector<>();

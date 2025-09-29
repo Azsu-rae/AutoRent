@@ -12,13 +12,13 @@ import javax.swing.table.DefaultTableModel;
 import gui.util.Opts;
 import gui.util.ToClear;
 
-public class Table extends JScrollPane implements ToClear {
+public class RecordGrid extends JScrollPane implements ToClear {
 
     DefaultTableModel defaultTableModel;
     JTable table;
 
-    Model model;
-    Table(Model model) {
+    Record model;
+    RecordGrid(Record model) {
         this.model = model;
 
         defaultTableModel = new DefaultTableModel(model.parser.titleCaseNames, 0) {
@@ -33,8 +33,8 @@ public class Table extends JScrollPane implements ToClear {
             if (e.getValueIsAdjusting()) return; // ignore intermediate "drag" events
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                model.form.onSelection(get(selectedRow));
-                for (var btn : model.form.btns) {
+                model.recordEditor.onSelection(get(selectedRow));
+                for (var btn : model.recordEditor.btns) {
                     btn.setEnabled(true);
                 }
             }
@@ -58,7 +58,7 @@ public class Table extends JScrollPane implements ToClear {
     @Override
     public void clear() {
         table.clearSelection();
-        for (var btn : model.form.btns) {
+        for (var btn : model.recordEditor.btns) {
             btn.setEnabled(btn.defaultEnabled);
         }
     }
@@ -81,7 +81,7 @@ public class Table extends JScrollPane implements ToClear {
 
     void onAdd() {
 
-        var tuple = model.form.parseFields();
+        var tuple = model.recordEditor.parseFields();
         if (tuple.add() > 0) {
             JOptionPane.showMessageDialog(this, model.ORMModelName + " added successfully!");
             loadData();
@@ -96,7 +96,7 @@ public class Table extends JScrollPane implements ToClear {
         if (selectedRow >= 0) {
 
             var toEdit = get(selectedRow);
-            var newValue = model.form.parseFields();
+            var newValue = model.recordEditor.parseFields();
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
             }
