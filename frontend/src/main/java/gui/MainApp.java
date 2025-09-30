@@ -21,6 +21,8 @@ public class MainApp extends JFrame implements Listener {
         super("AutoRent");
         Opts.useCustomTheme(false);
         Opts.setMainFrame(this);
+
+        // Theme
         try {
             // TODO Look into this
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");

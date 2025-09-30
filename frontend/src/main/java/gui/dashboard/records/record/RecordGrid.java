@@ -1,90 +1,45 @@
 package gui.dashboard.records.record;
 
 import java.awt.event.MouseAdapter;
-import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableModel;
 
+import gui.shared.Grid;
+import gui.util.Listener;
 import gui.util.Opts;
-import gui.util.ToClear;
 
-public class RecordGrid extends JScrollPane implements ToClear {
+public class RecordGrid extends JScrollPane {
 
-    DefaultTableModel defaultTableModel;
-    JTable table;
+    Record record;
+    Grid grid;
 
-    Record model;
-    RecordGrid(Record model) {
-        this.model = model;
+    RecordGrid(Record record) {
+        this.record = record;
+        grid = new Grid(
+            (Listener) record.recordEditor,
+            record.ORMModelName,
+            record.parser.titleCaseNames(record.reflect.fields.names)
+        );
 
-        defaultTableModel = new DefaultTableModel(model.parser.titleCaseNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        table = new JTable(defaultTableModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) return; // ignore intermediate "drag" events
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                model.recordEditor.onSelection(get(selectedRow));
-                for (var btn : model.recordEditor.btns) {
-                    btn.setEnabled(true);
-                }
-            }
-        });
-
-        Opts.addToClear(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                int row = table.rowAtPoint(e.getPoint());
+                int row = grid.rowAtPoint(e.getPoint());
                 if (row == -1) {
-                    clear();
+                    Opts.clearEvent();
                 }
             }
         });
 
-        loadData();
-        setViewportView(table);
-    }
-
-    @Override
-    public void clear() {
-        table.clearSelection();
-        for (var btn : model.recordEditor.btns) {
-            btn.setEnabled(btn.defaultEnabled);
-        }
-    }
-
-    orm.Table get(int selectedRow) {
-        return orm.Table.search(model.ORMModelName, "id", (Integer) defaultTableModel.getValueAt(selectedRow, 0)).elementAt(0);
-    }
-
-    public void loadData() {
-        loadData(orm.Table.search(model.ORMModelName));
-    }
-
-    public void loadData(Vector<orm.Table> tuples) {
-        defaultTableModel.setRowCount(0);
-        for (var tuple : tuples) {
-            Object[] row = model.parser.getAsRow(tuple);
-            defaultTableModel.addRow(row);
-        }
+        grid.loadData();
+        setViewportView(grid);
     }
 
     void onAdd() {
-
-        var tuple = model.recordEditor.parseFields();
-        if (tuple.add() > 0) {
-            JOptionPane.showMessageDialog(this, model.ORMModelName + " added successfully!");
-            loadData();
+        if (record.recordEditor.parseFields().add() > 0) {
+            JOptionPane.showMessageDialog(this, record.ORMModelName + " added successfully!");
+            grid.loadData();
         } else {
             JOptionPane.showMessageDialog(this, "Please Enter a Valid Input!");
         }
@@ -92,39 +47,26 @@ public class RecordGrid extends JScrollPane implements ToClear {
 
     void onEdit() {
 
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow >= 0) {
+        var toEdit = grid.parseSelectedRow();
+        var newValue = record.recordEditor.parseFields();
+        for (var field : toEdit.reflect.fields.modifiable()) {
+            toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
+        }
 
-            var toEdit = get(selectedRow);
-            var newValue = model.recordEditor.parseFields();
-            for (var field : toEdit.reflect.fields.modifiable()) {
-                toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
-            }
-
-            if (toEdit.edit() > 0) {
-                JOptionPane.showMessageDialog(this, "Successfully Edited!");
-                loadData();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to Edit!");
-            }
-
+        if (toEdit.edit() > 0) {
+            JOptionPane.showMessageDialog(this, "Successfully Edited!");
+            grid.loadData();
         } else {
-            JOptionPane.showMessageDialog(this, "Please select a row to edit.");
+            JOptionPane.showMessageDialog(this, "Failed to Edit!");
         }
     }
 
     void onDelete() {
-
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow >= 0) {
-            if (get(selectedRow).delete() > 0) {
-                JOptionPane.showMessageDialog(this, "successfully Deleted!");
-                loadData();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete!");
-            }
+        if (grid.parseSelectedRow().delete() > 0) {
+            JOptionPane.showMessageDialog(this, "successfully Deleted!");
+            grid.loadData();
         } else {
-            JOptionPane.showMessageDialog(this, "Please select a row to delete.");
+            JOptionPane.showMessageDialog(this, "Failed to delete!");
         }
     }
 }

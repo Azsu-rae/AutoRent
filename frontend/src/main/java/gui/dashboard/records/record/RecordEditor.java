@@ -2,22 +2,24 @@ package gui.dashboard.records.record;
 
 import javax.swing.*;
 import java.awt.*;
-
 import java.util.*;
 import java.util.List;
 
 import gui.component.*;
+import gui.util.Parser;
+import orm.Table;
 
 import static orm.util.Reflection.getModelInstance;
 
-class RecordEditor extends MyPanel {
+class RecordEditor extends MyPanel implements gui.util.Listener {
 
     Map<String,JTextField> fieldByAtt = new HashMap<>();
+    String[] labels;
+
     List<MyButton> btns = new ArrayList<>();
     JTextField[] fields;
-    String[] labels;
-    Record record;
 
+    Record record;
     RecordEditor(Record record) {
         this.record = record;
 
@@ -31,7 +33,6 @@ class RecordEditor extends MyPanel {
         }
 
         var fieldsPanel = Factory.createForm(labels, fields);
-
         var buttonPanel = new MyPanel();
         btns.add(new MyButton(buttonPanel, "Add", e -> record.recordGrid.onAdd(), true));
         btns.add(new MyButton(buttonPanel, "Edit", e -> record.recordGrid.onEdit(), false));
@@ -47,17 +48,28 @@ class RecordEditor extends MyPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    void onSelection(orm.Table selectedTuple) {
-        for (String att : selectedTuple.reflect.fields.modifiable()) {
-            fieldByAtt.get(att).setText(record.parser.getAsColumn(selectedTuple, att).toString());
-        }
-    }
-
-    orm.Table parseFields() {
+    Table parseFields() {
         var tuple = getModelInstance(record.ORMModelName);
         for (var field : fieldByAtt.entrySet()) {
             Object value = record.parser.parse(field.getKey(), field.getValue());
             tuple.reflect.fields.callSetter(field.getKey(), value);
         } return tuple;
+    }
+
+    @Override
+    public void onEvent(Event e) {
+        switch (e) {
+            case CLEAR:
+                for (var btn : btns) {
+                    btn.setEnabled(btn.defaultEnabled);
+                } break;
+            case SELECTION:
+                var selected = record.recordGrid.grid.parseSelectedRow();
+                for (String att : record.reflect.fields.modifiable()) {
+                    fieldByAtt.get(att).setText(Parser.getAsColumn(selected, att).toString());
+                } break;
+            default:
+                break;
+        }
     }
 }

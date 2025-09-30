@@ -15,7 +15,6 @@ import orm.model.User;
 public class SignIn extends MyPanel implements Source {
 
     Listener listener;
-
     public SignIn(Listener listener) {
         this.listener = listener;
 
