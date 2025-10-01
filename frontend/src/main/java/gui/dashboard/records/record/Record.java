@@ -24,9 +24,9 @@ public class Record extends MyPanel {
         reflect = new Reflection(ORMModelName);
         parser = new Parser(reflect);
 
-        toolBar = new ToolBar(this);
-        recordGrid = new RecordGrid(this);
         recordEditor = new RecordEditor(this);
+        recordGrid = new RecordGrid(this);
+        toolBar = new ToolBar(this);
 
         setLayout(new BorderLayout());
         add(toolBar, BorderLayout.NORTH);

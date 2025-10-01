@@ -11,8 +11,8 @@ import gui.util.Opts;
 
 public class RecordGrid extends JScrollPane {
 
+    public Grid grid;
     Record record;
-    Grid grid;
 
     RecordGrid(Record record) {
         this.record = record;

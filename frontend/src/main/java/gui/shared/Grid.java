@@ -18,12 +18,13 @@ public class Grid extends JTable implements ToClear, Source {
     private Listener listener;
 
     public Grid(Listener listener, String ORMModelName, String[] columnNames) {
-        super(new DefaultTableModel(columnNames, 0) {
+        defaultTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-        });
+        };
+        setModel(defaultTableModel);
 
         this.ORMModelName = ORMModelName;
         this.listener = listener;
@@ -41,9 +42,6 @@ public class Grid extends JTable implements ToClear, Source {
     public void clear() {
         clearSelection();
         notifyListener(Event.CLEAR);
-        for (var btn : record.recordEditor.btns) {
-            btn.setEnabled(btn.defaultEnabled);
-        }
     }
 
     @Override
@@ -64,10 +62,14 @@ public class Grid extends JTable implements ToClear, Source {
     }
 
     public Table parseSelectedRow() {
+
         int selected = getSelectedRow();
         if (selected >= 0) {
             var tupleID = (Integer) defaultTableModel.getValueAt(selected, 0);
             return Table.search(ORMModelName, "id", tupleID).elementAt(0);
-        } return null;
+        }
+
+        String s = "Attempting to parse when no row is selected! Selected row: %d";
+        throw new IllegalStateException(String.format(s, getSelectedRow()));
     }
 }

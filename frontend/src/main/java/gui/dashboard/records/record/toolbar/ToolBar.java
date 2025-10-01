@@ -49,7 +49,7 @@ public class ToolBar extends JToolBar {
         }
 
         add(Box.createHorizontalGlue());
-        add(new MyButton("Reset", e -> model.recordGrid.loadData()));
+        add(new MyButton("Reset", e -> model.recordGrid.grid.loadData()));
         add(new MyButton("Apply", e -> onApply()));
     }
 
@@ -72,7 +72,7 @@ public class ToolBar extends JToolBar {
 
         if (discreteCriterias.size() == 0) {
             discreteCriterias.add(getModelInstance(model.ORMModelName));
-        } model.recordGrid.loadData(Table.search(discreteCriterias, boundedValues));
+        } model.recordGrid.grid.loadData(Table.search(discreteCriterias, boundedValues));
 
         discreteValues = new HashMap<>();
         boundedValues = new Vector<>();

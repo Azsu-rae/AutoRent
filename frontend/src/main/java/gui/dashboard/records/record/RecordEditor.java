@@ -8,6 +8,8 @@ import java.util.List;
 import gui.component.*;
 import gui.util.Parser;
 import orm.Table;
+import orm.util.Console;
+import orm.util.Database;
 
 import static orm.util.Reflection.getModelInstance;
 
@@ -26,13 +28,13 @@ class RecordEditor extends MyPanel implements gui.util.Listener {
         var modifiables = record.reflect.fields.modifiable();
         fields = new JTextField[modifiables.size()];
         labels = modifiables.stream().map(record.parser::titleCase).toArray(String[]::new);
+        var fieldsPanel = Factory.createForm(labels, fields);
 
         int i=0;
         for (var att : modifiables) {
             fieldByAtt.put(att, fields[i++]);
         }
 
-        var fieldsPanel = Factory.createForm(labels, fields);
         var buttonPanel = new MyPanel();
         btns.add(new MyButton(buttonPanel, "Add", e -> record.recordGrid.onAdd(), true));
         btns.add(new MyButton(buttonPanel, "Edit", e -> record.recordGrid.onEdit(), false));
@@ -67,6 +69,8 @@ class RecordEditor extends MyPanel implements gui.util.Listener {
                 var selected = record.recordGrid.grid.parseSelectedRow();
                 for (String att : record.reflect.fields.modifiable()) {
                     fieldByAtt.get(att).setText(Parser.getAsColumn(selected, att).toString());
+                }  for (var btn : btns) {
+                btn.setEnabled(true);
                 } break;
             default:
                 break;
