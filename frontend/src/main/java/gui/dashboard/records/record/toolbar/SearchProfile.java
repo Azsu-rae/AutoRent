@@ -30,6 +30,11 @@ class SearchProfile extends MyDialog {
         var placeholder = new JTextField[atts.length];
         var form = Factory.createForm(labels, placeholder);
 
+        int i=0;
+        for (var att : atts) {
+            addField(att, placeholder[i++]);
+        }
+
         var gbc = Factory.initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
