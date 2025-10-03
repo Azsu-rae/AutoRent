@@ -232,7 +232,7 @@ public abstract class Table {
 
     static public boolean dbFile() {
         File db = new File(dbPath);
-        return !db.exists() || !db.isFile();
+        return db.exists() && db.isFile();
     }
 
     // checks if there's a DB and that the SQLite table is created

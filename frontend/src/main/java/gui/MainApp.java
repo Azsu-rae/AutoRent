@@ -41,7 +41,7 @@ public class MainApp extends JFrame implements Listener {
     }
 
     public static void main(String[] args) {
-        if (Table.dbFile()) {
+        if (!Table.dbFile()) {
             readSampleData();
         } display();
         SwingUtilities.invokeLater(MainApp::new);
