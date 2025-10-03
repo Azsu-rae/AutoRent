@@ -28,12 +28,12 @@ public class Factory {
             throw new IllegalArgumentException("Different number of Labels and Fields!");
         }
 
+        var gbc = initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
         for (int i=0;i<label.length;i++) {
 
-            var gbc = initFormGBC();
             gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0;
             gbc.fill = GridBagConstraints.NONE;
             panel.add(new MyLabel(label[i]), gbc);

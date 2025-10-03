@@ -30,20 +30,20 @@ public class MainApp extends JFrame implements Listener {
         }
 
         // Main Panels
-        panels.add(new SignIn(this), "Login");
+        panels.add(new SignIn(this), "Sign In");
         panels.add(new Dashboard(this), "Dashboard");
 
         // JFrame settings
         setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(800, 600);
         setVisible(true);
     }
 
     public static void main(String[] args) {
 
 //        readSampleData();
-//        display();
+        display();
 
         SwingUtilities.invokeLater(MainApp::new);
     }
@@ -55,7 +55,7 @@ public class MainApp extends JFrame implements Listener {
                 cardLayout.show(panels, "Dashboard");
                 break;
             case LOG_OUT:
-                cardLayout.show(panels, "Login");
+                cardLayout.show(panels, "Sign In");
                 break;
             default:
                 break;
