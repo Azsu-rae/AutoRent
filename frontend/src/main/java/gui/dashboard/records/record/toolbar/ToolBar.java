@@ -12,9 +12,7 @@ import orm.Table.Range;
 import orm.util.Constraints;
 import orm.Table;
 
-import static orm.util.Console.print;
 import static orm.util.Reflection.getModelInstance;
-import orm.util.Console;
 
 public class ToolBar extends JToolBar {
 
@@ -72,7 +70,9 @@ public class ToolBar extends JToolBar {
 
         if (discreteCriterias.size() == 0) {
             discreteCriterias.add(getModelInstance(model.ORMModelName));
-        } model.recordGrid.grid.loadData(Table.search(discreteCriterias, boundedValues));
+        }
+
+        model.recordGrid.grid.loadData(Table.search(discreteCriterias, boundedValues));
 
         discreteValues = new HashMap<>();
         boundedValues = new Vector<>();

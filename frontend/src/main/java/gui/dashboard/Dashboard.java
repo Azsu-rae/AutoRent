@@ -6,7 +6,7 @@ import gui.util.*;
 import gui.component.MyPanel;
 import gui.dashboard.records.Records;
 
-public class Dashboard extends MyPanel implements Source, Listener {
+public class Dashboard extends MyPanel implements Listener {
 
     CardLayout cardLayout = new CardLayout();
     MyPanel panels = new MyPanel(cardLayout);
@@ -24,15 +24,10 @@ public class Dashboard extends MyPanel implements Source, Listener {
     }
 
     @Override
-    public void notifyListener(Event event) {
-        listener.onEvent(event);
-    }
-
-    @Override
     public void onEvent(Event event) {
         switch (event) {
             case LOG_OUT:
-                notifyListener(event);
+                listener.onEvent(event);
                 break;
             case HOME:
                 cardLayout.show(panels, "Home");

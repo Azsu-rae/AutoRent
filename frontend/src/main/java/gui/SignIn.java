@@ -12,7 +12,7 @@ import gui.util.Listener.Event;
 
 import orm.model.User;
 
-public class SignIn extends MyPanel implements Source {
+public class SignIn extends MyPanel {
 
     Listener listener;
     public SignIn(Listener listener) {
@@ -53,15 +53,10 @@ public class SignIn extends MyPanel implements Source {
         loginBtn.addActionListener(e -> {
             if (User.authenticate(idField.getText(), String.valueOf(passwordField.getPassword()))) {
                 idField.setText(""); passwordField.setText("");
-                notifyListener(Event.LOG_IN);
+                listener.onEvent(Event.LOG_IN);
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid login!");
             }
         });
-    }
-
-    @Override
-    public void notifyListener(Event event) {
-        listener.onEvent(event);
     }
 }

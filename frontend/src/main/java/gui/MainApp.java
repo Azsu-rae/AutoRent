@@ -24,15 +24,14 @@ public class MainApp extends JFrame implements Listener {
 
         // Theme
         try {
-            // TODO Look into this
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception e) {
             error(e);
         }
 
         // Main Panels
-        panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Login");
+        panels.add(new Dashboard(this), "Dashboard");
 
         // JFrame settings
         setContentPane(panels);

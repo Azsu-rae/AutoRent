@@ -11,7 +11,7 @@ import gui.util.Listener.Event;
 
 import orm.Table;
 
-public class Grid extends JTable implements ToClear, Source {
+public class Grid extends JTable implements ToClear {
 
     private DefaultTableModel defaultTableModel;
     private String ORMModelName;
@@ -32,21 +32,16 @@ public class Grid extends JTable implements ToClear, Source {
 
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                return; // ignore intermediate "drag" events
-            } notifyListener(Event.SELECTION);
+            if (e.getValueIsAdjusting() || getSelectedRow() == -1) {
+                return;
+            } listener.onEvent(Event.SELECTION);
         });
     }
 
     @Override
     public void clear() {
         clearSelection();
-        notifyListener(Event.CLEAR);
-    }
-
-    @Override
-    public void notifyListener(Event event) {
-        listener.onEvent(event);
+        listener.onEvent(Event.CLEAR);
     }
 
     public void loadData() {

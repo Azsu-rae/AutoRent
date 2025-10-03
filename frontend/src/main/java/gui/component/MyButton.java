@@ -62,7 +62,6 @@ public class MyButton extends JButton {
     public MyButton(String name) {
 
         super(name);
-        setFocusPainted(false);
         if (!Opts.CUSTOM_THEME) return;
 
         setBackground(MyColor.BUTTON);
@@ -71,6 +70,7 @@ public class MyButton extends JButton {
 
         setContentAreaFilled(false);
         setBorderPainted(false);
+        setFocusPainted(false);
 
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setHorizontalAlignment(SwingConstants.CENTER);

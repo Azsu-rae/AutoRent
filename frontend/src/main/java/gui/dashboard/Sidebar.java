@@ -7,9 +7,8 @@ import gui.component.MyButton;
 import gui.component.MyPanel;
 import gui.util.Listener;
 import gui.util.Listener.Event;
-import gui.util.Source;
 
-public class Sidebar extends MyPanel implements Source {
+public class Sidebar extends MyPanel {
 
     GridBagConstraints gbc = new GridBagConstraints();
     Listener listener;
@@ -31,12 +30,7 @@ public class Sidebar extends MyPanel implements Source {
         MyButton btn = new MyButton(name, SwingConstants.LEFT);
         gbc.gridy++; add(btn, gbc);
         btn.addActionListener(e -> {
-            notifyListener(event);
+            listener.onEvent(event);
         });
-    }
-
-    @Override
-    public void notifyListener(Event event) {
-        listener.onEvent(event);
     }
 }
