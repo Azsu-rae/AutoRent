@@ -3,6 +3,8 @@
 
 !.gitignore
 
+dependency-reduced-pom.xml
+
 target/
 bin/
 
