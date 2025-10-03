@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import gui.util.*;
-
+import orm.Table;
 import gui.dashboard.Dashboard;
 
 import static orm.util.Console.error;
@@ -41,10 +41,9 @@ public class MainApp extends JFrame implements Listener {
     }
 
     public static void main(String[] args) {
-
-//        readSampleData();
-        display();
-
+        if (Table.dbFile()) {
+            readSampleData();
+        } display();
         SwingUtilities.invokeLater(MainApp::new);
     }
 

@@ -230,11 +230,15 @@ public abstract class Table {
 
     // Verification methods
 
+    static public boolean dbFile() {
+        File db = new File(dbPath);
+        return !db.exists() || !db.isFile();
+    }
+
     // checks if there's a DB and that the SQLite table is created
     public boolean db() {
 
-        File db = new File(dbPath);
-        if (!db.exists() || !db.isFile()) {
+        if (!dbFile()) {
             return false;
         }
 
