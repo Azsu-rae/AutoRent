@@ -14,6 +14,7 @@ import static orm.util.Console.*;
 
 public class Reservation extends Table {
 
+    static public final String CANCELED = "Canceled", ONGOING = "Ongoing", IN_EFFECT = "In Effect";
     static {
         registerModel(Reservation.class);
     }
@@ -64,12 +65,12 @@ public class Reservation extends Table {
 
     public void updateStatus() {
 
-        if (Objects.equals(status, "Canceled")) {
+        if (Objects.equals(status, CANCELED)) {
             return;
         }
 
         if (startDate != null && endDate != null && client != null && vehicle != null) {
-            status = isOngoing() ? "Ongoing" : "In Effect";
+            status = isOngoing() ? ONGOING : IN_EFFECT;
         }
     }
 
@@ -93,7 +94,7 @@ public class Reservation extends Table {
         Vector<Table> conflicts = new Vector<>();
         for (Table tuple : search(new Reservation().setVehicle(vehicle), "startDate", startDate.toString(), endDate.toString())) {
             Reservation r = (Reservation) tuple;
-            if (!r.getStatus().equals("Canceled")) {
+            if (!r.getStatus().equals(CANCELED)) {
                 conflicts.add(r);
                 break;
             }
@@ -111,7 +112,7 @@ public class Reservation extends Table {
     }
 
     public boolean cancel() {
-        this.status = "Canceled";
+        this.status = CANCELED;
         return edit() >= 1;
     }
 

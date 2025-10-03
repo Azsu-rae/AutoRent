@@ -161,7 +161,8 @@ public class Reflection {
             return tuple.getClass().getDeclaredMethod(method, attType);
         } catch (NoSuchMethodException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     static private Object invoke(Method method, Table tuple, Object... args) {
@@ -170,7 +171,8 @@ public class Reflection {
             return method.invoke(tuple, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     static private Table setFieldValue(Table tuple, Field field, Object value) {
@@ -179,6 +181,7 @@ public class Reflection {
             field.set(tuple, value);
         } catch (IllegalAccessException e) {
             error(e);
+            throw new BugDetectedException("Bad Reflection Argument!");
         } return tuple;
     }
 
@@ -188,7 +191,8 @@ public class Reflection {
             return field.get(tuple);
         } catch (IllegalAccessException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     static private Field getField(Class<?> model, String fieldName) {
@@ -196,7 +200,8 @@ public class Reflection {
             return model.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     static private Table getInstance(Constructor<?> constructor, Object[] args) {
@@ -204,9 +209,11 @@ public class Reflection {
             return (Table) constructor.newInstance(args);
         } catch (InvocationTargetException e) {
             error(e, "Cause of InvocationTargetException: %s", e.getCause());
+            throw new BugDetectedException("Bad Reflection Argument!");
         } catch (IllegalAccessException | InstantiationException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        } 
     }
 
     static private Constructor<?> getConstructor(Class<?> model, Class<?>[] types) {
@@ -214,7 +221,8 @@ public class Reflection {
             return model.getConstructor(types);
         } catch (NoSuchMethodException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     static private Class<?> getModel(String modelName) {
@@ -228,7 +236,8 @@ public class Reflection {
             return Class.forName(qualifiedPackageName + modelName);
         } catch (ClassNotFoundException e) {
             error(e);
-        } return null;
+            throw new BugDetectedException("Bad Reflection Argument!");
+        }
     }
 
     public class FieldUtils {

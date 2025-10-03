@@ -8,8 +8,6 @@ import java.util.List;
 import gui.component.*;
 import gui.util.Parser;
 import orm.Table;
-import orm.util.Console;
-import orm.util.Database;
 
 import static orm.util.Reflection.getModelInstance;
 

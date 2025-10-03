@@ -25,8 +25,9 @@ public class MainApp extends JFrame implements Listener {
         // Theme
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (Exception e) {
-            error(e);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+            return;
         }
 
         // Main Panels

@@ -102,7 +102,7 @@ public class Database {
             return new String(Files.readAllBytes(Paths.get(path + fileName + ".json")));
         } catch (IOException e) {
             error(e);
-            return null;
+            throw new BugDetectedException("Bad JSON file name!");
         }
     }
 

@@ -33,7 +33,7 @@ public class Return extends Table {
     }
 
     public Return setReservation(Reservation r) {
-        if (r == null || !r.isTupleOrElseThrow()) {
+        if (r != null && r.isTupleOrElseThrow()) {
             this.reservation = r;
         } return this;
     }

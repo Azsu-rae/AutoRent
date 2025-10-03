@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import orm.util.BugDetectedException;
 import orm.util.Constraints;
 import orm.util.Pair;
 import orm.util.Reflection;
@@ -134,7 +135,7 @@ public abstract class Table {
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
 
         } catch (SQLException e) {
-            error(e, "Search query: %s", preparedQuery.template());
+            throw new BugDetectedException(String.format("%s\n\nFor Query: %s", e, preparedQuery.template()));
         }
 
         return tuples;
@@ -160,10 +161,7 @@ public abstract class Table {
             pstmt.close();
 
         } catch (SQLException e) {
-            error(e, new String[] {
-                String.format("Table creation query:\n\n%s", query.define.table()),
-                String.format("Insertion query: %s", preparedQuery.template())
-            });
+            throw new BugDetectedException(String.format("%s\n\nTable creation query:\n\n%s\n\nInsert: %s", e, query.define.table(), preparedQuery.template()));
         }
 
         return affected;
@@ -190,7 +188,7 @@ public abstract class Table {
             affected = pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            error(e, "Updating query: %s", statement.template());
+            throw new BugDetectedException(String.format("%s\n\nUpdating query: %s", e, statement.template()));
         }
 
         return affected;
@@ -222,7 +220,7 @@ public abstract class Table {
             affected = pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            error(e, "Deletion query: %s", sql);
+            throw new BugDetectedException(String.format("%s\n\nDeletion query: %s", e, sql));
         }
 
         return affected;
@@ -253,6 +251,7 @@ public abstract class Table {
 
         } catch (SQLException e) {
             error(e);
+            throw new BugDetectedException("Bad SQLite!");
         }
 
         return ans;
