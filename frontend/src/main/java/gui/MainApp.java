@@ -41,25 +41,6 @@ public class MainApp extends JFrame implements Listener {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        new MainApp();
-        if (true) return;
-        SwingUtilities.invokeLater(() -> {
-
-            // Show splash or loading screen
-            if (Table.dbFile()) {
-                new MainApp();
-                return;
-            }
-
-            // Run in background thread
-            new SwingWorker<Void,Void>() {
-                protected Void doInBackground() { readSampleData(); return null; }
-                protected void done() { new MainApp(); }
-            }.execute();
-        });
-    }
-
     @Override
     public void onEvent(Event e) {
         switch (e) {
@@ -72,5 +53,24 @@ public class MainApp extends JFrame implements Listener {
             default:
                 break;
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+
+            if (Table.dbFile()) {
+                new MainApp();
+                return;
+            }
+
+            new SwingWorker<Void,Void>() {
+                protected Void doInBackground() {
+                    readSampleData();
+                    return null;
+                } protected void done() {
+                    new MainApp();
+                }
+            }.execute();
+        });
     }
 }
