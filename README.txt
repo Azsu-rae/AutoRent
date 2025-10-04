@@ -16,6 +16,10 @@
 +-> . Add on focus coloring of the borders on the Sign In page
 +-> . Dark & Light Mode
 +-> . Bills
++-> . Undo/Redo
++-> . Keyboard shortcuts
++-> . Show loading states
++-> . Operation Cancelling
 
 +-> . Use javadoc
 +-> . Write Tests
@@ -41,3 +45,21 @@
 |   +-> . Repports (loyal clients, popular vehicles, ...)
 |
 +-> . Notifications?
+
++-> . Databse operations should happen in EDT thread
+
++-> . Client-side input validation (with good messages)
+
++-> . Memory management for interfaces?
+
++-> . Check Parser for consistency (also check for empty vs real errors)
+
++-> use dependency injection or singleton pattern properly. Also Factory/registry for Records
+
++-> check back parseSelectedRow (Grid:56)
+
++-> Loading indicator
+
++-> Pagination? (not loading everything at once)
+
++-> Deletion Confirmation
