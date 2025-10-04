@@ -22,14 +22,6 @@ public class MainApp extends JFrame implements Listener {
         Opts.useCustomTheme(false);
         Opts.setMainFrame(this);
 
-        // Theme
-        try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-            return;
-        }
-
         // Main Panels
         panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Sign In");

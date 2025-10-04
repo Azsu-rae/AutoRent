@@ -27,7 +27,6 @@ you can have static fields in models but you can't add fields
 +-> . Show loading states
 +-> . Operation Cancelling
 
-
 +-> . foreignKey picker
 +-> . Different visiblity for managers and admins
 +-> . Consistent & Compelete Business Logic

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+import orm.util.BugDetectedException;
 
 public class Opts {
 
@@ -12,7 +16,19 @@ public class Opts {
     static private List<ToClear> toClears = new ArrayList<>();
 
     public static void useCustomTheme(boolean useCustomTheme) {
+
         CUSTOM_THEME = useCustomTheme;
+        if (useCustomTheme) {
+            return;
+        }
+
+        // Theme
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+            throw new BugDetectedException("Built-in theme has issues!");
+        }
     }
 
     public static void setMainFrame(JFrame mainFrame) {
