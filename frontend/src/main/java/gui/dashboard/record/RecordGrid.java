@@ -1,4 +1,4 @@
-package gui.dashboard.records.record;
+package gui.dashboard.record;
 
 import java.awt.event.MouseAdapter;
 

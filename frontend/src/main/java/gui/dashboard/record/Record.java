@@ -1,10 +1,10 @@
-package gui.dashboard.records.record;
+package gui.dashboard.record;
 
 import java.awt.BorderLayout;
 
 import gui.util.Parser;
 import gui.component.MyPanel;
-import gui.dashboard.records.record.toolbar.ToolBar;
+import gui.dashboard.record.toolbar.ToolBar;
 
 import orm.util.Reflection;
 

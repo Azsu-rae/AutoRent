@@ -7,7 +7,6 @@ import gui.util.*;
 import orm.Table;
 import gui.dashboard.Dashboard;
 
-import static orm.util.Console.error;
 import static orm.util.Database.*;
 
 public class MainApp extends JFrame implements Listener {

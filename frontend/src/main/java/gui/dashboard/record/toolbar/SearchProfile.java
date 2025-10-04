@@ -1,4 +1,4 @@
-package gui.dashboard.records.record.toolbar;
+package gui.dashboard.record.toolbar;
 
 import java.awt.*;
 
