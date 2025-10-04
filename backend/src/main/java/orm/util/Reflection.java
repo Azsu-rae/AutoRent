@@ -254,7 +254,14 @@ public class Reflection {
 
         private FieldUtils() {
 
-            Field[] modelFields = tuple.getClass().getDeclaredFields();
+            // Filtering static fields
+            List<Field> filteredModelFields = new ArrayList<>();
+            for (var field : tuple.getClass().getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())) {
+                    filteredModelFields.add(field);
+                }
+            } var modelFields = filteredModelFields.toArray(Field[]::new);
+
             Field[] effectiveFields = new Field[modelFields.length+1];
             effectiveFields[0] = Reflection.getField(Table.class, "id");
             for (int i=0;i<modelFields.length;i++) {
@@ -274,6 +281,9 @@ public class Reflection {
                 names[i] = fields[i].getName();
                 types[i] = fields[i].getType();
                 constraints[i] = fields[i].getAnnotation(Constraints.class);
+                if (constraints[i] == null) {
+                    throw new BugDetectedException(String.format("getAnnotation() return 'null' when called on %s", fields[i]));
+                }
 
                 if (constraints[i].bounded() || constraints[i].lowerBound()) {
                     bounded.add(names[i]);

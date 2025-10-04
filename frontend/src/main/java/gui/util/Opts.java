@@ -23,6 +23,10 @@ public class Opts {
         toClears.add(toClear);
     }
 
+    public static void removeToClear(ToClear toClear) {
+        toClears.remove(toClear);
+    }
+
     public static void clearEvent() {
         for (var toClear : toClears) {
             toClear.clear();

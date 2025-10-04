@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import gui.util.*;
@@ -13,6 +14,7 @@ import orm.Table;
 
 public class Grid extends JTable implements ToClear {
 
+    private ListSelectionListener selectionListener;
     private DefaultTableModel defaultTableModel;
     private String ORMModelName;
     private Listener listener;
@@ -31,17 +33,24 @@ public class Grid extends JTable implements ToClear {
         Opts.addToClear(this);
 
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        getSelectionModel().addListSelectionListener(e -> {
+        selectionListener = e -> {
             if (e.getValueIsAdjusting() || getSelectedRow() == -1) {
                 return;
             } listener.onEvent(Event.SELECTION);
-        });
+        };
+        getSelectionModel().addListSelectionListener(selectionListener);
     }
 
     @Override
     public void clear() {
         clearSelection();
         listener.onEvent(Event.CLEAR);
+    }
+
+    @Override
+    public void dispose() {
+        Opts.removeToClear(this);
+        getSelectionModel().removeListSelectionListener(selectionListener);
     }
 
     public void loadData() {

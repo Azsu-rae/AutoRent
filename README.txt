@@ -1,4 +1,6 @@
 
+you can have static fields in models but you can't add fields
+
 . Dependencies
 |
 +-> . sqlite-jdbc-3.50.3.0.jar: SQLite Implementation of JDBC
@@ -46,11 +48,16 @@
 |
 +-> . Notifications?
 
-+-> . Databse operations should happen in EDT thread
++-> . Databse operations should happen in Event Dispatch Thread (EDT) thread
 
 +-> . Client-side input validation (with good messages)
 
++-> . Make a loading screen
+
 +-> . Memory management for interfaces?
+|   |
+|   +-> . Grid adds itself to the static list Opts.toClears but is never removed
+|   +-> . Listeners added to stuff that will stop being used (like pickers, dialogs, ...) should be removed
 
 +-> . Check Parser for consistency (also check for empty vs real errors)
 

@@ -42,10 +42,22 @@ public class MainApp extends JFrame implements Listener {
     }
 
     public static void main(String[] args) {
-        if (!Table.dbFile()) {
-            readSampleData();
-        } display();
-        SwingUtilities.invokeLater(MainApp::new);
+        new MainApp();
+        if (true) return;
+        SwingUtilities.invokeLater(() -> {
+
+            // Show splash or loading screen
+            if (Table.dbFile()) {
+                new MainApp();
+                return;
+            }
+
+            // Run in background thread
+            new SwingWorker<Void,Void>() {
+                protected Void doInBackground() { readSampleData(); return null; }
+                protected void done() { new MainApp(); }
+            }.execute();
+        });
     }
 
     @Override

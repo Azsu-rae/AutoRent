@@ -13,9 +13,7 @@ public class Main {
     public static void main(String[] args) {
 
         readSampleData();
-        print(Client.search("name", "s"), "clientsWhoseNameStartWithJ");
-        print(Client.search("surname", "s"), "clientsWhoseNameStartWithJ");
-        print("This shouldn't be the one running");
+        display();
     }
 
     private static void tutorial() {
