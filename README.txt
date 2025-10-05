@@ -69,6 +69,6 @@ you can have static fields in models but you can't add fields
 
 +-> . Databse operations should happen in Event Dispatch Thread (EDT) thread
 +-> . Memory management for interfaces
-|   |   |
-|   |   +-> . Grid adds itself to the static list Opts.toClears but is never removed
-|   |   +-> . Listeners added to stuff that will stop being used (like pickers, dialogs, ...) should be removed
+|   |
+|   +-> . Grid adds itself to the static list Opts.toClears but is never removed
+|   +-> . Listeners added to stuff that will stop being used (like pickers, dialogs, ...) should be removed
