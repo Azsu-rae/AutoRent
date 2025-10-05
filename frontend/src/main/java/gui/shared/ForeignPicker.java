@@ -1,4 +1,4 @@
-package gui.dashboard.record.toolbar;
+package gui.shared;
 
 public class ForeignPicker {
 

@@ -12,7 +12,7 @@ you can have static fields in models but you can't add fields
 . 1 UI Entity = 1 class = 1 file
 |
 +-> . Encapsulation using packages
-+-> . Ease of arranging layouts
++-> . Ease of layout arrangement
 +-> . Using interfaces as contracts to communicate between elements (log in, log out, clear event, selections, ...)
 
 ------------------------------- REQUIREMENTS -------------------------------
@@ -27,6 +27,7 @@ you can have static fields in models but you can't add fields
 +-> . Show loading states
 +-> . Operation Cancelling
 
++-> . make the form a dialog that opens when you press a button
 +-> . foreignKey picker
 +-> . Different visiblity for managers and admins
 +-> . Consistent & Compelete Business Logic
@@ -56,7 +57,7 @@ you can have static fields in models but you can't add fields
 
 +-> . Check Parser for consistency (also check for empty vs real errors)
 
-+-> use dependency injection or singleton pattern properly. Also Factory/registry for Records
++-> use dependency injection or singleton pattern properly.
 
 +-> check back parseSelectedRow (Grid:56)
 

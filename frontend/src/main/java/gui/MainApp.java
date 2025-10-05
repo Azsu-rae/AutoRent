@@ -26,8 +26,8 @@ public class MainApp extends JFrame implements Listener {
         panels.add(new SignIn(this), "Sign In");
 
         // JFrame settings
-        setContentPane(panels);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(panels);
         setSize(800, 600);
         setVisible(true);
     }
