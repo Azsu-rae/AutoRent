@@ -31,11 +31,11 @@ public class Parser {
         this.reflect = reflect; 
     }
 
-    public String[] titleCaseNames(String[] attNames) {
+    static public String[] titleCaseNames(String[] attNames) {
         var titleCaseNames = new String[attNames.length];
 
         int i=0;
-        for (var name : reflect.fields.names) {
+        for (var name : attNames) {
             titleCaseNames[i++] = titleCase(name);
         } return titleCaseNames;
     }
@@ -63,7 +63,7 @@ public class Parser {
         } return value;
     }
 
-    public String titleCase(String name) {
+    static public String titleCase(String name) {
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
         if (orm.Table.hasSubClass(name)) {
             return name + " ID";

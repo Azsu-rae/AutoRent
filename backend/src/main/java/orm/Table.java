@@ -22,10 +22,9 @@ import java.util.Vector;
 import orm.util.BugDetectedException;
 import orm.util.Constraints;
 import orm.util.Pair;
-import orm.util.Reflection;
 
 import static orm.util.Console.*;
-import static orm.util.Reflection.getModelInstance;
+import static orm.Reflection.getModelInstance;
 
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;

@@ -16,11 +16,7 @@ public class RecordGrid extends JScrollPane {
 
     RecordGrid(Record record) {
         this.record = record;
-        grid = new Grid(
-            (Listener) record.recordEditor,
-            record.ORMModelName,
-            record.parser.titleCaseNames(record.reflect.fields.names)
-        );
+        grid = new Grid((Listener) record.recordEditor, record.ORMModelName);
 
         addMouseListener(new MouseAdapter() {
             @Override

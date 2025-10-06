@@ -207,7 +207,7 @@ class SQLiteQueryConstructor {
 
         private void appendOverlap(String lowerBoundName, String upperBoundName, Object lowerBound, Object upperBound) {
 
-            String overlapCondition = 
+            String overlapCondition =
                 "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +
                 "(" + upperBoundName + " BETWEEN ? AND ?) OR " +
                 "(" + lowerBoundName + " < ? AND " + upperBoundName + " > ?)";

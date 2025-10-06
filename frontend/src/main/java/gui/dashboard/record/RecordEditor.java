@@ -25,7 +25,7 @@ class RecordEditor extends MyPanel implements gui.util.Listener {
 
         var modifiables = record.reflect.fields.modifiable();
         fields = new JTextField[modifiables.size()];
-        labels = modifiables.stream().map(record.parser::titleCase).toArray(String[]::new);
+        labels = Parser.titleCaseNames(modifiables.toArray(String[]::new));
         var fieldsPanel = Factory.createForm(labels, fields);
 
         int i=0;

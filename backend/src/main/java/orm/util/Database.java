@@ -9,7 +9,7 @@ import org.json.JSONArray;
 
 import orm.Table;
 
-import static orm.util.Reflection.getModelInstance;
+import static orm.Reflection.getModelInstance;
 import static orm.util.Console.*;
 
 public class Database {

@@ -1,6 +1,5 @@
 package gui.dashboard.record.toolbar;
 
-
 import javax.swing.*;
 
 import java.util.*;

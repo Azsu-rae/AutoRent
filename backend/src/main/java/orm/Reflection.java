@@ -1,15 +1,14 @@
-package orm.util;
+package orm;
 
-import orm.Table;
-
+import java.util.function.Function;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.function.Function;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static orm.util.Console.*;
+import orm.util.*;
 
 import java.lang.reflect.*;
 import java.time.LocalDate;
@@ -30,13 +29,13 @@ public class Reflection {
     public FieldUtils fields;
     private Table tuple;
 
-    public Reflection(String modelName) {
-        this(getModelInstance(modelName));
-    }
-
-    public Reflection(Table tuple) {
+    Reflection(Table tuple) {
         this.tuple = tuple;
         this.fields = new FieldUtils();
+    }
+
+    Reflection(String modelName) {
+        this(getModelInstance(modelName));
     }
 
     // Creating a model instance

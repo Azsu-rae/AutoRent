@@ -10,6 +10,7 @@ import java.util.*;
 
 import gui.component.*;
 import gui.util.Opts;
+import gui.util.Parser;
 
 class SearchProfile extends MyDialog {
 
@@ -26,7 +27,7 @@ class SearchProfile extends MyDialog {
         this.toolBar = toolBar;
         this.atts = atts;
 
-        var labels = List.of(atts).stream().map(toolBar.model.parser::titleCase).toArray(String[]::new);
+        var labels = Parser.titleCaseNames(atts);
         var placeholder = new JTextField[atts.length];
         var form = Factory.createForm(labels, placeholder);
 

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import static orm.util.Reflection.getModelInstance;
+import static orm.Reflection.getModelInstance;
 
 class DataMapper {
 

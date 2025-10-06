@@ -1,5 +1,6 @@
 package gui.shared;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 import javax.swing.JTable;
@@ -11,6 +12,7 @@ import gui.util.*;
 import gui.util.Listener.Event;
 
 import orm.Table;
+import orm.util.Reflection;
 
 public class Grid extends JTable implements ToClear {
 
@@ -19,8 +21,9 @@ public class Grid extends JTable implements ToClear {
     private String ORMModelName;
     private Listener listener;
 
-    public Grid(Listener listener, String ORMModelName, String[] columnNames) {
-        defaultTableModel = new DefaultTableModel(columnNames, 0) {
+    public Grid(Listener listener, String ORMModelName) {
+        String[] columns = Parser.titleCaseNames(Reflection.getModelInstance(ORMModelName).reflect.fields.names);
+        defaultTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;

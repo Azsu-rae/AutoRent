@@ -1,6 +1,6 @@
 package mcp;
 
-import static orm.util.Reflection.getModelInstance;
+import static orm.Reflection.getModelInstance;
 
 import java.util.Arrays;
 import java.util.List;
