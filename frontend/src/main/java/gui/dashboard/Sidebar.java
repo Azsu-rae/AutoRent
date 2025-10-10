@@ -5,8 +5,8 @@ import java.awt.*;
 
 import gui.component.MyButton;
 import gui.component.MyPanel;
-import gui.util.Listener;
-import gui.util.Listener.Event;
+import gui.contract.Listener;
+import gui.contract.Listener.Event;
 
 public class Sidebar extends MyPanel {
 

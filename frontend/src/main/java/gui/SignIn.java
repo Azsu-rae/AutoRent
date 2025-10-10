@@ -5,14 +5,18 @@ import java.awt.*;
 
 import gui.component.*;
 import gui.component.Factory.Field;
+
 import static gui.component.Factory.createField;
 
-import gui.util.*;
-import gui.util.Listener.Event;
+import gui.contract.*;
+import gui.contract.Listener.Event;
 
 import orm.model.User;
 
 public class SignIn extends MyPanel {
+
+    JTextField idField;
+    JPasswordField passwordField;
 
     Listener listener;
     public SignIn(Listener listener) {
@@ -28,9 +32,8 @@ public class SignIn extends MyPanel {
         add(new MyLabel("Username or Email"), gbc);
 
         // ID Field
+        idField = createField(15, Field.TEXT, 300, 40);
         gbc.gridx = 0; gbc.gridy = 1;
-
-        JTextField idField = createField(15, Field.TEXT, 300, 40);
         add(idField, gbc);
 
         // Password Label
@@ -38,25 +41,23 @@ public class SignIn extends MyPanel {
         add(new MyLabel("Password"), gbc);
 
         // Password Field
+        passwordField = (JPasswordField) createField(15, Field.PASSWORD, 300, 40);
         gbc.insets = new Insets(5, 5, 15, 5);
         gbc.gridx = 0; gbc.gridy = 4;
-
-        JPasswordField passwordField = (JPasswordField) createField(15, Field.PASSWORD, 300, 40);
         add(passwordField, gbc);
 
         // Login Button
-        MyButton loginBtn = new MyButton("Sign in", 300, 50);
         gbc.insets = new Insets(15, 5, 5, 5);
         gbc.gridx = 0; gbc.gridy = 5;
-        add(loginBtn, gbc);
+        add(new MyButton("Sign In", 300, 50, e -> loginAttempt()), gbc);
+    }
 
-        loginBtn.addActionListener(e -> {
-            if (User.authenticate(idField.getText(), String.valueOf(passwordField.getPassword()))) {
-                idField.setText(""); passwordField.setText("");
-                listener.onEvent(Event.LOG_IN);
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid login!");
-            }
-        });
+    void loginAttempt() {
+        if (User.authenticate(idField.getText(), String.valueOf(passwordField.getPassword()))) {
+            idField.setText(""); passwordField.setText("");
+            listener.onEvent(Event.LOG_IN);
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid credentials!");
+        }
     }
 }

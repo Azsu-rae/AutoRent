@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import javax.swing.JTextField;
 
-import orm.util.Reflection;
+import orm.Reflection;
 
 public class Parser {
 

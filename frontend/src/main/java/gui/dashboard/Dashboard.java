@@ -2,9 +2,8 @@ package gui.dashboard;
 
 import java.awt.*;
 
-import gui.util.*;
+import gui.contract.*;
 import gui.component.MyPanel;
-import gui.dashboard.record.Records;
 
 public class Dashboard extends MyPanel implements Listener {
 

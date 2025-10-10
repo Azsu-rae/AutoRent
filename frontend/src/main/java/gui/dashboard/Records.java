@@ -1,6 +1,7 @@
-package gui.dashboard.record;
+package gui.dashboard;
 
 import javax.swing.JTabbedPane;
+import gui.dashboard.record.Record;
 
 public class Records extends JTabbedPane {
     public Records() {

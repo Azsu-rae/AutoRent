@@ -1,29 +1,29 @@
 package orm;
 
+import java.util.*;
 import java.util.function.Function;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import static orm.util.Console.*;
 import orm.util.*;
+import static orm.util.Console.*;
 
 import java.lang.reflect.*;
+
 import java.time.LocalDate;
 
 public class Reflection {
 
+    static Map<Class<? extends Table>,FieldInfos> fieldInfos = new HashMap<>();
     static String qualifiedPackageName = "orm.model.";
+
     public static void loadModels(String[] modelNames) {
         for (String name : modelNames) {
-            try {
-                Class.forName(qualifiedPackageName + name);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Wrong model names initializers!");
-            }
+            var model = getModel(name);
+            fieldInfos.computeIfAbsent(model, k -> new FieldInfos(k));
         }
+    }
+
+    static public FieldInfos fieldsOf(String modelName) {
+        return fieldInfos.get(getModel(modelName));
     }
 
     public FieldUtils fields;
@@ -32,10 +32,6 @@ public class Reflection {
     Reflection(Table tuple) {
         this.tuple = tuple;
         this.fields = new FieldUtils();
-    }
-
-    Reflection(String modelName) {
-        this(getModelInstance(modelName));
     }
 
     // Creating a model instance
@@ -142,11 +138,10 @@ public class Reflection {
 
     // Primary methods
 
-    static private boolean hasSetter(Table tuple, String attribute) {
+    static private boolean hasSetter(Class<?> model, String attribute, Class<?> attType) {
         try {
             String method = "set" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
-            Class<?> attType = tuple.reflect.fields.visibleTypeOf(attribute);
-            tuple.getClass().getDeclaredMethod(method, attType);
+            model.getDeclaredMethod(method, attType);
             return true;
         } catch (NoSuchMethodException e) {
             return false;
@@ -224,26 +219,21 @@ public class Reflection {
         }
     }
 
-    static private Class<?> getModel(String modelName) {
-
-        if (!Table.hasSubClass(modelName)) {
-            String s = "Invalid model name: %s";
-            throw new IllegalArgumentException(String.format(s, modelName));
-        }
-
+    @SuppressWarnings("unchecked")
+    static private Class<? extends Table> getModel(String modelName) {
         try {
-            return Class.forName(qualifiedPackageName + modelName);
+            return (Class<? extends Table>) Class.forName(qualifiedPackageName + modelName);
         } catch (ClassNotFoundException e) {
             error(e);
-            throw new BugDetectedException("Bad Reflection Argument!");
+            throw new BugDetectedException(String.format("Wrong model name: %s", modelName));
         }
     }
 
-    public class FieldUtils {
+    static public class FieldInfos {
 
-        private Map<String,List<String>> modifiable = new HashMap<>();
-        private Map<String,Field> fieldByName;
-        private Field[] fields;
+        protected Map<String,List<String>> modifiable = new HashMap<>();
+        protected Map<String,Field> fieldByName;
+        protected Field[] fields;
 
         public int count;
         public String[] names;
@@ -251,11 +241,13 @@ public class Reflection {
         public Constraints[] constraints;
         public List<String> bounded, discrete;
 
-        private FieldUtils() {
+        Class<? extends Table> model;
+        private FieldInfos(Class<? extends Table> model) {
+            this.model = model;
 
             // Filtering static fields
             List<Field> filteredModelFields = new ArrayList<>();
-            for (var field : tuple.getClass().getDeclaredFields()) {
+            for (var field : model.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) {
                     filteredModelFields.add(field);
                 }
@@ -295,10 +287,10 @@ public class Reflection {
         }
 
         public List<String> modifiable() {
-            return modifiable.computeIfAbsent(tuple.getClass().getSimpleName(), k -> {
+            return modifiable.computeIfAbsent(model.getSimpleName(), k -> {
                 var list = new ArrayList<String>();
-                for (String att : tuple.reflect.fields.names) {
-                    if (hasSetter(tuple, att)) {
+                for (String att : names) {
+                    if (hasSetter(model, att, visibleTypeOf(att))) {
                         list.add(att);
                     }
                 } return list;
@@ -332,9 +324,16 @@ public class Reflection {
                 type = String.class;
             } return type;
         }
+    }
+
+    public class FieldUtils extends FieldInfos {
+
+        private FieldUtils() {
+            super(tuple.getClass());
+        }
 
         public Object get(int i) {
-            return getFieldValue(fields[i]);
+            return getFieldValue(super.fields[i]);
         }
 
         public Object get(String name) {

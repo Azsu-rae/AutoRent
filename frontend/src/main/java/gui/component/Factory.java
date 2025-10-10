@@ -2,6 +2,7 @@ package gui.component;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -9,10 +10,30 @@ import java.awt.Insets;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import gui.action.SearchSave;
 import gui.style.MyBorder;
-import gui.util.Opts;
+import gui.util.Attribute;
+import gui.Opts;
 
 public class Factory {
+
+    static public MyPanel createSearchBar(SearchSave action) {
+
+        var panel = new MyPanel();
+        var searchField = Factory.createField(20, Field.TEXT);
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panel.add(new MyLabel("Search"));
+        panel.add(searchField);
+        panel.add(new MyButton("Search", e -> {
+            action.onSearch(new Attribute[] {
+                new Attribute(searchField.getText())
+            });
+        }));
+
+        panel.setOpaque(false);
+        panel.setMaximumSize(panel.getPreferredSize());
+        return panel;
+    }
 
     static public GridBagConstraints initFormGBC() {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -38,7 +59,7 @@ public class Factory {
             gbc.fill = GridBagConstraints.NONE;
             panel.add(new MyLabel(label[i]), gbc);
 
-            placeholder[i] = Factory.createField(20, Field.TEXT);
+            placeholder[i] = createField(20, Field.TEXT);
             gbc.gridx = 1; gbc.gridy = i; gbc.weightx = 1.0;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             panel.add(placeholder[i], gbc);
@@ -54,7 +75,7 @@ public class Factory {
     }
 
     static public JTextField createField(MyPanel panel, String label) {
-        var field = Factory.createField(Field.TEXT);
+        var field = createField(Field.TEXT);
         panel.add(new MyLabel(label));
         panel.add(field);
         return field;

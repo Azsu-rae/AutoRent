@@ -46,7 +46,7 @@ New-Item -ItemType Directory -Force -Path $FE_OUT_DIR | Out-Null
 # Compile all Java files
 $classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR"
 $javaFiles = Get-ChildItem -Recurse -Filter *.java -Path $FE_SRC_DIR | ForEach-Object { $_.FullName }
-javac -cp $classpath -d $FE_OUT_DIR $javaFiles
+javac -cp $classpath -d $FE_OUT_DIR $javaFiles -Xlint:deprecation
 
 Write-Host "Compilation successful!"
 Write-Host ""

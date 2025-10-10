@@ -3,9 +3,9 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 
-import gui.util.*;
 import orm.Table;
 import gui.dashboard.Dashboard;
+import gui.contract.Listener;
 
 import static orm.util.Database.*;
 

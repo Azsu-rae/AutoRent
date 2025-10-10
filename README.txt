@@ -17,6 +17,9 @@ you can have static fields in models but you can't add fields
 
 ------------------------------- REQUIREMENTS -------------------------------
 
+make a gereric dialog mechanism
+make the picker
+
 . Ideas
 |
 +-> . Add on focus coloring of the borders on the Sign In page

@@ -19,7 +19,7 @@ public class User extends Table {
     private String email;
     @Constraints(type = "TEXT", nullable = false, unique = true)
     private String username;
-    @Constraints(type = "TEXT", nullable = false, unique = true)
+    @Constraints(type = "TEXT", nullable = false)
     private String password;
     @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String role;

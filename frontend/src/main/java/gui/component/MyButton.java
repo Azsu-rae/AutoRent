@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
 
 import gui.style.MyColor;
 import gui.style.MyFont;
-import gui.util.Opts;
+import gui.Opts;
 
 public class MyButton extends JButton {
 
@@ -31,6 +31,11 @@ public class MyButton extends JButton {
         this(name);
         addActionListener(l);
         container.add(this);
+    }
+
+    public MyButton(String name, int width, int height, ActionListener l) {
+        this(name, width, height);
+        addActionListener(l);
     }
 
     public MyButton(String name, ActionListener l, float alignment) {

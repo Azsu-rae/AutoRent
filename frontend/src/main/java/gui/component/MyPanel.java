@@ -7,7 +7,7 @@ import java.awt.event.MouseAdapter;
 import javax.swing.JPanel;
 
 import gui.style.MyColor;
-import gui.util.Opts;
+import gui.Opts;
 
 public class MyPanel extends JPanel {
 
