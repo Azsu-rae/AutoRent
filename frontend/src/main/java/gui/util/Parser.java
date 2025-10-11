@@ -1,5 +1,7 @@
 package gui.util;
 
+import static orm.Reflection.fieldsOf;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +42,9 @@ public class Parser {
         } return titleCaseNames;
     }
 
-    public Object parse(String name, JTextField field) {
+    static public Object parse(Attribute attribute) {
         try {
-            return parser.get(reflect.fields.visibleTypeOf(name)).apply(field.getText());
+            return parser.get(fieldsOf(attribute.model()).visibleTypeOf(attribute.name())).apply(attribute.values()[0]);
         } catch (Exception e) {
             return null;
         }
@@ -74,35 +76,41 @@ public class Parser {
         }
     }
 
-    public String getMin(String att) {
+    static public String getMin(Attribute attribute) {
 
+        var fields = fieldsOf(attribute.model());
         String start;
-        if (reflect.fields.typeOf(att).equals(Double.class)) {
+
+        if (fields.typeOf(attribute.name()).equals(Double.class)) {
             start = "Min ";
         } else {
             start = "Start ";
         }
 
-        return start + typeName.get(reflect.fields.typeOf(att)) + ":";
+        return start + typeName.get(fields.typeOf(attribute.name())) + ":";
     }
 
-    public String getMax(String att) {
+    static public String getMax(Attribute attribute) {
 
+        var fields = fieldsOf(attribute.model());
         String end;
-        if (reflect.fields.typeOf(att).equals(Double.class)) {
+
+        if (fields.typeOf(attribute.name()).equals(Double.class)) {
             end = "Max ";
         } else {
             end = "End ";
         }
 
-        return end + typeName.get(reflect.fields.typeOf(att)) + ":";
+        return end + typeName.get(fields.typeOf(attribute.name())) + ":";
     }
 
-    public String formatName(String att) {
-        if (reflect.fields.constraintsOf(att).lowerBound()) {
-            return typeName.get(reflect.fields.typeOf(att)) + " Range";
+    static public String formatName(Attribute attribute) {
+        var fields = fieldsOf(attribute.model());
+        var constraints = fields.constraintsOf(attribute.name());
+        if (constraints.lowerBound() || constraints.bounded()) {
+            return typeName.get(fields.typeOf(attribute.name())) + " Range";
         } else {
-            return titleCase(att);
+            return titleCase(attribute.name());
         }
     }
 

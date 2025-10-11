@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import orm.util.BugDetectedException;
 
 import gui.contract.ToClear;
 
@@ -23,14 +19,6 @@ public class Opts {
         if (useCustomTheme) {
             return;
         }
-
-        // Theme
-//        try {
-//            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-//        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
-//            e.printStackTrace();
-//            throw new BugDetectedException("Built-in theme has issues!");
-//        }
     }
 
     public static void setMainFrame(JFrame mainFrame) {

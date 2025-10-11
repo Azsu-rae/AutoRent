@@ -13,13 +13,13 @@ import gui.contract.Listener.Event;
 
 import orm.model.User;
 
-public class SignIn extends MyPanel {
+class SignIn extends MyPanel {
 
     JTextField idField;
     JPasswordField passwordField;
 
     Listener listener;
-    public SignIn(Listener listener) {
+    SignIn(Listener listener) {
         this.listener = listener;
 
         setLayout(new GridBagLayout());

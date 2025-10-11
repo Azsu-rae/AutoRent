@@ -1,7 +1,5 @@
 package orm;
 
-import java.io.File;
-
 import java.sql.PreparedStatement;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,11 +17,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import java.io.File;
+
+import orm.Reflection.FieldInfos;
 import orm.util.BugDetectedException;
 import orm.util.Constraints;
 import orm.util.Pair;
 
-import static orm.util.Console.*;
+import static orm.util.Console.error;
 import static orm.Reflection.getModelInstance;
 
 import static orm.DataMapper.bindValues;
@@ -202,7 +203,7 @@ public abstract class Table {
 
         if (!reflect.cascadeDeletion()) {
             String s = "Faillure to cascade deletion on this %s:\n\n%s";
-            throw new IllegalStateException(String.format(s, getClass().getSimpleName(), this));
+            throw new BugDetectedException(String.format(s, getClass().getSimpleName(), this));
         }
 
         if (id == null) {
@@ -395,11 +396,15 @@ public abstract class Table {
         }
 
         public boolean isValidCriteriaFor(Reflection r) {
+            return isValidCriteriaFor(r.fields);
+        }
+
+        public boolean isValidCriteriaFor(FieldInfos fields) {
             return
                 attributeName != null && first != null && second != null
-                && r.fields.visibleTypeOf(attributeName).equals(first.getClass())
+                && fields.visibleTypeOf(attributeName).equals(first.getClass())
                 && first.getClass().equals(second.getClass())
-                && r.fields.bounded.contains(attributeName);
+                && fields.bounded.contains(attributeName);
         }
     }
 }

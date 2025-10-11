@@ -1,6 +1,7 @@
 package gui.component;
 
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 import gui.Opts;
 
@@ -10,12 +11,20 @@ abstract public class MyDialog extends JDialog {
         super(Opts.MAIN_FRAME, title, true);
     }
 
-    public void showDialog() {
-        setContentPane(initDialog());
+    public void display() {
+        setContentPane(initialize());
         pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }
 
-    abstract protected MyPanel initDialog();
+    public void finalize(boolean done, String errorMessageFormat, Object... values) {
+        if (done) {
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, String.format(errorMessageFormat, values));
+        }
+    }
+
+    abstract protected MyPanel initialize();
 }

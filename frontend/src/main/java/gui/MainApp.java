@@ -11,10 +11,10 @@ import static orm.util.Database.*;
 
 public class MainApp extends JFrame implements Listener {
 
-    CardLayout cardLayout = new CardLayout();
-    JPanel panels = new JPanel(cardLayout);
+    private CardLayout cardLayout = new CardLayout();
+    private JPanel panels = new JPanel(cardLayout);
 
-    MainApp() {
+    private MainApp() {
 
         // Setup
         super("AutoRent");
