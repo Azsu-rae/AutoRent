@@ -5,8 +5,8 @@ import java.awt.*;
 import javax.swing.JTextField;
 
 import java.util.*;
-import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import gui.component.*;
 import gui.util.Attribute;
@@ -15,23 +15,13 @@ import gui.util.Parser;
 public class SearchProfile extends MyDialog {
 
     Map<String,JTextField> fields = new HashMap<>();
+    Function<Attribute[],Boolean> callback;
     String[] attributeNames;
-    Consumer<Attribute[]> callback;
 
-    public SearchProfile(String[] attributeNames, Consumer<Attribute[]> callback) {
+    public SearchProfile(String[] attributeNames, Function<Attribute[],Boolean> callback) {
         super("Search Profile");
-        this.attributeNames = attributeNames;
         this.callback = callback;
-    }
-
-    Attribute[] saveCriteria() {
-        var attributes = new Attribute[fields.size()];
-        for (int i=0;i<fields.size();i++) {
-            attributes[i] = new Attribute(attributeNames[i], new String[] {
-                fields.get(attributeNames[i]).getText()
-            });
-        } dispose();
-        return attributes;
+        this.attributeNames = attributeNames;
     }
 
     @Override
@@ -56,8 +46,20 @@ public class SearchProfile extends MyDialog {
         gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyButton("Save", e -> callback.accept(saveCriteria())), gbc);
+        panel.add(new MyButton("Save", e -> {
+            finalize(callback.apply(parseInput()), "We good");
+        }), gbc);
 
         return panel;
+    }
+
+    Attribute[] parseInput() {
+        var attributes = new Attribute[fields.size()];
+        for (int i=0;i<fields.size();i++) {
+            attributes[i] = new Attribute(attributeNames[i], new String[] {
+                fields.get(attributeNames[i]).getText()
+            });
+        } dispose();
+        return attributes;
     }
 }

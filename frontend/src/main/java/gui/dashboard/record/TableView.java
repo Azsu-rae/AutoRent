@@ -21,7 +21,6 @@ public class TableView extends JScrollPane implements ToClear {
     private DefaultTableModel defaultTableModel;
     private JTable table;
 
-
     private String ORMModelName;
     private Listener listener;
     public TableView(Listener listener, String ORMModelName) {

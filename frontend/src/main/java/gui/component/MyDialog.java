@@ -1,14 +1,18 @@
 package gui.component;
 
+import java.util.function.Function;
+
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import gui.Opts;
 
-abstract public class MyDialog extends JDialog {
+abstract public class MyDialog<T> extends JDialog {
 
-    public MyDialog(String title) {
+    Function<T,Boolean> callback;
+    public MyDialog(String title, Function<T,Boolean> callback) {
         super(Opts.MAIN_FRAME, title, true);
+        this.callback = callback;
     }
 
     public void display() {
@@ -18,13 +22,15 @@ abstract public class MyDialog extends JDialog {
         setVisible(true);
     }
 
-    public void finalize(boolean done, String errorMessageFormat, Object... values) {
-        if (done) {
+    public void finalize(String errorMessageFormat, Object... values) {
+        if (callback.apply(parseInput())) {
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, String.format(errorMessageFormat, values));
         }
     }
+
+    abstract public T parseInput();
 
     abstract protected MyPanel initialize();
 }

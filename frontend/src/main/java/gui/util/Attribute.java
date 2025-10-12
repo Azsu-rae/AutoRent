@@ -2,7 +2,7 @@ package gui.util;
 
 import orm.util.Pair;
 
-public class Attribute extends Pair<String,String[]> {
+public class Attribute extends Pair<String,Object[]> {
 
     public Attribute() {
         super(null, null);
@@ -34,11 +34,11 @@ public class Attribute extends Pair<String,String[]> {
         return first;
     }
 
-    public String[] values() {
+    public Object[] values() {
         return second;
     }
 
-    public String value() {
+    public Object value() {
         return second[0];
     }
 

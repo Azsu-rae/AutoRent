@@ -12,12 +12,14 @@ import gui.util.Attribute;
 import gui.util.Parser;
 import gui.component.Factory;
 import gui.component.MyButton;
-
+import gui.component.MyPanel;
 import gui.contract.Listener;
 
 import orm.Table.Range;
+import orm.util.Console;
 import orm.util.Constraints;
 import orm.Table;
+import orm.Reflection.FieldInfos;
 
 import static orm.Reflection.getModelInstance;
 import static orm.Reflection.fieldsOf;
@@ -39,20 +41,12 @@ public class ToolBar extends JToolBar {
 
         var searchedTexts = fields.haveConstraint(Constraints::searchedText);
         if (searchedTexts.size() > 0) {
-            add(Factory.createSearchBar(attribute -> {
-                for (var name : searchedTexts.toArray(String[]::new)) {
-                    discreteValues.computeIfAbsent(name, k -> new ArrayList<>()).add(attribute.values()[0]);
-                } onApply();
-            }));
+            add(searchBar(searchedTexts));
         }
 
-        var unique = fields.haveConstraint(Constraints::unique);
-        if (unique.size() > 0) {
-            add(new MyButton("Search Profile", e -> new SearchProfile(unique.toArray(String[]::new), attributes -> {
-                for (var att : attributes) {
-                    discreteValues.computeIfAbsent(att.name(), k -> new ArrayList<>()).add(att.values()[0]);
-                } onApply();
-            }).display()));
+        var uniques = fields.haveConstraint(Constraints::unique);
+        if (uniques.size() > 0) {
+            add(new MyButton("Search Profile", e -> searchProfile(uniques)));
         }
 
         for (var enumerated : fields.haveConstraint(Constraints::enumerated)) {
@@ -64,21 +58,43 @@ public class ToolBar extends JToolBar {
         for (var bounded : fields.haveConstraint(c -> c.lowerBound() || c.bounded())) {
             var attribute = new Attribute(ORMModelName, bounded);
             var title =  formatName(new Attribute(ORMModelName, bounded));
-            add(new MyButton(this, title, e -> new RangeSelection(title, attribute, (lower, upper) -> {
-                var lowerVal = Parser.parse(new Attribute(lower).setModel(ORMModelName));
-                var upperVal = Parser.parse(new Attribute(upper).setModel(ORMModelName));
-                var range = new Range(bounded, lowerVal, upperVal);
-                if (range.isValidCriteriaFor(fields)) {
-                    boundedValues.add(range);
-                } else {
-                    return false;
-                } return true;
-            }).display()));
+            add(new MyButton(this, title, e -> rangeSelectin(title, attribute, fields)));
         }
 
         add(Box.createHorizontalGlue());
         add(new MyButton("Reset", e -> filterAction.accept(null)));
         add(new MyButton("Apply", e -> onApply()));
+    }
+
+    private MyPanel searchBar(List<String> searchedTexts) {
+        return Factory.createSearchBar(attribute -> {
+            for (var name : searchedTexts.toArray(String[]::new)) {
+                discreteValues
+                    .computeIfAbsent(name, k -> new ArrayList<>())
+                    .add((String)attribute.value());
+            } onApply();
+        });
+    }
+
+    private void searchProfile(List<String> uniques) {
+        new SearchProfile(uniques.toArray(String[]::new), attributes -> {
+            for (var attribute : attributes) {
+                discreteValues
+                    .computeIfAbsent(attribute.name(), k -> new ArrayList<>())
+                    .add((String)attribute.value());
+            } onApply();
+        }).display();
+    }
+
+    private void rangeSelectin(String title, Attribute attribute, FieldInfos fields) {
+        new RangeSelection(title, attribute, range -> {
+            if (range.isValidCriteriaFor(fields)) {
+                boundedValues.add(range);
+            } else {
+                Console.error("Invalid Criteria for: %s", range);
+                return false;
+            } return true;
+        }).display();
     }
 
     void onApply() {

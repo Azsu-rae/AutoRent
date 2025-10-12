@@ -44,8 +44,12 @@ public class Parser {
 
     static public Object parse(Attribute attribute) {
         try {
-            return parser.get(fieldsOf(attribute.model()).visibleTypeOf(attribute.name())).apply(attribute.values()[0]);
+            return parser
+                .get(fieldsOf(attribute.model()).typeOf(attribute.name()))
+                .apply((String)attribute.value());
         } catch (Exception e) {
+            System.out.println(String.format("we tried %s", attribute.name()));
+            e.printStackTrace();
             return null;
         }
     }
