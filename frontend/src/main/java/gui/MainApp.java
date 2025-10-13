@@ -18,7 +18,6 @@ public class MainApp extends JFrame implements Listener {
 
         // Setup
         super("AutoRent");
-        Opts.useCustomTheme(false);
         Opts.setMainFrame(this);
 
         // Main Panels
