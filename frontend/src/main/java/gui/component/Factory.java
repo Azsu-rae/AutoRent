@@ -1,6 +1,5 @@
 package gui.component;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -10,9 +9,6 @@ import java.util.function.Consumer;
 
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
-import gui.style.MyBorder;
-import gui.Opts;
 
 public class Factory {
 
@@ -102,14 +98,6 @@ public class Factory {
                 field = new JPasswordField();
             default:
                 break;
-        } if (!Opts.CUSTOM_THEME) return field;
-
-        field.setBackground(new Color(69, 73, 74)); // Dark gray background
-        field.setForeground(Color.WHITE); // White text
-        field.setBorder(new MyBorder.Rounded(15));
-        field.setOpaque(false);
-//        field.setBorder(BorderFactory.createLineBorder(new Color(87, 90, 92))); // Subtle border
-
-        return field;
+        } return field;
     }
 }

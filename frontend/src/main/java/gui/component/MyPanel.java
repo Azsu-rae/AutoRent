@@ -6,7 +6,6 @@ import java.awt.event.MouseAdapter;
 
 import javax.swing.JPanel;
 
-import gui.style.MyColor;
 import gui.Opts;
 
 public class MyPanel extends JPanel {
@@ -30,8 +29,5 @@ public class MyPanel extends JPanel {
                 Opts.clearEvent();
             }
         });
-        if (!Opts.CUSTOM_THEME) return;
-        setBackground(MyColor.PANEL);
-//        setOpaque(false);
     }
 }
