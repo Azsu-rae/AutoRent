@@ -1,59 +1,36 @@
 package gui.util;
 
-import orm.util.Pair;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class Attribute extends Pair<String,Object[]> {
+import orm.util.BugDetectedException;
 
-    public Attribute() {
-        super(null, null);
+public class Attribute<T> {
+
+    final public List<T> values = new ArrayList<>();
+    final public String ORMModelName;
+    final public String name;
+
+    public Attribute (String name) {
+        this(null, name);
     }
 
-    private String model;
-    public Attribute(String model, String name) {
-        super(name, null);
-        this.model = model;
+    @SafeVarargs
+    public Attribute(String ORMModelName, String name, T... values) {
+        Arrays.asList(values).stream().forEach(this.values::add);
+        this.ORMModelName = ORMModelName;
+        this.name = name;
     }
 
-    public Attribute(String[] values) {
-        this(null, values);
-    }
-
-    public Attribute(String value) {
-        this(null, new String[] {value});
-    }
-
-    public Attribute(String name, String[] values) {
-        super(name, values);
-    }
-
-    public String model() {
-        return model;
-    }
-
-    public String name() {
-        return first;
-    }
-
-    public Object[] values() {
-        return second;
-    }
-
-    public Object value() {
-        return second[0];
-    }
-
-    public Attribute setName(String name) {
-        this.first = name;
+    public Attribute<T> addValue(T value) {
+        values.add(value);
         return this;
     }
 
-    public Attribute setValue(String value) {
-        this.second = new String[] {value};
-        return this;
-    }
-
-    public Attribute setModel(String model) {
-        this.model = model;
-        return this;
+    public T getSingleValue() {
+        if (values.size() != 1) {
+            throw new BugDetectedException("There shouldn't be any more or less than 1 here!");
+        } return values.get(0);
     }
 }

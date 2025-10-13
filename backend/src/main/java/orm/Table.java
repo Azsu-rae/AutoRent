@@ -25,6 +25,7 @@ import orm.util.Constraints;
 import orm.util.Pair;
 
 import static orm.util.Console.error;
+import static orm.util.Console.print;
 import static orm.Reflection.getModelInstance;
 
 import static orm.DataMapper.bindValues;

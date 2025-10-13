@@ -30,7 +30,7 @@ abstract public class MyDialog<T> extends JDialog {
         }
     }
 
-    abstract public T parseInput();
+    abstract protected T parseInput();
 
     abstract protected MyPanel initialize();
 }

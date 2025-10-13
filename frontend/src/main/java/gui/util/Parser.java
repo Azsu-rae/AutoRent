@@ -42,13 +42,13 @@ public class Parser {
         } return titleCaseNames;
     }
 
-    static public Object parse(Attribute attribute) {
+    static public Object parse(Attribute<String> attribute) {
         try {
             return parser
-                .get(fieldsOf(attribute.model()).typeOf(attribute.name()))
-                .apply((String)attribute.value());
+                .get(fieldsOf(attribute.ORMModelName).typeOf(attribute.name))
+                .apply(attribute.getSingleValue());
         } catch (Exception e) {
-            System.out.println(String.format("we tried %s", attribute.name()));
+            System.out.println(String.format("we tried %s", attribute.name));
             e.printStackTrace();
             return null;
         }
@@ -80,41 +80,41 @@ public class Parser {
         }
     }
 
-    static public String getMin(Attribute attribute) {
+    static public String getMin(Attribute<Object> attribute) {
 
-        var fields = fieldsOf(attribute.model());
+        var fields = fieldsOf(attribute.ORMModelName);
         String start;
 
-        if (fields.typeOf(attribute.name()).equals(Double.class)) {
+        if (fields.typeOf(attribute.name).equals(Double.class)) {
             start = "Min ";
         } else {
             start = "Start ";
         }
 
-        return start + typeName.get(fields.typeOf(attribute.name())) + ":";
+        return start + typeName.get(fields.typeOf(attribute.name)) + ":";
     }
 
-    static public String getMax(Attribute attribute) {
+    static public String getMax(Attribute<Object> attribute) {
 
-        var fields = fieldsOf(attribute.model());
+        var fields = fieldsOf(attribute.ORMModelName);
         String end;
 
-        if (fields.typeOf(attribute.name()).equals(Double.class)) {
+        if (fields.typeOf(attribute.name).equals(Double.class)) {
             end = "Max ";
         } else {
             end = "End ";
         }
 
-        return end + typeName.get(fields.typeOf(attribute.name())) + ":";
+        return end + typeName.get(fields.typeOf(attribute.name)) + ":";
     }
 
-    static public String formatName(Attribute attribute) {
-        var fields = fieldsOf(attribute.model());
-        var constraints = fields.constraintsOf(attribute.name());
+    static public <T> String formatName(Attribute<T> attribute) {
+        var fields = fieldsOf(attribute.ORMModelName);
+        var constraints = fields.constraintsOf(attribute.name);
         if (constraints.lowerBound() || constraints.bounded()) {
-            return typeName.get(fields.typeOf(attribute.name())) + " Range";
+            return typeName.get(fields.typeOf(attribute.name)) + " Range";
         } else {
-            return titleCase(attribute.name());
+            return titleCase(attribute.name);
         }
     }
 

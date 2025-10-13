@@ -47,21 +47,8 @@ public class MainApp extends JFrame implements Listener {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-
-            if (Table.dbFile()) {
-                new MainApp();
-                return;
-            }
-
-            new SwingWorker<Void,Void>() {
-                protected Void doInBackground() {
-                    readSampleData();
-                    return null;
-                } protected void done() {
-                    new MainApp();
-                }
-            }.execute();
-        });
+        if (!Table.dbFile()) {
+            readSampleData();
+        } new MainApp();
     }
 }

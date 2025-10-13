@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import gui.dashboard.record.dialog.RangeSelection;
 import gui.dashboard.record.dialog.SearchProfile;
+import gui.dashboard.record.dialog.MultipleSelections;
 import gui.util.Attribute;
 import gui.util.Parser;
 import gui.component.Factory;
@@ -29,6 +30,11 @@ import static gui.util.Parser.formatName;
 public class ToolBar extends JToolBar {
 
     Map<String,List<String>> discreteValues = new HashMap<>();
+    void addDiscreteValues(String name, String value) {
+        discreteValues
+            .computeIfAbsent(name, k -> new ArrayList<>())
+            .add(value);
+    }
     Vector<Range> boundedValues = new Vector<>();
     Consumer<Vector<Table>> filterAction;
     String ORMModelName;
@@ -50,15 +56,15 @@ public class ToolBar extends JToolBar {
         }
 
         for (var enumerated : fields.haveConstraint(Constraints::enumerated)) {
-            var attribute = new Attribute(ORMModelName, enumerated);
+            var attribute = new Attribute<String>(ORMModelName, enumerated);
             var title =  formatName(attribute);
-//            add(new MyButton(this, title, e -> new MultipleSelections(attribute, )));
+            add(new MyButton(this, title, e -> multipleSelections(title, attribute)));
         }
 
         for (var bounded : fields.haveConstraint(c -> c.lowerBound() || c.bounded())) {
-            var attribute = new Attribute(ORMModelName, bounded);
-            var title =  formatName(new Attribute(ORMModelName, bounded));
-            add(new MyButton(this, title, e -> rangeSelectin(title, attribute, fields)));
+            var attribute = new Attribute<Object>(ORMModelName, bounded);
+            var title =  formatName(attribute);
+            add(new MyButton(this, title, e -> rangeSelection(title, attribute, fields)));
         }
 
         add(Box.createHorizontalGlue());
@@ -68,10 +74,8 @@ public class ToolBar extends JToolBar {
 
     private MyPanel searchBar(List<String> searchedTexts) {
         return Factory.createSearchBar(attribute -> {
-            for (var name : searchedTexts.toArray(String[]::new)) {
-                discreteValues
-                    .computeIfAbsent(name, k -> new ArrayList<>())
-                    .add((String)attribute.value());
+            for (var name : searchedTexts) {
+                addDiscreteValues(name, attribute);
             } onApply();
         });
     }
@@ -79,20 +83,25 @@ public class ToolBar extends JToolBar {
     private void searchProfile(List<String> uniques) {
         new SearchProfile(uniques.toArray(String[]::new), attributes -> {
             for (var attribute : attributes) {
-                discreteValues
-                    .computeIfAbsent(attribute.name(), k -> new ArrayList<>())
-                    .add((String)attribute.value());
+                addDiscreteValues(attribute.name, attribute.getSingleValue());
             } onApply();
+            return true;
         }).display();
     }
 
-    private void rangeSelectin(String title, Attribute attribute, FieldInfos fields) {
+    private void rangeSelection(String title, Attribute<Object> attribute, FieldInfos fields) {
         new RangeSelection(title, attribute, range -> {
-            if (range.isValidCriteriaFor(fields)) {
-                boundedValues.add(range);
-            } else {
-                Console.error("Invalid Criteria for: %s", range);
+            if (!range.isValidCriteriaFor(fields)) {
                 return false;
+            } boundedValues.add(range);
+            return true;
+        }).display();
+    }
+
+    private void multipleSelections(String title, Attribute<String> attribute) {
+        new MultipleSelections(title, attribute, attributeValues -> {
+            for (var value : attributeValues.values) {
+                addDiscreteValues(attributeValues.name, value);
             } return true;
         }).display();
     }

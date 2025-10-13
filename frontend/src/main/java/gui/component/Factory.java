@@ -12,22 +12,24 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import gui.style.MyBorder;
-import gui.util.Attribute;
 import gui.Opts;
 
 public class Factory {
 
-    static public MyPanel createSearchBar(Consumer<Attribute> onSearch) {
+    static public MyPanel createSearchBar(Consumer<String> callback) {
 
         var panel = new MyPanel();
-        var searchField = Factory.createField(20, Field.TEXT);
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
         panel.add(new MyLabel("Search"));
+
+        var searchField = Factory.createField(20, Field.TEXT);
         panel.add(searchField);
-        panel.add(new MyButton("Search", e -> onSearch.accept(new Attribute(searchField.getText()))));
+        panel.add(new MyButton("Search", e -> callback.accept(searchField.getText())));
 
         panel.setOpaque(false);
         panel.setMaximumSize(panel.getPreferredSize());
+
         return panel;
     }
 

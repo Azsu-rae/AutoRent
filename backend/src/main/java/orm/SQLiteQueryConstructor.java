@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import orm.util.Constraints;
 import orm.util.Pair;
+import static orm.util.Console.print;
 
 import orm.Table.Range;
 

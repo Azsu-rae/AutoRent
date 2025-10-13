@@ -6,21 +6,22 @@ import java.util.function.Function;
 
 import gui.component.*;
 import gui.util.Attribute;
-import gui.util.Parser;
+
 import orm.Reflection;
 import orm.Table.Range;
 
 import static gui.util.Parser.titleCase;
 import static gui.util.Parser.getMin;
 import static gui.util.Parser.getMax;
+import static gui.util.Parser.parse;
 
 public class RangeSelection extends MyDialog<Range> {
 
     JTextField[] fields = new JTextField[2];
     String[] labels = new String[2];
 
-    Attribute attribute;
-    public RangeSelection(String title, Attribute attribute, Function<Range,Boolean> callback) {
+    Attribute<Object> attribute;
+    public RangeSelection(String title, Attribute<Object> attribute, Function<Range,Boolean> callback) {
         super(title, callback);
         this.attribute = attribute;
     }
@@ -28,9 +29,9 @@ public class RangeSelection extends MyDialog<Range> {
     @Override
     protected MyPanel initialize() {
 
-        var constraints = Reflection.fieldsOf(attribute.model()).constraintsOf(attribute.name());
+        var constraints = Reflection.fieldsOf(attribute.ORMModelName).constraintsOf(attribute.name);
         if (constraints.lowerBound()) {
-            labels[0] = titleCase(attribute.name()) + ":";
+            labels[0] = titleCase(attribute.name) + ":";
             labels[1] = titleCase(constraints.boundedPair()) + ":";
         } else if (constraints.bounded()) {
             labels[0] = getMin(attribute);
@@ -55,10 +56,9 @@ public class RangeSelection extends MyDialog<Range> {
     }
 
     @Override
-    public Range parseInput() {
-        var lowerVal = Parser.parse(new Attribute(attribute.model(), attribute.name()).setValue(fields[0].getText()));
-        var upperVal = Parser.parse(new Attribute(attribute.model(), attribute.name()).setValue(fields[1].getText()));
-        return new Range(attribute.name(), lowerVal, upperVal);
-
+    protected Range parseInput() {
+        var lowerVal = parse(new Attribute<String>(attribute.ORMModelName, attribute.name, fields[0].getText()));
+        var upperVal = parse(new Attribute<String>(attribute.ORMModelName, attribute.name, fields[1].getText()));
+        return new Range(attribute.name, lowerVal, upperVal);
     }
 }

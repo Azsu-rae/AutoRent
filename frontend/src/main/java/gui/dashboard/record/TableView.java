@@ -1,5 +1,7 @@
 package gui.dashboard.record;
 
+import static orm.util.Console.print;
+
 import java.awt.event.MouseAdapter;
 import java.util.Vector;
 
@@ -13,6 +15,7 @@ import gui.contract.*;
 import gui.contract.Listener.Event;
 import gui.util.Parser;
 import orm.Table;
+import orm.util.Console;
 import orm.Reflection;
 
 public class TableView extends JScrollPane implements ToClear {
