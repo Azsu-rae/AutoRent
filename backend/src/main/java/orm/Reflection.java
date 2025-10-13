@@ -23,7 +23,10 @@ public class Reflection {
     }
 
     static public FieldInfos fieldsOf(String modelName) {
-        return fieldInfos.get(getModel(modelName));
+        if (!Table.hasSubClass(modelName)) {
+            String s = "Bad class name: %s";
+            throw new IllegalArgumentException(String.format(s, modelName));
+        } return fieldInfos.get(getModel(modelName));
     }
 
     public FieldUtils fields;
