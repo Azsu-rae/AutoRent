@@ -37,6 +37,7 @@ Write-Host ""
 $FE_SRC_DIR = "frontend/src/main/java/"
 $FE_OUT_DIR = "frontend/bin/"
 $CALENDAR_JAR = "frontend/lib/jcalendar-1.4.jar"
+$FLATLAF_JAR = "frontend/lib/flatlaf-3.6.2.jar"
 
 Write-Host "Compiling files from: $FE_SRC_DIR"
 
@@ -44,7 +45,7 @@ Write-Host "Compiling files from: $FE_SRC_DIR"
 New-Item -ItemType Directory -Force -Path $FE_OUT_DIR | Out-Null
 
 # Compile all Java files
-$classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR"
+$classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR;$FLATLAF_JAR"
 $javaFiles = Get-ChildItem -Recurse -Filter *.java -Path $FE_SRC_DIR | ForEach-Object { $_.FullName }
 javac -cp $classpath -d $FE_OUT_DIR $javaFiles -Xlint:deprecation
 
@@ -52,5 +53,5 @@ Write-Host "Compilation successful!"
 Write-Host ""
 
 # Run program (use `;` for Windows classpath, `:` for Linux/macOS)
-$classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR;$FE_OUT_DIR"
+$classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR;$FE_OUT_DIR;$FLATLAF_JAR"
 java -cp $classpath gui.MainApp

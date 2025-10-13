@@ -1,6 +1,10 @@
 package gui;
 
 import javax.swing.*;
+
+import com.formdev.flatlaf.*;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
+
 import java.awt.*;
 
 import orm.Table;
@@ -19,6 +23,13 @@ public class MainApp extends JFrame implements Listener {
         // Setup
         super("AutoRent");
         Opts.setMainFrame(this);
+
+        // Theme
+        try {
+            UIManager.setLookAndFeel(new FlatDarculaLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
 
         // Main Panels
         panels.add(new Dashboard(this), "Dashboard");
