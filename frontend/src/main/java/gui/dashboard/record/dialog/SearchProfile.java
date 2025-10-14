@@ -44,7 +44,7 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
         gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyButton("Save", e -> finalize("This shouldn't happen")), gbc);
+        panel.add(new MyButton("Search", e -> finalize("This shouldn't happen")), gbc);
 
         return panel;
     }

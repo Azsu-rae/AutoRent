@@ -4,10 +4,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import gui.contract.Listener;
-import gui.contract.Listener.Event;
 import gui.component.MyButton;
 import gui.component.MyPanel;
 
@@ -15,25 +12,20 @@ public class Record extends MyPanel implements Listener {
 
     List<MyButton> btns = new ArrayList<>();
     TableView tableView;
+    MyPanel buttonPanel;
     ToolBar toolBar;
 
     public String ORMModelName;
     public Record(String ORMModelName) {
         this.ORMModelName = ORMModelName;
 
-        tableView = new TableView((Listener) this, ORMModelName);
-        var buttonPanel = new MyPanel();
+        tableView = new TableView(this, ORMModelName);
+        toolBar = new ToolBar(ORMModelName, tableView::loadData);
+
+        buttonPanel = new MyPanel();
         btns.add(new MyButton(buttonPanel, "Add", e -> onAdd(), true));
         btns.add(new MyButton(buttonPanel, "Edit", e -> onEdit(), false));
         btns.add(new MyButton(buttonPanel, "Delete", e -> onDelete(), false));
-
-        toolBar = new ToolBar(ORMModelName, tuples -> {
-            if (tuples == null) {
-                tableView.loadData();
-            } else {
-                tableView.loadData(tuples);
-            }
-        });
 
         setLayout(new BorderLayout());
         add(toolBar, BorderLayout.NORTH);

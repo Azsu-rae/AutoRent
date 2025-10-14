@@ -1,13 +1,14 @@
 package gui;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import com.formdev.flatlaf.*;
-import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import java.awt.*;
 
 import orm.Table;
+import orm.util.BugDetectedException;
 import gui.dashboard.Dashboard;
 import gui.contract.Listener;
 
@@ -26,9 +27,24 @@ public class MainApp extends JFrame implements Listener {
 
         // Theme
         try {
-            UIManager.setLookAndFeel(new FlatDarculaLaf());
+            UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
+            throw new BugDetectedException("No Icon for our JFrame!");
+        }
+
+        // Better Table
+        UIManager.put("Table.showHorizontalLines", true);
+        UIManager.put("Table.showVerticalLines", false);
+        UIManager.put("Table.alternateRowColor", new Color(245, 245, 245));
+
+        // Icon
+        try {
+            Image image = ImageIO.read(getClass().getResource("/images/icon.png"));
+            setIconImage(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BugDetectedException("No Image for JFrame!");
         }
 
         // Main Panels
