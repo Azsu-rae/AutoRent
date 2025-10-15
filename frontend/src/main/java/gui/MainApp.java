@@ -9,6 +9,7 @@ import java.awt.*;
 
 import orm.Table;
 import orm.util.BugDetectedException;
+
 import gui.dashboard.Dashboard;
 import gui.contract.Listener;
 

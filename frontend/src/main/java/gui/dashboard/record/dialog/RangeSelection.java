@@ -2,6 +2,8 @@ package gui.dashboard.record.dialog;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import gui.component.*;
@@ -17,7 +19,7 @@ import static gui.util.Parser.parse;
 
 public class RangeSelection extends MyDialog<Range> {
 
-    JTextField[] fields = new JTextField[2];
+    Map<String,JTextField> fields = new HashMap<>();
     String[] labels = new String[2];
 
     Attribute<Object> attribute;
@@ -57,8 +59,8 @@ public class RangeSelection extends MyDialog<Range> {
 
     @Override
     protected Range parseInput() {
-        var lowerVal = parse(new Attribute<String>(attribute.ORMModelName, attribute.name, fields[0].getText()));
-        var upperVal = parse(new Attribute<String>(attribute.ORMModelName, attribute.name, fields[1].getText()));
+        var lowerVal = parse(attribute.ORMModelName, attribute.name, fields.get(labels[0]).getText());
+        var upperVal = parse(attribute.ORMModelName, attribute.name, fields.get(labels[1]).getText());
         return new Range(attribute.name, lowerVal, upperVal);
     }
 }

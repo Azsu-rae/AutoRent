@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.JPasswordField;
@@ -37,26 +38,32 @@ public class Factory {
         return gbc;
     }
 
-    static public MyPanel createForm(String[] label, JTextField[] placeholder) {
+    static public MyPanel createForm(String[] labels, Map<String,JTextField> fields) {
+        return createForm(labels, fields, null);
+    }
 
-        if (label.length != placeholder.length) {
-            throw new IllegalArgumentException("Different number of Labels and Fields!");
-        }
+    static public MyPanel createForm(String[] labels, Map<String,JTextField> fields, Object[] defaultValues) {
 
         var gbc = initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
-        for (int i=0;i<label.length;i++) {
+        for (int i=0;i<labels.length;i++) {
 
             gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0;
             gbc.fill = GridBagConstraints.NONE;
-            panel.add(new MyLabel(label[i]), gbc);
+            panel.add(new MyLabel(labels[i]), gbc);
 
-            placeholder[i] = createField(20, Field.TEXT);
+            JTextField field = createField(20, Field.TEXT);
+            if (defaultValues != null) {
+                field.setText(defaultValues[i].toString());
+            }
+
             gbc.gridx = 1; gbc.gridy = i; gbc.weightx = 1.0;
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            panel.add(placeholder[i], gbc);
+            panel.add(field, gbc);
+
+            fields.put(labels[i], field);
         }
 
         return panel;

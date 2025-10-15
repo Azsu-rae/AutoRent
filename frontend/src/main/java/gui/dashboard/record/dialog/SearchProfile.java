@@ -25,21 +25,15 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
     @Override
     protected MyPanel initialize() {
 
-        var placeholders = new JTextField[attributeNames.length];
         var labels = Parser.titleCaseNames(attributeNames);
-        var form = Factory.createForm(labels, placeholders);
-
-        int i=0;
-        for (var att : attributeNames) {
-            fields.put(att, placeholders[i++]);
-        }
+        var form = Factory.createForm(labels, fields);
 
         var gbc = Factory.initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
         gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(form);
+        panel.add(form, gbc);
 
         gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;

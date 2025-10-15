@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.swing.JTextField;
 
 import orm.Reflection;
+import orm.Table;
 
 public class Parser {
 
@@ -42,19 +43,19 @@ public class Parser {
         } return titleCaseNames;
     }
 
-    static public Object parse(Attribute<String> attribute) {
+    static public Object parse(String ORMModelName, String attributeName, String valueAsString) {
         try {
             return parser
-                .get(fieldsOf(attribute.ORMModelName).typeOf(attribute.name))
-                .apply(attribute.getSingleValue());
+                .get(fieldsOf(ORMModelName).typeOf(attributeName))
+                .apply(valueAsString);
         } catch (Exception e) {
-            System.out.println(String.format("we tried %s", attribute.name));
+            System.out.println(String.format("we tried %s", attributeName));
             e.printStackTrace();
             return null;
         }
     }
 
-    static public Object[] getAsRow(orm.Table tuple) {
+    static public Object[] getAsRow(Table tuple) {
         Object[] values = new Object[tuple.reflect.fields.count];
         int i=0;
         for (String att : tuple.reflect.fields.names) {

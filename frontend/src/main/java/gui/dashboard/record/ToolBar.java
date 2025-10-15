@@ -3,21 +3,18 @@ package gui.dashboard.record;
 import javax.swing.*;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import gui.dashboard.record.dialog.RangeSelection;
 import gui.dashboard.record.dialog.SearchProfile;
+import gui.dashboard.record.dialog.ForeignPicker;
 import gui.dashboard.record.dialog.MultipleSelections;
 import gui.util.Attribute;
-import gui.util.Parser;
 import gui.component.Factory;
 import gui.component.MyButton;
 import gui.component.MyPanel;
-import gui.contract.Listener;
 
 import orm.Table.Range;
-import orm.util.Console;
 import orm.util.Constraints;
 import orm.Table;
 import orm.Reflection.FieldInfos;
@@ -26,18 +23,21 @@ import static orm.Reflection.getModelInstance;
 import static orm.Reflection.fieldsOf;
 
 import static gui.util.Parser.formatName;
+import static gui.util.Parser.titleCase;
+import static gui.util.Parser.titleCaseNames;
 
 public class ToolBar extends JToolBar {
 
-    Map<String,List<String>> discreteValues = new HashMap<>();
-    void addDiscreteValues(String name, String value) {
+    private Map<String,List<Attribute<?>>> discreteValues = new HashMap<>();
+    private <T> void addDiscreteValues(String name, T value) {
         discreteValues
             .computeIfAbsent(name, k -> new ArrayList<>())
-            .add(value);
+            .add(new Attribute<T>(name).addValue(value));
     }
-    Vector<Range> boundedValues = new Vector<>();
-    Consumer<Vector<Table>> filterAction;
-    String ORMModelName;
+
+    private Vector<Range> boundedValues = new Vector<>();
+    private Consumer<Vector<Table>> filterAction;
+    private String ORMModelName;
 
     public ToolBar(String ORMModelName, Consumer<Vector<Table>> filterAction) {
 
@@ -58,13 +58,18 @@ public class ToolBar extends JToolBar {
         for (var enumerated : fields.haveConstraint(Constraints::enumerated)) {
             var attribute = new Attribute<String>(ORMModelName, enumerated);
             var title =  formatName(attribute);
-            add(new MyButton(this, title, e -> multipleSelections(title, attribute)));
+            add(new MyButton(title, e -> multipleSelections(title, attribute)));
         }
 
         for (var bounded : fields.haveConstraint(c -> c.lowerBound() || c.bounded())) {
             var attribute = new Attribute<Object>(ORMModelName, bounded);
             var title =  formatName(attribute);
-            add(new MyButton(this, title, e -> rangeSelection(title, attribute, fields)));
+            add(new MyButton(title, e -> rangeSelection(title, attribute, fields)));
+        }
+
+        for (var foreign : fields.haveConstraint(Constraints::foreignKey)) {
+            String title = String.format("Select a %s", titleCase(foreign));
+            add(new MyButton(foreign, e -> foreignPicker(title)));
         }
 
         add(Box.createHorizontalGlue());
@@ -72,41 +77,7 @@ public class ToolBar extends JToolBar {
         add(new MyButton("Apply", e -> onApply()));
     }
 
-    private MyPanel searchBar(List<String> searchedTexts) {
-        return Factory.createSearchBar(attribute -> {
-            for (var name : searchedTexts) {
-                addDiscreteValues(name, attribute);
-            } onApply();
-        });
-    }
-
-    private void searchProfile(List<String> uniques) {
-        new SearchProfile(uniques.toArray(String[]::new), attributes -> {
-            for (var attribute : attributes) {
-                addDiscreteValues(attribute.name, attribute.getSingleValue());
-            } onApply();
-            return true;
-        }).display();
-    }
-
-    private void rangeSelection(String title, Attribute<Object> attribute, FieldInfos fields) {
-        new RangeSelection(title, attribute, range -> {
-            if (!range.isValidCriteriaFor(fields)) {
-                return false;
-            } boundedValues.add(range);
-            return true;
-        }).display();
-    }
-
-    private void multipleSelections(String title, Attribute<String> attribute) {
-        new MultipleSelections(title, attribute, attributeValues -> {
-            for (var value : attributeValues.values) {
-                addDiscreteValues(attributeValues.name, value);
-            } return true;
-        }).display();
-    }
-
-    void onApply() {
+    private void onApply() {
 
         var discreteCriterias = new Vector<Table>();
         for (var discrete : discreteValues.entrySet()) {
@@ -131,5 +102,46 @@ public class ToolBar extends JToolBar {
 
         discreteValues = new HashMap<>();
         boundedValues = new Vector<>();
+    }
+
+    private MyPanel searchBar(List<String> searchedTexts) {
+        return Factory.createSearchBar(attributeValue -> {
+            for (var name : searchedTexts) {
+                addDiscreteValues(name, attributeValue);
+            } onApply();
+        });
+    }
+
+    private void searchProfile(List<String> uniques) {
+        new SearchProfile(uniques.toArray(String[]::new), attributes -> {
+            for (var attribute : attributes) {
+                addDiscreteValues(attribute.name, attribute.getSingleValue());
+            } onApply();
+            return true;
+        }).display();
+    }
+
+    private void rangeSelection(String title, Attribute<Object> attribute, FieldInfos fields) {
+        new RangeSelection(title, attribute, range -> {
+            if (!range.isValidCriteriaFor(fields)) {
+                return false;
+            } boundedValues.add(range);
+            return true;
+        }).display();
+    }
+
+    private void multipleSelections(String title, Attribute<String> attribute) {
+        new MultipleSelections(title, attribute, attributeValues -> {
+            for (var value : attributeValues.getValues()) {
+                addDiscreteValues(attributeValues.name, value);
+            } return true;
+        }).display();
+    }
+
+    private void foreignPicker(String title) {
+        new ForeignPicker(title, ORMModelName, tuple -> {
+            addDiscreteValues(tuple.getClass().getSimpleName().toLowerCase(), tuple);
+            return true;
+        }).display();
     }
 }
