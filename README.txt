@@ -1,6 +1,8 @@
 
 ------------------------------- DOCUMENTATION -------------------------------
 
+trying something
+
 you can have static fields in models but you can't add fields
 
 . Dependencies
