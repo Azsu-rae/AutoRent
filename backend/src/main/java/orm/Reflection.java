@@ -290,7 +290,7 @@ public class Reflection {
         }
 
         public List<String> modifiable() {
-            return modifiable.computeIfAbsent(model.getSimpleName(), k -> {
+            return modifiable.computeIfAbsent(model.getSimpleName(), _ -> {
                 var list = new ArrayList<String>();
                 for (String att : names) {
                     if (hasSetter(model, att, visibleTypeOf(att))) {
