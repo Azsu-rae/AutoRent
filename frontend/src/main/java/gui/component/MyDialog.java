@@ -1,6 +1,5 @@
 package gui.component;
 
-import java.awt.Dimension;
 import java.util.function.Function;
 
 import javax.swing.JDialog;
