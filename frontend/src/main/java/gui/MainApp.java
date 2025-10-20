@@ -31,7 +31,7 @@ public class MainApp extends JFrame implements Listener {
             UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
-            throw new BugDetectedException("No Icon for our JFrame!");
+            throw new BugDetectedException("No look and feel found!");
         }
 
         // Better Table
@@ -41,7 +41,7 @@ public class MainApp extends JFrame implements Listener {
 
         // Icon
         try {
-            Image image = ImageIO.read(getClass().getResource("/images/icon.png"));
+            Image image = ImageIO.read(getClass().getResource("/resources/images/icon.png"));
             setIconImage(image);
         } catch (Exception e) {
             e.printStackTrace();

@@ -52,6 +52,10 @@ javac -cp $classpath -d $FE_OUT_DIR $javaFiles -Xlint:deprecation
 Write-Host "Compilation successful!"
 Write-Host ""
 
+if (-not (Test-Path "frontend/bin/resources")) {
+    Copy-Item -Path "frontend/src/main/resources/" -Destination "frontend/bin/" -Recurse
+}
+
 # Run program (use `;` for Windows classpath, `:` for Linux/macOS)
 $classpath = "$BE_OUT_DIR;$SQLITE_JAR;$JSON_JAR;$CALENDAR_JAR;$FE_OUT_DIR;$FLATLAF_JAR"
 java -cp $classpath gui.MainApp
