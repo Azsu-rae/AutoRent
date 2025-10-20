@@ -7,6 +7,7 @@ import gui.component.MyDialog;
 import gui.component.MyPanel;
 import orm.Table;
 
+import java.awt.Dimension;
 import java.util.function.Function;
 
 public class ForeignPicker extends MyDialog<Table> {

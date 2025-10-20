@@ -15,11 +15,13 @@ import gui.component.MyButton;
 import gui.component.MyPanel;
 
 import orm.Table.Range;
+import orm.util.Console;
 import orm.util.Constraints;
 import orm.Table;
 import orm.Reflection.FieldInfos;
 
 import static orm.Reflection.getModelInstance;
+import static orm.util.Console.print;
 import static orm.Reflection.fieldsOf;
 
 import static gui.util.Parser.formatName;
@@ -82,15 +84,10 @@ public class ToolBar extends JToolBar {
         var discreteCriterias = new Vector<Table>();
         for (var discrete : discreteValues.entrySet()) {
             for (int i=0;i<discrete.getValue().size();i++) {
-
-                Object value = discrete.getValue().get(i);
-                if (value == null || value.equals("")) {
-                    continue;
-                }
-
+                Attribute<?> value = discrete.getValue().get(i);
                 if (i >= discreteCriterias.size()) {
                     discreteCriterias.add(getModelInstance(ORMModelName));
-                } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value);
+                } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value.getSingleValue());
             }
         }
 
@@ -99,7 +96,6 @@ public class ToolBar extends JToolBar {
         }
 
         filterAction.accept(Table.search(discreteCriterias, boundedValues));
-
         discreteValues = new HashMap<>();
         boundedValues = new Vector<>();
     }
@@ -115,6 +111,7 @@ public class ToolBar extends JToolBar {
     private void searchProfile(List<String> uniques) {
         new SearchProfile(uniques.toArray(String[]::new), attributes -> {
             for (var attribute : attributes) {
+                Console.print("adding %s to %s", attribute.getSingleValue(), attribute.name);
                 addDiscreteValues(attribute.name, attribute.getSingleValue());
             } onApply();
             return true;

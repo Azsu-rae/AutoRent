@@ -10,6 +10,7 @@ import gui.component.*;
 import gui.util.Parser;
 
 import orm.Table;
+import orm.util.Console;
 
 import static orm.Reflection.fieldsOf;
 import static orm.Reflection.getModelInstance;
@@ -38,12 +39,10 @@ public class Editor extends MyDialog<Table> {
         Object[] defaultValues = null;
         var modifiables = fieldsOf(ORMModelName).modifiable();
         if (tuple != null) {
-            defaultValues = getAsRow(tuple);
+            defaultValues = Parser.getModifiablesAsRow(tuple);
         }
 
-        String[] labels = Parser.titleCaseNames(modifiables.toArray(String[]::new));
-        var fieldsPanel = Factory.createForm(labels, fields, defaultValues);
-
+        var fieldsPanel = Factory.createForm(modifiables.toArray(String[]::new), fields, defaultValues);
         var panel = new MyPanel(new GridBagLayout());
         var gbc = Factory.initFormGBC();
 
@@ -53,7 +52,7 @@ public class Editor extends MyDialog<Table> {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new MyButton("Confirm", e -> finalize("I really have to get to giving meaningful error messages")), gbc);
+        panel.add(new MyButton("Confirm", e -> finalize("Enter a valid input!")), gbc);
 
         return panel;
     }
@@ -64,6 +63,7 @@ public class Editor extends MyDialog<Table> {
         for (var field : fields.entrySet()) {
             var name = field.getKey();
             var value = field.getValue().getText();
+            Console.print("trying to parse attribute of name='%s'", name);
             tuple.reflect.fields.set(name, parse(ORMModelName, name, value));
         } return tuple;
     }

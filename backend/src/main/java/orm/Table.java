@@ -21,6 +21,7 @@ import java.io.File;
 
 import orm.Reflection.FieldInfos;
 import orm.util.BugDetectedException;
+import orm.util.Console;
 import orm.util.Constraints;
 import orm.util.Pair;
 

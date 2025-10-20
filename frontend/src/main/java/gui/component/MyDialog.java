@@ -1,5 +1,6 @@
 package gui.component;
 
+import java.awt.Dimension;
 import java.util.function.Function;
 
 import javax.swing.JDialog;
@@ -16,7 +17,9 @@ abstract public class MyDialog<T> extends JDialog {
     }
 
     public void display() {
-        setContentPane(initialize());
+        var panel = initialize();
+//        panel.setPreferredSize(new Dimension(200, 200));
+        setContentPane(panel);
         pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);

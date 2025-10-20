@@ -25,9 +25,7 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
     @Override
     protected MyPanel initialize() {
 
-        var labels = Parser.titleCaseNames(attributeNames);
-        var form = Factory.createForm(labels, fields);
-
+        var form = Factory.createForm(attributeNames, fields);
         var gbc = Factory.initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
@@ -45,10 +43,15 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
 
     @Override
     protected List<Attribute<String>> parseInput() {
-        return fields
+        var attributes = new ArrayList<Attribute<String>>();
+        fields
             .keySet()
             .stream()
-            .map(field -> new Attribute<String>(field).addValue(fields.get(field).getText()))
-            .toList();
+            .forEach(field -> {
+                var text = fields.get(field).getText();
+                if (!text.equals("")) 
+                    attributes.add(new Attribute<String>(field).addValue(text));
+            });
+        return attributes;
     }
 }

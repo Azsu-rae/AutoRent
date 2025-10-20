@@ -44,7 +44,7 @@ public class Record extends MyPanel implements Listener {
                 } break;
             case SELECTION:
                 for (var btn : btns) {
-                btn.setEnabled(true);
+                    btn.setEnabled(true);
                 } break;
             default:
                 break;
@@ -52,12 +52,11 @@ public class Record extends MyPanel implements Listener {
     }
 
     private void onAdd() {
-        new Editor("Add a new Tuple", ORMModelName, tuple -> {
+        new Editor(String.format("Add a new %s", ORMModelName), ORMModelName, tuple -> {
             if (tuple.add() > 0) {
                 JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
                 tableView.loadData();
             } else {
-                JOptionPane.showMessageDialog(this, "Please Enter a Valid Input!");
                 return false;
             } return true;
         }).display();;
@@ -69,10 +68,8 @@ public class Record extends MyPanel implements Listener {
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
             } if (toEdit.edit() > 0) {
-                JOptionPane.showMessageDialog(this, "Successfully Edited!");
                 tableView.loadData();
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to Edit!");
                 return false;
             } return true;
         }).display();;

@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import gui.util.Parser;
+
 public class Factory {
 
     static public MyPanel createSearchBar(Consumer<String> callback) {
@@ -42,12 +44,13 @@ public class Factory {
         return createForm(labels, fields, null);
     }
 
-    static public MyPanel createForm(String[] labels, Map<String,JTextField> fields, Object[] defaultValues) {
+    static public MyPanel createForm(String[] ORMAttributes, Map<String,JTextField> fields, Object[] defaultValues) {
 
         var gbc = initFormGBC();
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
+        String[] labels = Parser.titleCaseNames(ORMAttributes);
         for (int i=0;i<labels.length;i++) {
 
             gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0;
@@ -63,7 +66,7 @@ public class Factory {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             panel.add(field, gbc);
 
-            fields.put(labels[i], field);
+            fields.put(ORMAttributes[i], field);
         }
 
         return panel;

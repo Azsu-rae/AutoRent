@@ -1,13 +1,13 @@
 package gui.util;
 
 import static orm.Reflection.fieldsOf;
+import static orm.util.Console.print;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import javax.swing.JTextField;
 
 import orm.Reflection;
 import orm.Table;
@@ -19,7 +19,10 @@ public class Parser {
         parser.put(Integer.class, Integer::parseInt);
         parser.put(Double.class,  Double::parseDouble);
         parser.put(String.class, s -> s.equals("") ? null : s);
-        parser.put(LocalDate.class,  s -> orm.Table.stringToDate(s));
+        parser.put(LocalDate.class,  s -> {
+            print("Trying to parse %s", s);
+            return orm.Table.stringToDate(s);
+        });
     }
 
     static Map<Class<?>,String> typeName = new HashMap<>();
@@ -31,16 +34,11 @@ public class Parser {
 
     Reflection reflect;
     public Parser(Reflection reflect) {
-        this.reflect = reflect; 
+        this.reflect = reflect;
     }
 
     static public String[] titleCaseNames(String[] attNames) {
-        var titleCaseNames = new String[attNames.length];
-
-        int i=0;
-        for (var name : attNames) {
-            titleCaseNames[i++] = titleCase(name);
-        } return titleCaseNames;
+        return Arrays.asList(attNames).stream().map(att -> titleCase(att)).toArray(String[]::new);
     }
 
     static public Object parse(String ORMModelName, String attributeName, String valueAsString) {
@@ -55,12 +53,14 @@ public class Parser {
         }
     }
 
+    static public Object[] getModifiablesAsRow(Table tuple) {
+        return tuple.reflect.fields.modifiable().stream()
+            .map(attribute -> (Object) tuple.reflect.fields.get(attribute)).toArray(Object[]::new);
+    }
+
     static public Object[] getAsRow(Table tuple) {
-        Object[] values = new Object[tuple.reflect.fields.count];
-        int i=0;
-        for (String att : tuple.reflect.fields.names) {
-            values[i++] = getAsColumn(tuple, att);
-        } return values;
+        return Arrays.asList(tuple.reflect.fields.names).stream()
+            .map(attribute -> getAsColumn(tuple, attribute)).toArray(Object[]::new);
     }
 
     static public Object getAsColumn(orm.Table tuple, String name) {

@@ -11,6 +11,7 @@ import gui.util.Attribute;
 
 import orm.Reflection;
 import orm.Table.Range;
+import orm.util.Console;
 
 import static gui.util.Parser.titleCase;
 import static gui.util.Parser.getMin;
