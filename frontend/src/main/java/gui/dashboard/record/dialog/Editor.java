@@ -14,7 +14,6 @@ import orm.util.Console;
 
 import static orm.Reflection.fieldsOf;
 import static orm.Reflection.getModelInstance;
-import static gui.util.Parser.getAsRow;
 import static gui.util.Parser.parse;
 
 public class Editor extends MyDialog<Table> {
@@ -52,7 +51,7 @@ public class Editor extends MyDialog<Table> {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new MyButton("Confirm", e -> finalize("Enter a valid input!")), gbc);
+        panel.add(new MyButton("Confirm", _ -> finalize("Enter a valid input!")), gbc);
 
         return panel;
     }
