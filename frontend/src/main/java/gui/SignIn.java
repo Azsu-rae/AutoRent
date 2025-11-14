@@ -49,7 +49,7 @@ class SignIn extends MyPanel {
         // Login Button
         gbc.insets = new Insets(15, 5, 5, 5);
         gbc.gridx = 0; gbc.gridy = 5;
-        add(new MyButton("Sign In", 300, 50, e -> loginAttempt()), gbc);
+        add(new MyButton("Sign In", 300, 50, _ -> loginAttempt()), gbc);
     }
 
     void loginAttempt() {
