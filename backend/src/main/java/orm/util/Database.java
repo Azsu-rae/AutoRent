@@ -15,7 +15,7 @@ import static orm.util.Console.*;
 public class Database {
 
     private static Map<Aggregation,Integer> occurences = new HashMap<>();
-    private static String path = "./Backend/ressources/samples/";
+    private static String path = "./backend/ressources/samples/";
 
     public static void readSampleData() {
         for (String modelName : readOrderFile()) {
@@ -102,7 +102,7 @@ public class Database {
             return new String(Files.readAllBytes(Paths.get(path + fileName + ".json")));
         } catch (IOException e) {
             error(e);
-            throw new BugDetectedException("Bad JSON file name!");
+            throw new BugDetectedException("Bad JSON file name: " + path + fileName);
         }
     }
 

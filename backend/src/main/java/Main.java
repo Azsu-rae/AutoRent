@@ -26,7 +26,7 @@ public class Main {
          * a SQLite database through Java objects, eliminating the need to write SQL queries manually.
          * It supports CRUD operations (Create, Read, Update, Delete), which we will explore shortly.
          *
-         * Careful reviewing of this file should provide a clear understanding of how to utilize 
+         * Careful reviewing of this file should provide a clear understanding of how to utilize
          * the ORM effectively.
          *
          * Hope this helps!
@@ -60,7 +60,7 @@ public class Main {
         //      In case the tuple is invalid for insertion, the .add() method fails and returns 0.
 
         // Knowing that memorizing the order of the attributes in a constructor has to be tiring, and
-        // in favor of convenience, the setters for each model return the object itself allowing for 
+        // in favor of convenience, the setters for each model return the object itself allowing for
         // method chaining. For example:
 
         var c = new Client()
@@ -128,7 +128,7 @@ public class Main {
         print(vehicles, "Vehicles");
 
         // returns all sedans
-        Vector<Table> sedans = Vehicle.search("vehicleType", "Sedan"); 
+        Vector<Table> sedans = Vehicle.search("vehicleType", "Sedan");
         print(sedans, "Sedans");
 
         // the name of the criteria must be passed to the Pair<> when creating a filter,
@@ -147,7 +147,7 @@ public class Main {
 
         // new Sedans
         Vehicle sedanFilter = new Vehicle().setVehicleType("Sedan");
-        Vector<Table> newSedans = Vehicle.search(sedanFilter, "year", 2020, 2024); 
+        Vector<Table> newSedans = Vehicle.search(sedanFilter, "year", 2020, 2024);
         print(newSedans, "New Sedans");
 
         // Sedans from Nissan
@@ -182,21 +182,21 @@ public class Main {
 
         // If you want to perform a search without having to type in the name of class,
         // (for more general work) it is possible to use Table.search() but then you would
-        // need to provide either: 
+        // need to provide either:
         //  ->  at least one instance of the model you are searching for. (e.g. Table.search(new Client())
         //      or any varient as long as you provide at least one instance of what you are searching for
         //  ->  The name of model to search in (e.g. Table.search("Reservation")) if there are no criterias
         //
         //      NOTE: Passing a wrong class name will throw an IllegalArgumentException
 
-        // SPECIAL CASE 1: RESERVATION DATE RANGES 
+        // SPECIAL CASE 1: RESERVATION DATE RANGES
 
         // For searching through date ranges, we usualy use the ranges:
         Vector<Table> maintenancesIn2024 = Vehicle.search("maintenanceDate", "2024-01-01", "2024-12-31");
         print(maintenancesIn2024, "All 2024 Vehicles Maintenances");
 
-        // But in the case of Reservations, since a reservation's period has two dates, the given range 
-        // would include all the reservations whose ranges intersect with the given one. 
+        // But in the case of Reservations, since a reservation's period has two dates, the given range
+        // would include all the reservations whose ranges intersect with the given one.
 
         // Let's input some Reservations in the DB, and then print them to the console
 
@@ -246,7 +246,7 @@ public class Main {
 
         // Now to get to the point, we'll try a search
 
-        // returns all reservations that intersects with the given intervall (Always pass the name of 
+        // returns all reservations that intersects with the given intervall (Always pass the name of
         // the lowerBound when looking for intersections)
         Vector<Table> intersectedPeriods = Reservation.search("startDate", "2024-12-15", "2024-12-25");
 
@@ -269,7 +269,7 @@ public class Main {
 
         // SPECIAL CASE 2: CLIENT AND USER'S NAMES
 
-        // Normally, doing search is a discrete attribute would simply compare them, but it's different for the Client 
+        // Normally, doing search is a discrete attribute would simply compare them, but it's different for the Client
         // and  User table.
 
         // Case insensitive, check for name and surname.
@@ -287,7 +287,7 @@ public class Main {
                          // returns a success value in a boolean
         }
 
-        /* 
+        /*
          * We didn't really talk about the other 3 classes left, but they're workings are similar to what we saw.
          *
          *  - User is a like Client

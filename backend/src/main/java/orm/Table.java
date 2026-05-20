@@ -35,7 +35,7 @@ import static orm.DataMapper.fetchResutls;
 public abstract class Table {
 
     // database path relative to the project's root directory
-    private static String dbPath = "./Backend/ressources/databases/AutoRent.db";
+    private static String dbPath = "./backend/ressources/databases/AutoRent.db";
 
     // loading subclasses into the JVM
     private static Set<Class<? extends Table>> models = new HashSet<>();

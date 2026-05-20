@@ -49,8 +49,8 @@ public class MainApp extends JFrame implements Listener {
         }
 
         // Main Panels
-        panels.add(new Dashboard(this), "Dashboard");
         panels.add(new SignIn(this), "Sign In");
+        panels.add(new Dashboard(this), "Dashboard");
 
         // JFrame settings
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -10,5 +10,5 @@ bin/
 
 /TODO.txt
 
-/Backend/ressources/databases/AutoRent.db
-/Backend/TODO.txt
+/backend/ressources/databases/AutoRent.db
+/backend/TODO.txt
