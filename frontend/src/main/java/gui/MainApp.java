@@ -55,7 +55,7 @@ public class MainApp extends JFrame implements Listener {
         // JFrame settings
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(panels);
-        setSize(800, 600);
+        setSize(1600, 1200);
         setVisible(true);
     }
 
@@ -76,6 +76,7 @@ public class MainApp extends JFrame implements Listener {
     public static void main(String[] args) {
         if (!Table.dbFile()) {
             readSampleData();
-        } new MainApp();
+        }
+        new MainApp();
     }
 }

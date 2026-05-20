@@ -1,8 +1,6 @@
 
 ------------------------------- DOCUMENTATION -------------------------------
 
-trying something
-
 you can have static fields in models but you can't add fields
 
 . Dependencies
@@ -18,9 +16,6 @@ you can have static fields in models but you can't add fields
 +-> . Using interfaces as contracts to communicate between elements (log in, log out, clear event, selections, ...)
 
 ------------------------------- REQUIREMENTS -------------------------------
-
-make a gereric dialog mechanism
-make the picker
 
 . Ideas
 |
@@ -70,9 +65,12 @@ make the picker
 
 +-> Deletion Confirmation
 
-------------------------------- DONE -------------------------------
+------------------------------- AMBIGOUS -------------------------------
 
 +-> . Databse operations should happen in Event Dispatch Thread (EDT) thread
+
+------------------------------- DONE -------------------------------
+
 +-> . Memory management for interfaces
 |   |
 |   +-> . Grid adds itself to the static list Opts.toClears but is never removed
