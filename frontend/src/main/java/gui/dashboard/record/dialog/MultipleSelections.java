@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import gui.component.*;
 import gui.util.Attribute;
-import gui.Opts;
 
 import static orm.Reflection.getModelInstance;
 
@@ -16,7 +15,8 @@ public class MultipleSelections extends MyDialog<Attribute<String>> {
     JCheckBox[] checkBoxes;
     Attribute<String> attribute;
 
-    public MultipleSelections(String title, Attribute<String> attribute, Function<Attribute<String>,Boolean> callback) {
+    public MultipleSelections(String title, Attribute<String> attribute,
+            Function<Attribute<String>, Boolean> callback) {
         super(title, callback);
         this.attribute = attribute;
     }
@@ -30,7 +30,7 @@ public class MultipleSelections extends MyDialog<Attribute<String>> {
         var values = getModelInstance(attribute.ORMModelName).getAttributeValues(attribute.name);
         checkBoxes = new JCheckBox[values.size()];
 
-        int i=0;
+        int i = 0;
         for (var value : values) {
             checkBoxes[i] = new JCheckBox(value);
             checkboxPanel.add(checkBoxes[i]);
@@ -42,7 +42,8 @@ public class MultipleSelections extends MyDialog<Attribute<String>> {
         var scrollPane = new JScrollPane(checkboxPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane);
-        panel.add(new MyButton("Save", e -> finalize("How can one mess up checking boxes?"), Component.CENTER_ALIGNMENT));
+        panel.add(
+                new MyButton("Save", e -> submit("How can one mess up checking boxes?"), Component.CENTER_ALIGNMENT));
 
         return panel;
     }
@@ -53,6 +54,7 @@ public class MultipleSelections extends MyDialog<Attribute<String>> {
             if (checkBox.isSelected()) {
                 attribute.addValue(checkBox.getText());
             }
-        } return attribute;
+        }
+        return attribute;
     }
 }

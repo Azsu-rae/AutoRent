@@ -14,10 +14,10 @@ import gui.component.*;
 
 public class SearchProfile extends MyDialog<List<Attribute<String>>> {
 
-    Map<String,JTextField> fields = new HashMap<>();
+    Map<String, JTextField> fields = new HashMap<>();
     String[] attributeNames;
 
-    public SearchProfile(String[] attributeNames, Function<List<Attribute<String>>,Boolean> callback) {
+    public SearchProfile(String[] attributeNames, Function<List<Attribute<String>>, Boolean> callback) {
         super("Search Profile", callback);
         this.attributeNames = attributeNames;
     }
@@ -30,13 +30,17 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(form, gbc);
 
-        gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.0;
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyButton("Search", e -> finalize("This shouldn't happen")), gbc);
+        panel.add(new MyButton("Search", e -> submit("This shouldn't happen")), gbc);
 
         return panel;
     }
@@ -45,13 +49,13 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
     protected List<Attribute<String>> parseInput() {
         var attributes = new ArrayList<Attribute<String>>();
         fields
-            .keySet()
-            .stream()
-            .forEach(field -> {
-                var text = fields.get(field).getText();
-                if (!text.equals("")) 
-                    attributes.add(new Attribute<String>(field).addValue(text));
-            });
+                .keySet()
+                .stream()
+                .forEach(field -> {
+                    var text = fields.get(field).getText();
+                    if (!text.equals(""))
+                        attributes.add(new Attribute<String>(field).addValue(text));
+                });
         return attributes;
     }
 }

@@ -20,11 +20,12 @@ import static gui.util.Parser.parse;
 
 public class RangeSelection extends MyDialog<Range> {
 
-    Map<String,JTextField> fields = new HashMap<>();
+    Map<String, JTextField> fields = new HashMap<>();
     String[] labels = new String[2];
 
     Attribute<Object> attribute;
-    public RangeSelection(String title, Attribute<Object> attribute, Function<Range,Boolean> callback) {
+
+    public RangeSelection(String title, Attribute<Object> attribute, Function<Range, Boolean> callback) {
         super(title, callback);
         this.attribute = attribute;
     }
@@ -47,13 +48,16 @@ public class RangeSelection extends MyDialog<Range> {
         var gbc = Factory.initFormGBC();
         panel.setLayout(new GridBagLayout());
 
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(fieldsPanel);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new MyButton("Save", e -> finalize("Invalid format!")), gbc);
+        panel.add(new MyButton("Save", e -> submit("Invalid format!")), gbc);
 
         return panel;
     }

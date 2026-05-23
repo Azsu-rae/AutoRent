@@ -37,7 +37,7 @@ public class MainApp extends JFrame implements Listener {
         // Better Table
         UIManager.put("Table.showHorizontalLines", true);
         UIManager.put("Table.showVerticalLines", false);
-        UIManager.put("Table.alternateRowColor", new Color(245, 245, 245));
+        UIManager.put("Table.alternateRowColor", new Color(210, 210, 210));
 
         // Icon
         try {
@@ -49,8 +49,8 @@ public class MainApp extends JFrame implements Listener {
         }
 
         // Main Panels
-        panels.add(new SignIn(this), "Sign In");
         panels.add(new Dashboard(this), "Dashboard");
+        panels.add(new SignIn(this), "Sign In");
 
         // JFrame settings
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,6 +77,7 @@ public class MainApp extends JFrame implements Listener {
         if (!Table.dbFile()) {
             readSampleData();
         }
+
         new MainApp();
     }
 }

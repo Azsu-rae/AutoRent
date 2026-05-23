@@ -1,5 +1,6 @@
 package gui.component;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.swing.JDialog;
@@ -9,28 +10,32 @@ import gui.Opts;
 
 abstract public class MyDialog<T> extends JDialog {
 
-    Function<T,Boolean> callback;
-    public MyDialog(String title, Function<T,Boolean> callback) {
+    Consumer<T> callback;
+
+    public MyDialog(String title, Consumer<T> callback) {
         super(Opts.MAIN_FRAME, title, true);
         this.callback = callback;
     }
 
     public void display() {
         var panel = initialize();
-//        panel.setPreferredSize(new Dimension(200, 200));
+        // panel.setPreferredSize(new Dimension(200, 200));
         setContentPane(panel);
         pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }
 
-    public void finalize(String errorMessageFormat, Object... values) {
-        if (callback.apply(parseInput())) {
+    public void submit(String errorMessageFormat, Object... values) {
+        if (validateInput()) {
+            callback.accept(parseInput());
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, String.format(errorMessageFormat, values));
         }
     }
+
+    abstract protected boolean validateInput();
 
     abstract protected T parseInput();
 

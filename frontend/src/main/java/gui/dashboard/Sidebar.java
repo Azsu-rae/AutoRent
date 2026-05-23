@@ -19,7 +19,8 @@ public class Sidebar extends MyPanel {
         setLayout(new GridBagLayout());
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.gridx = 0; gbc.gridy = -1;
+        gbc.gridx = 0;
+        gbc.gridy = -1;
 
         setUpButton("Home", Event.HOME);
         setUpButton("Records", Event.MODELS);
@@ -28,7 +29,8 @@ public class Sidebar extends MyPanel {
 
     private void setUpButton(String name, Event event) {
         MyButton btn = new MyButton(name, SwingConstants.LEFT);
-        gbc.gridy++; add(btn, gbc);
+        gbc.gridy++;
+        add(btn, gbc);
         btn.addActionListener(e -> {
             listener.onEvent(event);
         });

@@ -19,6 +19,7 @@ public class Record extends MyPanel implements Listener {
     private ToolBar toolBar;
 
     public String ORMModelName;
+
     public Record(String ORMModelName, MyPanel buttonPanel) {
         this.ORMModelName = ORMModelName;
 
@@ -41,25 +42,29 @@ public class Record extends MyPanel implements Listener {
             case CLEAR:
                 for (var btn : btns) {
                     btn.setEnabled(btn.defaultEnabled);
-                } break;
+                }
+                break;
             case SELECTION:
                 for (var btn : btns) {
                     btn.setEnabled(true);
-                } break;
+                }
+                break;
             default:
                 break;
         }
     }
 
     private void onAdd() {
-        new Editor(String.format("Add a new %s", ORMModelName), ORMModelName, tuple -> {
+        String topMsg = String.format("Add a new %s", ORMModelName.toLowerCase());
+        new Editor(topMsg, ORMModelName, tuple -> {
             if (tuple.add() > 0) {
                 JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
                 tableView.loadData();
+                return true;
             } else {
                 return false;
-            } return true;
-        }).display();;
+            }
+        }).display();
     }
 
     private void onEdit() {
@@ -67,12 +72,15 @@ public class Record extends MyPanel implements Listener {
         new Editor("Edit Field", ORMModelName, toEdit, newValue -> {
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
-            } if (toEdit.edit() > 0) {
+            }
+            if (toEdit.edit() > 0) {
                 tableView.loadData();
             } else {
                 return false;
-            } return true;
-        }).display();;
+            }
+            return true;
+        }).display();
+        ;
     }
 
     private void onDelete() {

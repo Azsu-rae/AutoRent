@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import gui.component.*;
@@ -18,17 +19,18 @@ import static gui.util.Parser.parse;
 
 public class Editor extends MyDialog<Table> {
 
-    private Map<String,JTextField> fields = new HashMap<>();
+    private Map<String, JTextField> fields = new HashMap<>();
 
     private Table tuple;
     private String ORMModelName;
-    public Editor(String title, String ORMModelName, Table tuple, Function<Table,Boolean> callback) {
+
+    public Editor(String title, String ORMModelName, Table tuple, Consumer<Table> callback) {
         super(title, callback);
         this.ORMModelName = ORMModelName;
         this.tuple = tuple;
     }
 
-    public Editor(String title, String ORMModelName, Function<Table,Boolean> callback) {
+    public Editor(String title, String ORMModelName, Consumer<Table> callback) {
         this(title, ORMModelName, null, callback);
     }
 
@@ -45,13 +47,15 @@ public class Editor extends MyDialog<Table> {
         var panel = new MyPanel(new GridBagLayout());
         var gbc = Factory.initFormGBC();
 
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(fieldsPanel, gbc);
 
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new MyButton("Confirm", _ -> finalize("Enter a valid input!")), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(new MyButton("Confirm", _ -> submit("Enter a valid input!")), gbc);
 
         return panel;
     }
@@ -64,6 +68,7 @@ public class Editor extends MyDialog<Table> {
             var value = field.getValue().getText();
             Console.print("trying to parse attribute of name='%s'", name);
             tuple.reflect.fields.set(name, parse(ORMModelName, name, value));
-        } return tuple;
+        }
+        return tuple;
     }
 }

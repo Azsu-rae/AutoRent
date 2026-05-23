@@ -15,7 +15,7 @@ public class ForeignPicker extends MyDialog<Table> {
     private String ORMModelName;
     private Record record;
 
-    public ForeignPicker(String title, String ORMModelName, Function<Table,Boolean> callback) {
+    public ForeignPicker(String title, String ORMModelName, Function<Table, Boolean> callback) {
         super(title, callback);
         this.ORMModelName = ORMModelName;
     }
@@ -23,7 +23,7 @@ public class ForeignPicker extends MyDialog<Table> {
     @Override
     protected MyPanel initialize() {
         var buttonPanel = new MyPanel();
-        buttonPanel.add(new MyButton("Select", e -> finalize("Again, you can't mess up a selection!")));
+        buttonPanel.add(new MyButton("Select", e -> submit("Again, you can't mess up a selection!")));
         record = new Record(ORMModelName, buttonPanel);
         return record;
     }
