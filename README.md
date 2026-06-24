@@ -14,13 +14,13 @@ It was overall a great learning experience.
 
 ## Backend
 
-- sqlite-jdbc-3.50.3.0.jar: SQLite Implementation of JDBC
-- json-20250517.jar: To store sample data using JSON key-value pairs
+- **sqlite-jdbc-3.50.3.0.jar:** SQLite Implementation of JDBC
+- **json-20250517.jar:** To store sample data using JSON key-value pairs
 
 ## Frontend
 
-- jcalendar-1.4.jar (potentially)
-- flatlaf-3.6.2.jar
+- **jcalendar-1.4.jar** (potentially)
+- **flatlaf-3.6.2.jar**
 
 # Documentation
 

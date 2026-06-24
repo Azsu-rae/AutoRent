@@ -24,13 +24,6 @@ public class Parser {
         });
     }
 
-    static Map<Class<?>, String> typeName = new HashMap<>();
-    static {
-        typeName.put(Integer.class, "Year");
-        typeName.put(Double.class, "Amount");
-        typeName.put(LocalDate.class, "Date");
-    }
-
     Reflection reflect;
 
     public Parser(Reflection reflect) {
@@ -40,14 +33,6 @@ public class Parser {
     static public Object[] getModifiablesAsRow(Table tuple) {
         return tuple.reflect.fields.modifiable().stream()
                 .map(attribute -> (Object) tuple.reflect.fields.get(attribute)).toArray(Object[]::new);
-    }
-
-    static public Object getAsColumn(orm.Table tuple, String name) {
-        Object value = tuple.reflect.fields.get(name);
-        if (value instanceof orm.Table) {
-            value = ((orm.Table) value).getId();
-        }
-        return value;
     }
 
     static public String getMin(Attribute<Object> attribute) {
@@ -76,16 +61,6 @@ public class Parser {
         }
 
         return end + typeName.get(fields.typeOf(attribute.name)) + ":";
-    }
-
-    static public <T> String formatName(Attribute<T> attribute) {
-        var fields = fieldsOf(attribute.ORMModelName);
-        var constraints = fields.constraintsOf(attribute.name);
-        if (constraints.lowerBound() || constraints.bounded()) {
-            return typeName.get(fields.typeOf(attribute.name)) + " Range";
-        } else {
-            return titleCase(attribute.name);
-        }
     }
 
     public String denominator(String[] atts) {
