@@ -5,7 +5,7 @@ This is a Single-Source-of-Truth interfaces generator where you define your data
 generated using reflection.
 
 The project includes a custom ORM and uses SQLite as a database. This is a learning project for strongly typed langages and
-Object-Oriented separation of concerns. It is also my first programming project with an interface and a database in a high-level
+Object-Oriented separation of concerns. It is also my first programming project with a GUI and a database in a high-level
 language like Java (I had only ever worked with C at the time).
 
 It was overall a really great learning experience.
