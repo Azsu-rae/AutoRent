@@ -21,7 +21,7 @@ abstract public class MyDialog<T> extends JDialog {
         var panel = initialize();
         // panel.setPreferredSize(new Dimension(200, 200));
         setContentPane(panel);
-        pack();
+        // pack();
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }
@@ -35,9 +35,12 @@ abstract public class MyDialog<T> extends JDialog {
         }
     }
 
+    // this is the initialization and what puts everything in the menu
+    abstract protected MyPanel initialize();
+
+    // step 1: validate the input (non-empty fields, etc...)
     abstract protected boolean validateInput();
 
+    // step 2: if valid, you parse it
     abstract protected T parseInput();
-
-    abstract protected MyPanel initialize();
 }

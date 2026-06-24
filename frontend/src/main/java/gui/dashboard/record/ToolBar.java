@@ -21,20 +21,19 @@ import orm.Table;
 import orm.Reflection.FieldInfos;
 
 import static orm.Reflection.getModelInstance;
-import static orm.util.Console.print;
 import static orm.Reflection.fieldsOf;
 
-import static gui.util.Parser.formatName;
-import static gui.util.Parser.titleCase;
-import static gui.util.Parser.titleCaseNames;
+import static gui.util.FieldLabelFormatter.formatName;
+import static gui.util.FieldLabelFormatter.titleCase;
 
 public class ToolBar extends JToolBar {
 
-    private Map<String,List<Attribute<?>>> discreteValues = new HashMap<>();
+    private Map<String, List<Attribute<?>>> discreteValues = new HashMap<>();
+
     private <T> void addDiscreteValues(String name, T value) {
         discreteValues
-            .computeIfAbsent(name, k -> new ArrayList<>())
-            .add(new Attribute<T>(name).addValue(value));
+                .computeIfAbsent(name, k -> new ArrayList<>())
+                .add(new Attribute<T>(name).addValue(value));
     }
 
     private Vector<Range> boundedValues = new Vector<>();
@@ -59,13 +58,13 @@ public class ToolBar extends JToolBar {
 
         for (var enumerated : fields.haveConstraint(Constraints::enumerated)) {
             var attribute = new Attribute<String>(ORMModelName, enumerated);
-            var title =  formatName(attribute);
+            var title = formatName(attribute);
             add(new MyButton(title, e -> multipleSelections(title, attribute)));
         }
 
         for (var bounded : fields.haveConstraint(c -> c.lowerBound() || c.bounded())) {
             var attribute = new Attribute<Object>(ORMModelName, bounded);
-            var title =  formatName(attribute);
+            var title = formatName(attribute);
             add(new MyButton(title, e -> rangeSelection(title, attribute, fields)));
         }
 
@@ -83,11 +82,12 @@ public class ToolBar extends JToolBar {
 
         var discreteCriterias = new Vector<Table>();
         for (var discrete : discreteValues.entrySet()) {
-            for (int i=0;i<discrete.getValue().size();i++) {
+            for (int i = 0; i < discrete.getValue().size(); i++) {
                 Attribute<?> value = discrete.getValue().get(i);
                 if (i >= discreteCriterias.size()) {
                     discreteCriterias.add(getModelInstance(ORMModelName));
-                } discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value.getSingleValue());
+                }
+                discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value.getSingleValue());
             }
         }
 
@@ -104,7 +104,8 @@ public class ToolBar extends JToolBar {
         return Factory.createSearchBar(attributeValue -> {
             for (var name : searchedTexts) {
                 addDiscreteValues(name, attributeValue);
-            } onApply();
+            }
+            onApply();
         });
     }
 
@@ -113,7 +114,8 @@ public class ToolBar extends JToolBar {
             for (var attribute : attributes) {
                 Console.print("adding %s to %s", attribute.getSingleValue(), attribute.name);
                 addDiscreteValues(attribute.name, attribute.getSingleValue());
-            } onApply();
+            }
+            onApply();
             return true;
         }).display();
     }
@@ -122,7 +124,8 @@ public class ToolBar extends JToolBar {
         new RangeSelection(title, attribute, range -> {
             if (!range.isValidCriteriaFor(fields)) {
                 return false;
-            } boundedValues.add(range);
+            }
+            boundedValues.add(range);
             return true;
         }).display();
     }
@@ -131,7 +134,8 @@ public class ToolBar extends JToolBar {
         new MultipleSelections(title, attribute, attributeValues -> {
             for (var value : attributeValues.getValues()) {
                 addDiscreteValues(attributeValues.name, value);
-            } return true;
+            }
+            return true;
         }).display();
     }
 

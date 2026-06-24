@@ -13,10 +13,11 @@ import gui.component.MyPanel;
 
 public class Record extends MyPanel implements Listener {
 
-    private List<MyButton> btns = new ArrayList<>();
-    private MyPanel buttonPanel;
-    public TableView tableView;
     private ToolBar toolBar;
+    public TableView tableView;
+
+    private MyPanel buttonPanel;
+    private List<MyButton> btns = new ArrayList<>();
 
     public String ORMModelName;
 
@@ -57,30 +58,21 @@ public class Record extends MyPanel implements Listener {
     private void onAdd() {
         String topMsg = String.format("Add a new %s", ORMModelName.toLowerCase());
         new Editor(topMsg, ORMModelName, tuple -> {
-            if (tuple.add() > 0) {
-                JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
-                tableView.loadData();
-                return true;
-            } else {
-                return false;
-            }
+            tuple.add();
+            tableView.loadData();
+            JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
         }).display();
     }
 
     private void onEdit() {
         var toEdit = tableView.parseSelectedRow();
-        new Editor("Edit Field", ORMModelName, toEdit, newValue -> {
+        new Editor("Edit Field", ORMModelName, newValue -> {
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
             }
-            if (toEdit.edit() > 0) {
-                tableView.loadData();
-            } else {
-                return false;
-            }
-            return true;
-        }).display();
-        ;
+            toEdit.edit();
+            tableView.loadData();
+        }, toEdit).display();
     }
 
     private void onDelete() {

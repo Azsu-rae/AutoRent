@@ -9,9 +9,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import gui.Opts;
+
 import gui.contract.*;
 import gui.contract.Listener.Event;
-import gui.util.Parser;
+
+import gui.util.FieldLabelFormatter;
+import gui.util.FieldValueMapper;
+
 import orm.Table;
 import orm.Reflection;
 
@@ -23,13 +27,15 @@ public class TableView extends JScrollPane implements ToClear {
 
     private String ORMModelName;
     private Listener listener;
+
     public TableView(Listener listener, String ORMModelName) {
 
         this.ORMModelName = ORMModelName;
         this.listener = listener;
         Opts.addToClear(this);
 
-        String[] columns = Parser.titleCaseNames(Reflection.getModelInstance(ORMModelName).reflect.fields.names);
+        String[] modelAttribtues = Reflection.getModelInstance(ORMModelName).reflect.fields.names;
+        String[] columns = FieldLabelFormatter.titleCaseNames(modelAttribtues);
         defaultTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -43,7 +49,8 @@ public class TableView extends JScrollPane implements ToClear {
         selectionListener = e -> {
             if (e.getValueIsAdjusting() || table.getSelectedRow() == -1) {
                 return;
-            } listener.onEvent(Event.SELECTION);
+            }
+            listener.onEvent(Event.SELECTION);
         };
         table.getSelectionModel().addListSelectionListener(selectionListener);
 
@@ -86,7 +93,7 @@ public class TableView extends JScrollPane implements ToClear {
 
         defaultTableModel.setRowCount(0);
         for (var tuple : tuples) {
-            Object[] row = Parser.getAsRow(tuple);
+            Object[] row = FieldValueMapper.getAsRow(tuple);
             defaultTableModel.addRow(row);
         }
     }

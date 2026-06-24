@@ -1,6 +1,5 @@
 package gui.util;
 
-import static orm.Reflection.fieldsOf;
 import static orm.util.Console.print;
 
 import java.time.LocalDate;
@@ -14,71 +13,41 @@ import orm.Table;
 
 public class Parser {
 
-    static Map<Class<?>,Function<String,Object>> parser = new HashMap<>();
+    static Map<Class<?>, Function<String, Object>> parser = new HashMap<>();
     static {
         parser.put(Integer.class, Integer::parseInt);
-        parser.put(Double.class,  Double::parseDouble);
+        parser.put(Double.class, Double::parseDouble);
         parser.put(String.class, s -> s.equals("") ? null : s);
-        parser.put(LocalDate.class,  s -> {
+        parser.put(LocalDate.class, s -> {
             print("Trying to parse %s", s);
             return orm.Table.stringToDate(s);
         });
     }
 
-    static Map<Class<?>,String> typeName = new HashMap<>();
+    static Map<Class<?>, String> typeName = new HashMap<>();
     static {
         typeName.put(Integer.class, "Year");
-        typeName.put(Double.class,  "Amount");
-        typeName.put(LocalDate.class,  "Date");
+        typeName.put(Double.class, "Amount");
+        typeName.put(LocalDate.class, "Date");
     }
 
     Reflection reflect;
+
     public Parser(Reflection reflect) {
         this.reflect = reflect;
     }
 
-    static public String[] titleCaseNames(String[] attNames) {
-        return Arrays.asList(attNames).stream().map(att -> titleCase(att)).toArray(String[]::new);
-    }
-
-    static public Object parse(String ORMModelName, String attributeName, String valueAsString) {
-        try {
-            return parser
-                .get(fieldsOf(ORMModelName).typeOf(attributeName))
-                .apply(valueAsString);
-        } catch (Exception e) {
-            System.out.println(String.format("we tried %s", attributeName));
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     static public Object[] getModifiablesAsRow(Table tuple) {
         return tuple.reflect.fields.modifiable().stream()
-            .map(attribute -> (Object) tuple.reflect.fields.get(attribute)).toArray(Object[]::new);
-    }
-
-    static public Object[] getAsRow(Table tuple) {
-        return Arrays.asList(tuple.reflect.fields.names).stream()
-            .map(attribute -> getAsColumn(tuple, attribute)).toArray(Object[]::new);
+                .map(attribute -> (Object) tuple.reflect.fields.get(attribute)).toArray(Object[]::new);
     }
 
     static public Object getAsColumn(orm.Table tuple, String name) {
         Object value = tuple.reflect.fields.get(name);
         if (value instanceof orm.Table) {
             value = ((orm.Table) value).getId();
-        } return value;
-    }
-
-    static public String titleCase(String name) {
-        name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        if (orm.Table.hasSubClass(name)) {
-            return name + " ID";
-        } else if (name.equals("Id")) {
-            return "ID";
-        } else {
-            return name.replaceAll("([a-z])([A-Z])", "$1 $2");
         }
+        return value;
     }
 
     static public String getMin(Attribute<Object> attribute) {
@@ -124,6 +93,7 @@ public class Parser {
             if (!att.contains("name")) {
                 return "";
             }
-        } return " by Name";
+        }
+        return " by Name";
     }
 }

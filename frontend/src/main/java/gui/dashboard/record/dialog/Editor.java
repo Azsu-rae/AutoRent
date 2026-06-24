@@ -5,17 +5,20 @@ import java.awt.*;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import gui.component.*;
-import gui.util.Parser;
+import gui.component.Factory.Field;
+
+import gui.util.FieldLabelFormatter;
+import gui.util.FieldValueMapper;
 
 import orm.Table;
-import orm.util.Console;
 
 import static orm.Reflection.fieldsOf;
 import static orm.Reflection.getModelInstance;
+
 import static gui.util.Parser.parse;
+import static gui.component.Factory.createField;
 
 public class Editor extends MyDialog<Table> {
 
@@ -24,28 +27,59 @@ public class Editor extends MyDialog<Table> {
     private Table tuple;
     private String ORMModelName;
 
-    public Editor(String title, String ORMModelName, Table tuple, Consumer<Table> callback) {
+    public Editor(String title, String ORMModelName, Consumer<Table> callback, Table tuple) {
         super(title, callback);
         this.ORMModelName = ORMModelName;
         this.tuple = tuple;
     }
 
     public Editor(String title, String ORMModelName, Consumer<Table> callback) {
-        this(title, ORMModelName, null, callback);
+        this(title, ORMModelName, callback, null);
     }
 
     @Override
     protected MyPanel initialize() {
 
+        var modifiableAttributes = fieldsOf(ORMModelName).modifiable().toArray(String[]::new);
         Object[] defaultValues = null;
-        var modifiables = fieldsOf(ORMModelName).modifiable();
         if (tuple != null) {
-            defaultValues = Parser.getModifiablesAsRow(tuple);
+            defaultValues = FieldValueMapper.getModifiablesAsObjects(tuple);
         }
 
-        var fieldsPanel = Factory.createForm(modifiables.toArray(String[]::new), fields, defaultValues);
+        var fieldsPanel = new MyPanel(new GridBagLayout());
+        var gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        String[] labels = FieldLabelFormatter.titleCaseNames(modifiableAttributes);
+        for (int i = 0; i < labels.length; i++) {
+
+            gbc.gridx = 0;
+            gbc.gridy = i;
+            gbc.weightx = 0;
+            gbc.fill = GridBagConstraints.NONE;
+            fieldsPanel.add(new MyLabel(labels[i]), gbc);
+
+            JTextField field = createField(20, Field.TEXT);
+            if (defaultValues != null) {
+                field.setText(defaultValues[i].toString());
+            }
+
+            gbc.gridx = 1;
+            gbc.gridy = i;
+            gbc.weightx = 1.0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            fieldsPanel.add(field, gbc);
+
+            fields.put(modifiableAttributes[i], field);
+        }
+
         var panel = new MyPanel(new GridBagLayout());
-        var gbc = Factory.initFormGBC();
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -61,12 +95,16 @@ public class Editor extends MyDialog<Table> {
     }
 
     @Override
+    protected boolean validateInput() {
+        return true;
+    }
+
+    @Override
     protected Table parseInput() {
         Table tuple = getModelInstance(ORMModelName);
         for (var field : fields.entrySet()) {
             var name = field.getKey();
             var value = field.getValue().getText();
-            Console.print("trying to parse attribute of name='%s'", name);
             tuple.reflect.fields.set(name, parse(ORMModelName, name, value));
         }
         return tuple;
