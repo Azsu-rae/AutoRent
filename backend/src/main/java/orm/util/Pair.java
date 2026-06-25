@@ -1,9 +1,12 @@
 package orm.util;
 
-abstract public class Pair<U,V> {
+abstract public class Pair<U, V> {
 
     protected U first;
     protected V second;
+
+    protected Pair() {
+    }
 
     protected Pair(U first, V second) {
         this.first = first;
@@ -18,15 +21,15 @@ abstract public class Pair<U,V> {
     @Override
     public boolean equals(Object obj) {
 
-        if (obj == this) 
+        if (obj == this)
             return true;
 
         if (obj == null || !obj.getClass().equals(getClass()))
             return false;
 
-        Pair<?,?> pair = (Pair<?,?>) obj;
-        return (first != null ?  first.equals(pair.first) : first == pair.first)
-            && (second != null ?  second.equals(pair.second) : second == pair.second);
+        Pair<?, ?> pair = (Pair<?, ?>) obj;
+        return (first != null ? first.equals(pair.first) : first == pair.first)
+                && (second != null ? second.equals(pair.second) : second == pair.second);
     }
 
     @Override

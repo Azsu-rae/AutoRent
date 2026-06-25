@@ -2,23 +2,22 @@ package gui.dashboard.record.dialog;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import component.*;
-import util.Attribute;
 
 import static orm.Reflection.getModelInstance;
 
-public class MultipleSelections extends MyDialog<Attribute<String>> {
+public class MultipleSelections extends MyDialog<String[]> {
 
     JCheckBox[] checkBoxes;
-    Attribute<String> attribute;
+    String[] choices;
 
-    public MultipleSelections(String title, Attribute<String> attribute,
-            Function<Attribute<String>, Boolean> callback) {
+    public MultipleSelections(String title, String[] choices, Consumer<String[]> callback) {
         super(title, callback);
-        this.attribute = attribute;
+        this.choices = choices;
     }
 
     @Override
@@ -27,34 +26,39 @@ public class MultipleSelections extends MyDialog<Attribute<String>> {
         var checkboxPanel = new MyPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
 
-        var values = getModelInstance(attribute.ORMModelName).getAttributeValues(attribute.name);
-        checkBoxes = new JCheckBox[values.size()];
-
-        int i = 0;
-        for (var value : values) {
-            checkBoxes[i] = new JCheckBox(value);
+        checkBoxes = new JCheckBox[choices.length];
+        for (int i = 0; i < choices.length; i++) {
+            checkBoxes[i] = new JCheckBox(choices[i]);
             checkboxPanel.add(checkBoxes[i]);
-            i++;
         }
+
+        var scrollPane = new JScrollPane(checkboxPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         var panel = new MyPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        var scrollPane = new JScrollPane(checkboxPanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane);
-        panel.add(
-                new MyButton("Save", e -> submit("How can one mess up checking boxes?"), Component.CENTER_ALIGNMENT));
+        panel.add(new MyButton("Save", e -> submit("How can one mess up checking boxes?"), Component.CENTER_ALIGNMENT));
 
         return panel;
     }
 
     @Override
-    protected Attribute<String> parseInput() {
+    protected boolean validateInput() {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
+    protected String[] parseInput() {
+
+        var selectedChoices = new ArrayList<>();
         for (var checkBox : checkBoxes) {
             if (checkBox.isSelected()) {
-                attribute.addValue(checkBox.getText());
+                selectedChoices.add(checkBox.getText());
             }
         }
-        return attribute;
+
+        return selectedChoices.toArray(String[]::new);
     }
 }

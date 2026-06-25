@@ -11,7 +11,7 @@ import static component.Factory.createField;
 import contract.*;
 import contract.Listener.Event;
 
-import orm.model.User;
+import model.User;
 
 class SignIn extends MyPanel {
 

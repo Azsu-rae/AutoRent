@@ -7,17 +7,22 @@ import component.MyDialog;
 import component.MyPanel;
 import orm.Table;
 
-import java.awt.Dimension;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class ForeignPicker extends MyDialog<Table> {
 
     private String ORMModelName;
     private Record record;
 
-    public ForeignPicker(String title, String ORMModelName, Function<Table, Boolean> callback) {
+    public ForeignPicker(String title, String ORMModelName, Consumer<Table> callback) {
         super(title, callback);
         this.ORMModelName = ORMModelName;
+    }
+
+    @Override
+    protected boolean validateInput() {
+        // TODO Auto-generated method stub
+        return true;
     }
 
     @Override

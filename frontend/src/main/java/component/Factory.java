@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import mapper.FieldLabelFormatter;
 import util.Parser;
 
 public class Factory {
@@ -32,12 +33,48 @@ public class Factory {
         return panel;
     }
 
+    static public GridBagConstraints initFormGBC() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        return gbc;
+    }
+
     static public MyPanel createForm(String[] labels, Map<String, JTextField> fields) {
         return createForm(labels, fields, null);
     }
 
     static public MyPanel createForm(String[] ORMAttributes, Map<String, JTextField> fields, Object[] defaultValues) {
 
+        var gbc = initFormGBC();
+        var panel = new MyPanel();
+        panel.setLayout(new GridBagLayout());
+
+        String[] labels = FieldLabelFormatter.titleCaseNames(ORMAttributes);
+        for (int i = 0; i < labels.length; i++) {
+
+            gbc.gridx = 0;
+            gbc.gridy = i;
+            gbc.weightx = 0;
+            gbc.fill = GridBagConstraints.NONE;
+            panel.add(new MyLabel(labels[i]), gbc);
+
+            JTextField field = createField(20, Field.TEXT);
+            if (defaultValues != null) {
+                field.setText(defaultValues[i].toString());
+            }
+
+            gbc.gridx = 1;
+            gbc.gridy = i;
+            gbc.weightx = 1.0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(field, gbc);
+
+            fields.put(ORMAttributes[i], field);
+        }
+
+        return panel;
     }
 
     // Text Fields

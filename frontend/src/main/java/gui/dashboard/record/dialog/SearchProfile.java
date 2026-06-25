@@ -6,18 +6,18 @@ import javax.swing.JTextField;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-import util.Attribute;
 import util.Parser;
 import component.*;
 
-public class SearchProfile extends MyDialog<List<Attribute<String>>> {
+public class SearchProfile extends MyDialog<Map<String, String>> {
 
     Map<String, JTextField> fields = new HashMap<>();
     String[] attributeNames;
 
-    public SearchProfile(String[] attributeNames, Function<List<Attribute<String>>, Boolean> callback) {
+    public SearchProfile(String[] attributeNames, Consumer<Map<String, String>> callback) {
         super("Search Profile", callback);
         this.attributeNames = attributeNames;
     }
@@ -26,7 +26,10 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
     protected MyPanel initialize() {
 
         var form = Factory.createForm(attributeNames, fields);
-        var gbc = Factory.initFormGBC();
+        var gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         var panel = new MyPanel();
         panel.setLayout(new GridBagLayout());
 
@@ -46,15 +49,21 @@ public class SearchProfile extends MyDialog<List<Attribute<String>>> {
     }
 
     @Override
-    protected List<Attribute<String>> parseInput() {
-        var attributes = new ArrayList<Attribute<String>>();
+    protected boolean validateInput() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    protected Map<String, String> parseInput() {
+        var attributes = new HashMap<String, String>();
         fields
                 .keySet()
                 .stream()
                 .forEach(field -> {
                     var text = fields.get(field).getText();
                     if (!text.equals(""))
-                        attributes.add(new Attribute<String>(field).addValue(text));
+                        attributes.put(field, text);
                 });
         return attributes;
     }

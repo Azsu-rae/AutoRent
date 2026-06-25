@@ -13,13 +13,13 @@ import gui.Opts;
 import contract.*;
 import contract.Listener.Event;
 
-import util.FieldLabelFormatter;
-import util.FieldValueMapper;
+import mapper.FieldLabelFormatter;
+import mapper.FieldValueMapper;
 
 import orm.Table;
 import orm.Reflection;
 
-class TableView extends JScrollPane implements ToClear {
+public class TableView extends JScrollPane implements ToClear {
 
     private ListSelectionListener selectionListener;
     private DefaultTableModel defaultTableModel;

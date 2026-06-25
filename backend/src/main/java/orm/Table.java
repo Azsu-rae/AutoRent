@@ -312,19 +312,21 @@ public abstract class Table {
         }
     }
 
-    // Getting all the different values a specific attribute can take
-    public Set<String> getAttributeValues(String att) {
+    // Getting all the different values an enumerated attribute takes in the current
+    // DB state
+    public Set<String> getEnumeratedValuesOf(String att) {
 
         if (!reflect.fields.constraintsOf(att).enumerated()) {
             String s = "Attempting to get the values of an attribute that is not enumerated: %s";
             throw new IllegalArgumentException(String.format(s, att));
         }
 
-        Set<String> values = new HashSet<>();
         var tuples = search(getClass().getSimpleName());
+        Set<String> values = new HashSet<>();
         for (var tuple : tuples) {
             values.add((String) tuple.reflect.fields.get(att));
         }
+
         return values;
     }
 

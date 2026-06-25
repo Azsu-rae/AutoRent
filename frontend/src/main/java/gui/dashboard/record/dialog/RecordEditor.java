@@ -9,16 +9,16 @@ import java.util.function.Consumer;
 import component.*;
 import component.Factory.Field;
 
-import util.FieldLabelFormatter;
-import util.FieldValueMapper;
+import mapper.FieldLabelFormatter;
+import mapper.FieldValueMapper;
 
 import orm.Table;
 
 import static orm.Reflection.fieldsOf;
 import static orm.Reflection.getModelInstance;
 
-import static gui.util.FieldValueMapper.parse;
-import static gui.component.Factory.createField;
+import static mapper.FieldValueMapper.parse;
+import static component.Factory.createField;
 
 public class RecordEditor extends MyDialog<Table> {
 

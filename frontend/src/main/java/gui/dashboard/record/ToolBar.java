@@ -7,44 +7,53 @@ import java.util.function.Consumer;
 
 import gui.dashboard.record.dialog.RangeSelection;
 import gui.dashboard.record.dialog.SearchProfile;
+import mapper.FieldLabelFormatter;
+import mapper.FieldValueMapper;
 import gui.dashboard.record.dialog.ForeignPicker;
 import gui.dashboard.record.dialog.MultipleSelections;
-import util.Attribute;
+
 import component.Factory;
 import component.MyButton;
 import component.MyPanel;
 
 import orm.Table.Range;
-import orm.util.Console;
-import orm.util.Constraints;
+import orm.Constraints;
 import orm.Table;
-import orm.Reflection.FieldInfos;
 
 import static orm.Reflection.getModelInstance;
 import static orm.Reflection.fieldsOf;
 
-import static util.FieldLabelFormatter.formatName;
-import static util.FieldLabelFormatter.titleCase;
+import static mapper.FieldLabelFormatter.titleCase;
 
 class ToolBar extends JToolBar {
 
-    private Map<String, List<Attribute<?>>> discreteValues = new HashMap<>();
+    private Map<String, List<Object>> discreteValues = new HashMap<>();
+    private Vector<Range> boundedValues = new Vector<>();
 
-    private <T> void addDiscreteValues(String name, T value) {
-        discreteValues
-                .computeIfAbsent(name, k -> new ArrayList<>())
-                .add(new Attribute<T>(name).addValue(value));
+    private void addDiscreteValues(String name, Object... values) {
+        for (var val : values) {
+            discreteValues
+                    .computeIfAbsent(name, k -> new ArrayList<>())
+                    .add(val);
+        }
+
     }
 
-    private Vector<Range> boundedValues = new Vector<>();
     private Consumer<Vector<Table>> filterAction;
     private String ORMModelName;
 
+    private FieldLabelFormatter fieldLabelFormatter;
+    private FieldValueMapper fieldValueMapper;
+
     public ToolBar(String ORMModelName, Consumer<Vector<Table>> filterAction) {
 
-        var fields = fieldsOf(ORMModelName);
-        this.ORMModelName = ORMModelName;
         this.filterAction = filterAction;
+        this.ORMModelName = ORMModelName;
+
+        fieldLabelFormatter = new FieldLabelFormatter(ORMModelName);
+        fieldValueMapper = new FieldValueMapper(ORMModelName);
+
+        var fields = fieldsOf(ORMModelName);
 
         var searchedTexts = fields.haveConstraint(Constraints::searchedText);
         if (searchedTexts.size() > 0) {
@@ -57,15 +66,13 @@ class ToolBar extends JToolBar {
         }
 
         for (var enumerated : fields.haveConstraint(Constraints::enumerated)) {
-            var attribute = new Attribute<String>(ORMModelName, enumerated);
-            var title = formatName(attribute);
-            add(new MyButton(title, e -> multipleSelections(title, attribute)));
+            var title = fieldLabelFormatter.formatAttNameForFiltering(enumerated);
+            add(new MyButton(title, e -> multipleSelections(title, enumerated)));
         }
 
         for (var bounded : fields.haveConstraint(c -> c.lowerBound() || c.bounded())) {
-            var attribute = new Attribute<Object>(ORMModelName, bounded);
-            var title = formatName(attribute);
-            add(new MyButton(title, e -> rangeSelection(title, attribute, fields)));
+            var title = fieldLabelFormatter.formatAttNameForFiltering(bounded);
+            add(new MyButton(title, e -> rangeSelection(title, bounded)));
         }
 
         for (var foreign : fields.haveConstraint(Constraints::foreignKey)) {
@@ -83,11 +90,11 @@ class ToolBar extends JToolBar {
         var discreteCriterias = new Vector<Table>();
         for (var discrete : discreteValues.entrySet()) {
             for (int i = 0; i < discrete.getValue().size(); i++) {
-                Attribute<?> value = discrete.getValue().get(i);
+                Object value = discrete.getValue().get(i);
                 if (i >= discreteCriterias.size()) {
                     discreteCriterias.add(getModelInstance(ORMModelName));
                 }
-                discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value.getSingleValue());
+                discreteCriterias.elementAt(i).reflect.fields.set(discrete.getKey(), value);
             }
         }
 
@@ -111,38 +118,31 @@ class ToolBar extends JToolBar {
 
     private void searchProfile(List<String> uniques) {
         new SearchProfile(uniques.toArray(String[]::new), attributes -> {
-            for (var attribute : attributes) {
-                Console.print("adding %s to %s", attribute.getSingleValue(), attribute.name);
-                addDiscreteValues(attribute.name, attribute.getSingleValue());
+            for (var attribute : attributes.entrySet()) {
+                addDiscreteValues(attribute.getKey(), attribute.getValue());
             }
             onApply();
-            return true;
         }).display();
     }
 
-    private void rangeSelection(String title, Attribute<Object> attribute, FieldInfos fields) {
-        new RangeSelection(title, attribute, range -> {
-            if (!range.isValidCriteriaFor(fields)) {
-                return false;
-            }
-            boundedValues.add(range);
-            return true;
-        }).display();
+    private void rangeSelection(String title, String attribute) {
+        new RangeSelection(
+                title,
+                fieldLabelFormatter.new RangeLabel(attribute),
+                fieldValueMapper.new RangeParser(attribute),
+                range -> boundedValues.add(range)).display();
     }
 
-    private void multipleSelections(String title, Attribute<String> attribute) {
-        new MultipleSelections(title, attribute, attributeValues -> {
-            for (var value : attributeValues.getValues()) {
-                addDiscreteValues(attributeValues.name, value);
-            }
-            return true;
+    private void multipleSelections(String title, String attribute) {
+        var choices = getModelInstance(ORMModelName).getEnumeratedValuesOf(attribute).toArray(String[]::new);
+        new MultipleSelections(title, choices, selectedChoices -> {
+            addDiscreteValues(attribute, (Object[]) selectedChoices);
         }).display();
     }
 
     private void foreignPicker(String title) {
         new ForeignPicker(title, ORMModelName, tuple -> {
             addDiscreteValues(tuple.getClass().getSimpleName().toLowerCase(), tuple);
-            return true;
         }).display();
     }
 }

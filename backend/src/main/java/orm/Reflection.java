@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Reflection {
 
     static Map<Class<? extends Table>, FieldInfos> fieldInfos = new HashMap<>();
-    static String qualifiedPackageName = "orm.model.";
+    static String qualifiedPackageName = "model.";
 
     public static void loadModels(String[] modelNames) {
         for (String name : modelNames) {

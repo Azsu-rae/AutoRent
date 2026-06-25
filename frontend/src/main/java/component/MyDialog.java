@@ -35,7 +35,7 @@ abstract public class MyDialog<T> extends JDialog {
         }
     }
 
-    // this is the initialization and what puts everything in the menu
+    // The layout and everything you see
     abstract protected MyPanel initialize();
 
     // step 1: validate the input (non-empty fields, etc...)

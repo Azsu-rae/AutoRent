@@ -2,51 +2,47 @@ package gui.dashboard.record.dialog;
 
 import javax.swing.*;
 import java.awt.*;
+
+import java.util.function.Consumer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import component.*;
-import util.Attribute;
 
-import orm.Reflection;
+import mapper.FieldLabelFormatter.RangeLabel;
+import mapper.FieldValueMapper.RangeParser;
+
 import orm.Table.Range;
-import orm.util.Console;
-
-import static util.Parser.titleCase;
-import static util.Parser.getMin;
-import static util.Parser.getMax;
-import static util.Parser.parse;
 
 public class RangeSelection extends MyDialog<Range> {
 
     Map<String, JTextField> fields = new HashMap<>();
     String[] labels = new String[2];
 
-    Attribute<Object> attribute;
+    RangeParser parser;
+    RangeLabel label;
 
-    public RangeSelection(String title, Attribute<Object> attribute, Function<Range, Boolean> callback) {
+    public RangeSelection(String title, RangeLabel label, RangeParser parser, Consumer<Range> callback) {
         super(title, callback);
-        this.attribute = attribute;
+        this.label = label;
+        this.parser = parser;
     }
 
     @Override
     protected MyPanel initialize() {
 
-        var constraints = Reflection.fieldsOf(attribute.ORMModelName).constraintsOf(attribute.name);
-        if (constraints.lowerBound()) {
-            labels[0] = titleCase(attribute.name) + ":";
-            labels[1] = titleCase(constraints.boundedPair()) + ":";
-        } else if (constraints.bounded()) {
-            labels[0] = getMin(attribute);
-            labels[1] = getMax(attribute);
-        }
+        labels[0] = label.start();
+        labels[1] = label.end();
 
         var fieldsPanel = Factory.createForm(labels, fields);
 
         var panel = new MyPanel();
-        var gbc = Factory.initFormGBC();
         panel.setLayout(new GridBagLayout());
+
+        var gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -63,9 +59,13 @@ public class RangeSelection extends MyDialog<Range> {
     }
 
     @Override
+    protected boolean validateInput() {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
     protected Range parseInput() {
-        var lowerVal = parse(attribute.ORMModelName, attribute.name, fields.get(labels[0]).getText());
-        var upperVal = parse(attribute.ORMModelName, attribute.name, fields.get(labels[1]).getText());
-        return new Range(attribute.name, lowerVal, upperVal);
+        return parser.parse(fields.get(labels[0]).getText(), fields.get(labels[1]).getText());
     }
 }

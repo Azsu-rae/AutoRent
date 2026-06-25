@@ -1,9 +1,8 @@
-package gui.util;
+package util;
 
 import static orm.util.Console.print;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -33,34 +32,6 @@ public class Parser {
     static public Object[] getModifiablesAsRow(Table tuple) {
         return tuple.reflect.fields.modifiable().stream()
                 .map(attribute -> (Object) tuple.reflect.fields.get(attribute)).toArray(Object[]::new);
-    }
-
-    static public String getMin(Attribute<Object> attribute) {
-
-        var fields = fieldsOf(attribute.ORMModelName);
-        String start;
-
-        if (fields.typeOf(attribute.name).equals(Double.class)) {
-            start = "Min ";
-        } else {
-            start = "Start ";
-        }
-
-        return start + typeName.get(fields.typeOf(attribute.name)) + ":";
-    }
-
-    static public String getMax(Attribute<Object> attribute) {
-
-        var fields = fieldsOf(attribute.ORMModelName);
-        String end;
-
-        if (fields.typeOf(attribute.name).equals(Double.class)) {
-            end = "Max ";
-        } else {
-            end = "End ";
-        }
-
-        return end + typeName.get(fields.typeOf(attribute.name)) + ":";
     }
 
     public String denominator(String[] atts) {

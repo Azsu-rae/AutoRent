@@ -6,7 +6,7 @@ generated using reflection.
 
 The project includes a custom ORM and uses SQLite as a database. This is a learning project for strongly typed langages and
 Object-Oriented separation of concerns. It is also my first programming project with a GUI and a database in a high-level
-language like Java (I had only ever worked with C at the time).
+language like Java (I had only ever worked with C and DSA/Competitive Programming at the time).
 
 It was overall a great learning experience.
 
@@ -19,8 +19,8 @@ It was overall a great learning experience.
 
 ## Frontend
 
-- **jcalendar-1.4.jar** (potentially)
-- **flatlaf-3.6.2.jar**
+- **jcalendar-1.4.jar:** For date picking (potentially)
+- **flatlaf-3.6.2.jar:** Better Look-and-Feel
 
 # Documentation
 
@@ -28,47 +28,80 @@ It was overall a great learning experience.
 
 - you can have static fields in models but you can't add fields other than to-be database columns
 
+# Code Explanations
+
+## Backend structure
+
+I wrote a simple ORM using reflection and annotations. The structure is pretty straightforward:
+
+```
+orm
+├── Constraints.java
+├── DataMapper.java
+├── Reflection.java
+├── SQLiteQueryConstructor.java
+└── Table.java
+```
+
 ## Frontend structure
 
-- 1 UI Entity = 1 class = 1 file
-- Encapsulation using packages
-- Using interfaces as contracts to communicate between elements (log in, log out, clear event, selections, ...)
+Swing only provides basic building blocks like scrollables panes and clickable buttons and is quite low-level. There's no built-in
+`required` option to set on text fields or some semantic construct like an HTML `form`. All of this has to be handled by the
+programmer.
+
+The following structure reduces boilerplate and tries to separate concerns into classes with one and only one job while also
+trying not to spiral and drown in abstraction. That's harder than it seems to an inexperienced programmer. There is a lot of
+re-writting that happened and that's invisible in the final product.
 
 ```
-gui
-├── component
-│   ├── Factory.java
-│   ├── MyButton.java
-│   ├── MyDialog.java
-│   ├── MyLabel.java
-│   └── MyPanel.java
-├── contract
-│   ├── Listener.java
-│   └── ToClear.java
-├── dashboard
-│   ├── Dashboard.java
-│   ├── Home.java
-│   ├── record
-│   │   ├── dialog
-│   │   │   ├── ForeignPicker.java
-│   │   │   ├── MultipleSelections.java
-│   │   │   ├── RangeSelection.java
-│   │   │   ├── RecordEditor.java
-│   │   │   └── SearchProfile.java
-│   │   ├── Record.java
-│   │   ├── TableView.java
-│   │   └── ToolBar.java
-│   ├── Records.java
-│   └── Sidebar.java
-├── MainApp.java
-├── Opts.java
-├── SignIn.java
-└── util
-    ├── Attribute.java
-    ├── FieldLabelFormatter.java
-    ├── FieldValueMapper.java
-    └── Parser.java
+src
+└── main
+    ├── java
+    │   ├── component
+    │   │   ├── Factory.java
+    │   │   ├── MyButton.java
+    │   │   ├── MyDialog.java
+    │   │   ├── MyLabel.java
+    │   │   └── MyPanel.java
+    │   ├── contract
+    │   │   ├── Listener.java
+    │   │   └── ToClear.java
+    │   ├── gui
+    │   │   ├── dashboard
+    │   │   │   ├── Dashboard.java
+    │   │   │   ├── Home.java
+    │   │   │   ├── record
+    │   │   │   │   ├── dialog
+    │   │   │   │   │   ├── ForeignPicker.java
+    │   │   │   │   │   ├── MultipleSelections.java
+    │   │   │   │   │   ├── RangeSelection.java
+    │   │   │   │   │   ├── RecordEditor.java
+    │   │   │   │   │   └── SearchProfile.java
+    │   │   │   │   ├── Record.java
+    │   │   │   │   ├── TableView.java
+    │   │   │   │   └── ToolBar.java
+    │   │   │   ├── Records.java
+    │   │   │   └── Sidebar.java
+    │   │   ├── MainApp.java
+    │   │   ├── Opts.java
+    │   │   └── SignIn.java
+    │   ├── mapper
+    │   │   ├── FieldEditorMapper.java
+    │   │   ├── FieldLabelFormatter.java
+    │   │   └── FieldValueMapper.java
 ```
+
+**gui package**
+
+The idea is that 1 UI Entity = 1 class = 1 file. Since there's no tag-based language to represent swing components I thought i
+would at least try to structure it to limit spagheti-like code but i wasn't really able to eliminate it.
+
+**contract package**
+
+Encapsulation using packages brought a problem of communication between components. The solution I found was using interfaces as
+contracts to communicate between elements (log in, log out, clear event, selections, ...). This fixed the problem that happens
+when separating a `SideBar` which naturally contains the buttons to navigate the dashboard. It only needs to fire a `HOME` event
+by calling the function defined in the `Listener` interface to communicate with the main container to switch the main visible panel.
 
 # TODOs
 
@@ -78,6 +111,6 @@ gui
 
 - fix the `MyDialog` implementations
 
-- Engineer a mapping layer to map data types to their corresponding input interface
+- Engineer a mapping layer to map data types to their corresponding input UI
 
 - Extract non-UI element classes out of the `gui` package

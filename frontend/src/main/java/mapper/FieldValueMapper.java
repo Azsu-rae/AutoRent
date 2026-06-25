@@ -1,4 +1,4 @@
-package gui.util;
+package mapper;
 
 import java.time.LocalDate;
 
@@ -6,17 +6,24 @@ import java.util.*;
 import java.util.function.*;
 
 import orm.Table;
+import orm.Table.Range;
 
 import static orm.Reflection.fieldsOf;
 
 public class FieldValueMapper {
 
-    private static Map<Class<?>, Function<String, Object>> parser = new HashMap<>();
+    private static Map<Class<?>, Function<String, Object>> formParser = new HashMap<>();
     static {
-        parser.put(Integer.class, Integer::parseInt);
-        parser.put(Double.class, Double::parseDouble);
-        parser.put(String.class, s -> s.equals("") ? null : s);
-        parser.put(LocalDate.class, s -> orm.Table.stringToDate(s));
+        formParser.put(Integer.class, Integer::parseInt);
+        formParser.put(Double.class, Double::parseDouble);
+        formParser.put(String.class, s -> s.equals("") ? null : s);
+        formParser.put(LocalDate.class, s -> orm.Table.stringToDate(s));
+    }
+
+    private String ORMModelName;
+
+    public FieldValueMapper(String ORMModelName) {
+        this.ORMModelName = ORMModelName;
     }
 
     static public Object[] getModifiablesAsObjects(Table tuple) {
@@ -27,7 +34,7 @@ public class FieldValueMapper {
     }
 
     static public Object parse(String ORMModelName, String attributeName, String valueAsString) {
-        return parser
+        return formParser
                 .get(fieldsOf(ORMModelName).typeOf(attributeName))
                 .apply(valueAsString);
     }
@@ -48,4 +55,18 @@ public class FieldValueMapper {
         return value;
     }
 
+    public class RangeParser {
+        String attributeName;
+
+        public RangeParser(String boundedAttribute) {
+            this.attributeName = boundedAttribute;
+        }
+
+        public Range parse(String lower, String upper) {
+            return new Range(
+                    attributeName,
+                    FieldValueMapper.parse(ORMModelName, attributeName, lower),
+                    FieldValueMapper.parse(ORMModelName, attributeName, upper));
+        }
+    }
 }
