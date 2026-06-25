@@ -1,6 +1,6 @@
 
 import orm.Table;
-import orm.model.*;
+import model.*;
 import orm.Table.Range;
 
 import java.util.Vector;
@@ -22,11 +22,15 @@ public class Main {
          *
          * This file serves as a test and a tutorial for using the backend.
          *
-         * The backend is an Object-Relational Mapping (ORM) system designed to interact with
-         * a SQLite database through Java objects, eliminating the need to write SQL queries manually.
-         * It supports CRUD operations (Create, Read, Update, Delete), which we will explore shortly.
+         * The backend is an Object-Relational Mapping (ORM) system designed to interact
+         * with
+         * a SQLite database through Java objects, eliminating the need to write SQL
+         * queries manually.
+         * It supports CRUD operations (Create, Read, Update, Delete), which we will
+         * explore shortly.
          *
-         * Careful reviewing of this file should provide a clear understanding of how to utilize
+         * Careful reviewing of this file should provide a clear understanding of how to
+         * utilize
          * the ORM effectively.
          *
          * Hope this helps!
@@ -39,7 +43,8 @@ public class Main {
 
         Client ilyas = new Client("Ilyas", "Ait-Ameur", "aitameurmedilyas@gmail.com", "0560308452", "DKSF23");
 
-        // creates a client. It is not, however, immediately inputed in the database. For that you'll have to
+        // creates a client. It is not, however, immediately inputed in the database.
+        // For that you'll have to
         // add it using the method:
 
         boolean success = ilyas.add() >= 1;
@@ -48,61 +53,81 @@ public class Main {
             System.out.println("\nThe object 'ilyas' was successfully inserted in the DB!");
         }
 
-        // And as you can see, the method returns the number affected rows in the operation.
+        // And as you can see, the method returns the number affected rows in the
+        // operation.
         //
         // Note:
-        //  ->  this mehtod will also create the database file and the clients SQLite table automatically.
-        //  ->  for the clients SQLite table, all the object's attributes have to be != null in order to
-        //      be valid for insertion. Similarily, All models check for validity before insertion.
-        //      You can check for validity yourself using 'ilyas.isValid()'.
-        //      The method checks wether there are any non-nullable attributes that are, well, null.
+        // -> this mehtod will also create the database file and the clients SQLite
+        // table automatically.
+        // -> for the clients SQLite table, all the object's attributes have to be !=
+        // null in order to
+        // be valid for insertion. Similarily, All models check for validity before
+        // insertion.
+        // You can check for validity yourself using 'ilyas.isValid()'.
+        // The method checks wether there are any non-nullable attributes that are,
+        // well, null.
         //
-        //      In case the tuple is invalid for insertion, the .add() method fails and returns 0.
+        // In case the tuple is invalid for insertion, the .add() method fails and
+        // returns 0.
 
-        // Knowing that memorizing the order of the attributes in a constructor has to be tiring, and
-        // in favor of convenience, the setters for each model return the object itself allowing for
+        // Knowing that memorizing the order of the attributes in a constructor has to
+        // be tiring, and
+        // in favor of convenience, the setters for each model return the object itself
+        // allowing for
         // method chaining. For example:
 
         var c = new Client()
-            .setName("Hicham")
-            .setSurname("Gaceb")
-            .setEmail("hichamgaceb@gmail.com")
-            .setPhoneNumber("05483729493")
-            .setDrivingLicence("KSDU343")
-            .add(); // finally adding it to the DB
+                .setName("Hicham")
+                .setSurname("Gaceb")
+                .setEmail("hichamgaceb@gmail.com")
+                .setPhoneNumber("05483729493")
+                .setDrivingLicence("KSDU343")
+                .add(); // finally adding it to the DB
 
-        // this approach is more readable and should allow the user to create an object without having to
+        // this approach is more readable and should allow the user to create an object
+        // without having to
         // write too many 'null' values in a constructor.
 
         // For tables like vehicles that have non-string attributes,
 
         Vehicle v = new Vehicle(29.99, "Available", "2024-12-01", 2022, "Toyota", "Corolla", "Sedan", "Gasoline");
 
-        // For tables that have foreign keys, you have to pass the foreing key's java instantiation.
-        // if the sent tuples don't have an ID field, the construction will fail and throw an exception.
+        // For tables that have foreign keys, you have to pass the foreing key's java
+        // instantiation.
+        // if the sent tuples don't have an ID field, the construction will fail and
+        // throw an exception.
         //
 
-        // here c and v weren't retrieved from the database and therefore do not have an ID. Thus,
+        // here c and v weren't retrieved from the database and therefore do not have an
+        // ID. Thus,
         //
-        //          Reservation r = new Reservation(c, v, "2022-01-01", "2022-02-01");
+        // Reservation r = new Reservation(c, v, "2022-01-01", "2022-02-01");
         //
-        // will throw an IllegalArgumentException because c and v don't have an ID. If you wish
+        // will throw an IllegalArgumentException because c and v don't have an ID. If
+        // you wish
         // to create objects with tuples make sure you retrieve those from the database.
         //
-        // you can check if the tuple is valid and has an ID field using Table.isTuple(<your tuple>)
+        // you can check if the tuple is valid and has an ID field using
+        // Table.isTuple(<your tuple>)
 
-        // ---------------------- THE SEARCH METHOD -------------------------------------
+        // ---------------------- THE SEARCH METHOD
+        // -------------------------------------
 
-        // Reading through the models' tables was made as easy as possible. The search methods takes in two
+        // Reading through the models' tables was made as easy as possible. The search
+        // methods takes in two
         // kind of arguments:
         //
-        //  - A tuple ('tuple' refers to a SQLite table line, but in this case it means a model's instance)
-        //  \-> for discrete-valued attributes (like a brand in the case a vehicle or a client's name)
+        // - A tuple ('tuple' refers to a SQLite table line, but in this case it means a
+        // model's instance)
+        // \-> for discrete-valued attributes (like a brand in the case a vehicle or a
+        // client's name)
         //
-        //  - A range that can be represented in a Pair-type variable.
-        //  \-> for continuous-valued attriubtes  (like the price per day of a car or a date range)
+        // - A range that can be represented in a Pair-type variable.
+        // \-> for continuous-valued attriubtes (like the price per day of a car or a
+        // date range)
         //
-        // Both of these can be in vectors when the criterias's values within a same attribute are multiple
+        // Both of these can be in vectors when the criterias's values within a same
+        // attribute are multiple
         // (for discrete criterias) or when we have multiple range-type attributes
         //
         // The tuples can be stored in any Table-inherited references.
@@ -137,7 +162,7 @@ public class Main {
         // Passing an incorrect attribute name will throw an exception, so be careful.
         // Of course the range values's type has to be correct. For example
         //
-        //              Vehicle.search("year", 2020.0, 2024.0)
+        // Vehicle.search("year", 2020.0, 2024.0)
         //
         // will throw an exception as 'year' is an integer
 
@@ -153,9 +178,8 @@ public class Main {
         // Sedans from Nissan
         Vector<Table> sedansFromNissan = Vehicle.search(
                 new Vehicle()
-                    .setVehicleType("Sedan")
-                    .setBrand("Nissan")
-        );
+                        .setVehicleType("Sedan")
+                        .setBrand("Nissan"));
         print(sedansFromNissan, "Sedans from Nissan");
 
         // BMWs and Toyotas
@@ -166,12 +190,13 @@ public class Main {
         Vector<Table> bt = Vehicle.search(BMWsToyotasCriteria);
         print(bt, "BMWs or Toyotas");
 
-        // NOTE: passing an empty array will throw an exception. If you don't need to filter
+        // NOTE: passing an empty array will throw an exception. If you don't need to
+        // filter
         // and want all tuples use search()
 
         // Recent cheap vehicles (different method for multiple ranges: searchRanges())
         Vector<Range> newCheapVehicleCriteria = new Vector<>();
-        newCheapVehicleCriteria.add(new Range("year", 2020,2024));
+        newCheapVehicleCriteria.add(new Range("year", 2020, 2024));
         newCheapVehicleCriteria.add(new Range("pricePerDay", 30.0, 40.0));
         Vector<Table> newCheapVehicles = Vehicle.searchRanges(newCheapVehicleCriteria);
         print(newCheapVehicles, "New Cheap Vehicles");
@@ -181,13 +206,17 @@ public class Main {
         print(dream, "The Dream");
 
         // If you want to perform a search without having to type in the name of class,
-        // (for more general work) it is possible to use Table.search() but then you would
+        // (for more general work) it is possible to use Table.search() but then you
+        // would
         // need to provide either:
-        //  ->  at least one instance of the model you are searching for. (e.g. Table.search(new Client())
-        //      or any varient as long as you provide at least one instance of what you are searching for
-        //  ->  The name of model to search in (e.g. Table.search("Reservation")) if there are no criterias
+        // -> at least one instance of the model you are searching for. (e.g.
+        // Table.search(new Client())
+        // or any varient as long as you provide at least one instance of what you are
+        // searching for
+        // -> The name of model to search in (e.g. Table.search("Reservation")) if there
+        // are no criterias
         //
-        //      NOTE: Passing a wrong class name will throw an IllegalArgumentException
+        // NOTE: Passing a wrong class name will throw an IllegalArgumentException
 
         // SPECIAL CASE 1: RESERVATION DATE RANGES
 
@@ -195,7 +224,8 @@ public class Main {
         Vector<Table> maintenancesIn2024 = Vehicle.search("maintenanceDate", "2024-01-01", "2024-12-31");
         print(maintenancesIn2024, "All 2024 Vehicles Maintenances");
 
-        // But in the case of Reservations, since a reservation's period has two dates, the given range
+        // But in the case of Reservations, since a reservation's period has two dates,
+        // the given range
         // would include all the reservations whose ranges intersect with the given one.
 
         // Let's input some Reservations in the DB, and then print them to the console
@@ -205,10 +235,12 @@ public class Main {
         // Let's start by deleting everything we have
         clients = Client.search();
         for (Table client : clients) {
-            if (client.delete() >= 1) {}
+            if (client.delete() >= 1) {
+            }
             // deletes from the database using the ID
             // the deletion will be cascaded to all the models that reference
-            // a Client object. It will be set to null in case the reference is nullable, deleted otherwise
+            // a Client object. It will be set to null in case the reference is nullable,
+            // deleted otherwise
         }
 
         // Now let's add some good examples
@@ -223,7 +255,8 @@ public class Main {
         new Client("Lucas", "Orange", "lucas.orange@example.com", "9517534860", "NOP85246").add();
         new Client("Olivia", "Yellow", "olivia.yellow@example.com", "3579514860", "QRS74125").add();
 
-        // Let's get them (we didn't do this with the previously created clients because they don't have an ID,
+        // Let's get them (we didn't do this with the previously created clients because
+        // they don't have an ID,
         // which is given by the DB)
         clients = Client.search();
 
@@ -234,8 +267,9 @@ public class Main {
         createdReservations.add(new Reservation().setStartDate("2024-12-23").setEndDate("2025-01-11"));
         createdReservations.add(new Reservation().setStartDate("2024-12-24").setEndDate("2025-01-12"));
 
-        for (int i=0;i<createdReservations.size();i++) {
-            Reservation r = createdReservations.elementAt(i).setVehicle((Vehicle)vehicles.elementAt(i)).setClient((Client) clients.elementAt(i));
+        for (int i = 0; i < createdReservations.size(); i++) {
+            Reservation r = createdReservations.elementAt(i).setVehicle((Vehicle) vehicles.elementAt(i))
+                    .setClient((Client) clients.elementAt(i));
             if (r.add() < 1) {
                 error("ISSUE!");
             }
@@ -246,7 +280,8 @@ public class Main {
 
         // Now to get to the point, we'll try a search
 
-        // returns all reservations that intersects with the given intervall (Always pass the name of
+        // returns all reservations that intersects with the given intervall (Always
+        // pass the name of
         // the lowerBound when looking for intersections)
         Vector<Table> intersectedPeriods = Reservation.search("startDate", "2024-12-15", "2024-12-25");
 
@@ -269,8 +304,9 @@ public class Main {
 
         // SPECIAL CASE 2: CLIENT AND USER'S NAMES
 
-        // Normally, doing search is a discrete attribute would simply compare them, but it's different for the Client
-        // and  User table.
+        // Normally, doing search is a discrete attribute would simply compare them, but
+        // it's different for the Client
+        // and User table.
 
         // Case insensitive, check for name and surname.
         Vector<Table> clientsWhoseNameStartWithJ = Client.search(new Client().setName("j"));
@@ -278,7 +314,8 @@ public class Main {
 
         // EDITING:
 
-        // For example, let's set all the client's whose name start with 'j' to have the same name and surname:
+        // For example, let's set all the client's whose name start with 'j' to have the
+        // same name and surname:
         for (Table client : clientsWhoseNameStartWithJ) {
             Client curr = (Client) client;
             curr.setName("Gaceb");
@@ -288,12 +325,14 @@ public class Main {
         }
 
         /*
-         * We didn't really talk about the other 3 classes left, but they're workings are similar to what we saw.
+         * We didn't really talk about the other 3 classes left, but they're workings
+         * are similar to what we saw.
          *
-         *  - User is a like Client
-         *  - Return and Payment are like Reservation
+         * - User is a like Client
+         * - Return and Payment are like Reservation
          *
-         *  All that is left is to check the attributes and constructors of each class to know and that's it!
+         * All that is left is to check the attributes and constructors of each class to
+         * know and that's it!
          *
          */
     }

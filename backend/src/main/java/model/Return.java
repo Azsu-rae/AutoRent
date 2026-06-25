@@ -1,4 +1,4 @@
-package orm.model;
+package model;
 
 import orm.Table;
 
