@@ -34,6 +34,42 @@ It was overall a great learning experience.
 - Encapsulation using packages
 - Using interfaces as contracts to communicate between elements (log in, log out, clear event, selections, ...)
 
+```
+gui
+├── component
+│   ├── Factory.java
+│   ├── MyButton.java
+│   ├── MyDialog.java
+│   ├── MyLabel.java
+│   └── MyPanel.java
+├── contract
+│   ├── Listener.java
+│   └── ToClear.java
+├── dashboard
+│   ├── Dashboard.java
+│   ├── Home.java
+│   ├── record
+│   │   ├── dialog
+│   │   │   ├── ForeignPicker.java
+│   │   │   ├── MultipleSelections.java
+│   │   │   ├── RangeSelection.java
+│   │   │   ├── RecordEditor.java
+│   │   │   └── SearchProfile.java
+│   │   ├── Record.java
+│   │   ├── TableView.java
+│   │   └── ToolBar.java
+│   ├── Records.java
+│   └── Sidebar.java
+├── MainApp.java
+├── Opts.java
+├── SignIn.java
+└── util
+    ├── Attribute.java
+    ├── FieldLabelFormatter.java
+    ├── FieldValueMapper.java
+    └── Parser.java
+```
+
 # TODOs
 
 - `./frontend/src/main/java/gui/util/Parser.java` does too much. Extract the string/name management into a separate class
@@ -43,3 +79,5 @@ It was overall a great learning experience.
 - fix the `MyDialog` implementations
 
 - Engineer a mapping layer to map data types to their corresponding input interface
+
+- Extract non-UI element classes out of the `gui` package

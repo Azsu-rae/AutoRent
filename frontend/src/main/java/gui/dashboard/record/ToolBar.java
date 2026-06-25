@@ -9,10 +9,10 @@ import gui.dashboard.record.dialog.RangeSelection;
 import gui.dashboard.record.dialog.SearchProfile;
 import gui.dashboard.record.dialog.ForeignPicker;
 import gui.dashboard.record.dialog.MultipleSelections;
-import gui.util.Attribute;
-import gui.component.Factory;
-import gui.component.MyButton;
-import gui.component.MyPanel;
+import util.Attribute;
+import component.Factory;
+import component.MyButton;
+import component.MyPanel;
 
 import orm.Table.Range;
 import orm.util.Console;
@@ -23,10 +23,10 @@ import orm.Reflection.FieldInfos;
 import static orm.Reflection.getModelInstance;
 import static orm.Reflection.fieldsOf;
 
-import static gui.util.FieldLabelFormatter.formatName;
-import static gui.util.FieldLabelFormatter.titleCase;
+import static util.FieldLabelFormatter.formatName;
+import static util.FieldLabelFormatter.titleCase;
 
-public class ToolBar extends JToolBar {
+class ToolBar extends JToolBar {
 
     private Map<String, List<Attribute<?>>> discreteValues = new HashMap<>();
 

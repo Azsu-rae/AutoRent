@@ -2,8 +2,8 @@ package gui.dashboard;
 
 import java.awt.*;
 
-import gui.contract.*;
-import gui.component.MyPanel;
+import contract.*;
+import component.MyPanel;
 
 public class Dashboard extends MyPanel implements Listener {
 
@@ -11,6 +11,7 @@ public class Dashboard extends MyPanel implements Listener {
     MyPanel panels = new MyPanel(cardLayout);
 
     Listener listener;
+
     public Dashboard(Listener listener) {
         this.listener = listener;
 

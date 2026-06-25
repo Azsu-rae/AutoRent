@@ -10,16 +10,16 @@ import javax.swing.table.DefaultTableModel;
 
 import gui.Opts;
 
-import gui.contract.*;
-import gui.contract.Listener.Event;
+import contract.*;
+import contract.Listener.Event;
 
-import gui.util.FieldLabelFormatter;
-import gui.util.FieldValueMapper;
+import util.FieldLabelFormatter;
+import util.FieldValueMapper;
 
 import orm.Table;
 import orm.Reflection;
 
-public class TableView extends JScrollPane implements ToClear {
+class TableView extends JScrollPane implements ToClear {
 
     private ListSelectionListener selectionListener;
     private DefaultTableModel defaultTableModel;

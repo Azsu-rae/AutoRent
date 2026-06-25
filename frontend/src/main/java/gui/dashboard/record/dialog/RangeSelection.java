@@ -6,17 +6,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import gui.component.*;
-import gui.util.Attribute;
+import component.*;
+import util.Attribute;
 
 import orm.Reflection;
 import orm.Table.Range;
 import orm.util.Console;
 
-import static gui.util.Parser.titleCase;
-import static gui.util.Parser.getMin;
-import static gui.util.Parser.getMax;
-import static gui.util.Parser.parse;
+import static util.Parser.titleCase;
+import static util.Parser.getMin;
+import static util.Parser.getMax;
+import static util.Parser.parse;
 
 public class RangeSelection extends MyDialog<Range> {
 

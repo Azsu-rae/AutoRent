@@ -1,4 +1,4 @@
-package gui.contract;
+package contract;
 
 public interface Listener {
 

@@ -1,4 +1,4 @@
-package gui.component;
+package component;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

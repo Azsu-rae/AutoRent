@@ -6,10 +6,10 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import gui.contract.Listener;
-import gui.dashboard.record.dialog.Editor;
-import gui.component.MyButton;
-import gui.component.MyPanel;
+import contract.Listener;
+import gui.dashboard.record.dialog.RecordEditor;
+import component.MyButton;
+import component.MyPanel;
 
 public class Record extends MyPanel implements Listener {
 
@@ -57,7 +57,7 @@ public class Record extends MyPanel implements Listener {
 
     private void onAdd() {
         String topMsg = String.format("Add a new %s", ORMModelName.toLowerCase());
-        new Editor(topMsg, ORMModelName, tuple -> {
+        new RecordEditor(topMsg, ORMModelName, tuple -> {
             tuple.add();
             tableView.loadData();
             JOptionPane.showMessageDialog(this, ORMModelName + " added successfully!");
@@ -66,7 +66,7 @@ public class Record extends MyPanel implements Listener {
 
     private void onEdit() {
         var toEdit = tableView.parseSelectedRow();
-        new Editor("Edit Field", ORMModelName, newValue -> {
+        new RecordEditor("Edit Field", ORMModelName, newValue -> {
             for (var field : toEdit.reflect.fields.modifiable()) {
                 toEdit.reflect.fields.set(field, newValue.reflect.fields.get(field));
             }

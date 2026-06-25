@@ -5,8 +5,8 @@ import java.awt.*;
 
 import java.util.function.Function;
 
-import gui.component.*;
-import gui.util.Attribute;
+import component.*;
+import util.Attribute;
 
 import static orm.Reflection.getModelInstance;
 

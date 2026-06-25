@@ -1,4 +1,4 @@
-package gui.component;
+package component;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import gui.util.Parser;
+import util.Parser;
 
 public class Factory {
 

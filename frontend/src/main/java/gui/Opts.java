@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import gui.contract.ToClear;
+import contract.ToClear;
 
 public class Opts {
 

@@ -8,9 +8,9 @@ import java.util.*;
 import java.util.List;
 import java.util.function.Function;
 
-import gui.util.Attribute;
-import gui.util.Parser;
-import gui.component.*;
+import util.Attribute;
+import util.Parser;
+import component.*;
 
 public class SearchProfile extends MyDialog<List<Attribute<String>>> {
 

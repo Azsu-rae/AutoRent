@@ -1,7 +1,8 @@
 package gui.dashboard;
 
-import gui.component.MyPanel;
+import component.MyPanel;
 
 public class Home extends MyPanel {
-    public Home() {}
+    public Home() {
+    }
 }

@@ -6,34 +6,34 @@ import java.awt.*;
 import java.util.*;
 import java.util.function.Consumer;
 
-import gui.component.*;
-import gui.component.Factory.Field;
+import component.*;
+import component.Factory.Field;
 
-import gui.util.FieldLabelFormatter;
-import gui.util.FieldValueMapper;
+import util.FieldLabelFormatter;
+import util.FieldValueMapper;
 
 import orm.Table;
 
 import static orm.Reflection.fieldsOf;
 import static orm.Reflection.getModelInstance;
 
-import static gui.util.Parser.parse;
+import static gui.util.FieldValueMapper.parse;
 import static gui.component.Factory.createField;
 
-public class Editor extends MyDialog<Table> {
+public class RecordEditor extends MyDialog<Table> {
 
     private Map<String, JTextField> fields = new HashMap<>();
 
     private Table tuple;
     private String ORMModelName;
 
-    public Editor(String title, String ORMModelName, Consumer<Table> callback, Table tuple) {
+    public RecordEditor(String title, String ORMModelName, Consumer<Table> callback, Table tuple) {
         super(title, callback);
         this.ORMModelName = ORMModelName;
         this.tuple = tuple;
     }
 
-    public Editor(String title, String ORMModelName, Consumer<Table> callback) {
+    public RecordEditor(String title, String ORMModelName, Consumer<Table> callback) {
         this(title, ORMModelName, callback, null);
     }
 

@@ -2,9 +2,9 @@ package gui.dashboard.record.dialog;
 
 import gui.dashboard.record.Record;
 
-import gui.component.MyButton;
-import gui.component.MyDialog;
-import gui.component.MyPanel;
+import component.MyButton;
+import component.MyDialog;
+import component.MyPanel;
 import orm.Table;
 
 import java.awt.Dimension;
