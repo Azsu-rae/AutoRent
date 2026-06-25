@@ -2,7 +2,7 @@ package orm.model;
 
 import orm.Table;
 
-import orm.util.Constraints;
+import orm.Constraints;
 
 import java.time.LocalDate;
 import java.util.Vector;
@@ -31,9 +31,11 @@ public class Vehicle extends Table {
     @Constraints(type = "TEXT", enumerated = true)
     private String fuelType;
 
-    public Vehicle() {}
+    public Vehicle() {
+    }
 
-    public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model, String vehicleType, String fuelType) {
+    public Vehicle(Double pricePerDay, String state, String maintenanceDate, Integer year, String brand, String model,
+            String vehicleType, String fuelType) {
         this.pricePerDay = pricePerDay;
         this.state = state;
         this.maintenanceDate = stringToDate(maintenanceDate);

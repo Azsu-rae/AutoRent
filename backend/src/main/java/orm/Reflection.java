@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 public class Reflection {
 
-    static Map<Class<? extends Table>,FieldInfos> fieldInfos = new HashMap<>();
+    static Map<Class<? extends Table>, FieldInfos> fieldInfos = new HashMap<>();
     static String qualifiedPackageName = "orm.model.";
 
     public static void loadModels(String[] modelNames) {
@@ -26,7 +26,8 @@ public class Reflection {
         if (!Table.hasSubClass(modelName)) {
             String s = "Bad class name: %s";
             throw new IllegalArgumentException(String.format(s, modelName));
-        } return fieldInfos.get(getModel(modelName));
+        }
+        return fieldInfos.get(getModel(modelName));
     }
 
     public FieldUtils fields;
@@ -49,7 +50,7 @@ public class Reflection {
 
     private static Class<?>[] objectArrayToTypeArray(Object[] objs) {
         Class<?>[] types = new Class<?>[objs.length];
-        for (int i=0;i<objs.length;i++) {
+        for (int i = 0; i < objs.length; i++) {
             types[i] = objs[i].getClass();
         }
         return types;
@@ -126,7 +127,8 @@ public class Reflection {
             if (field.getType().equals(tuple.getClass())) {
                 referencingFields.add(field);
             }
-        } return referencingFields;
+        }
+        return referencingFields;
     }
 
     // Default-valued instance methods
@@ -179,7 +181,8 @@ public class Reflection {
         } catch (IllegalAccessException e) {
             error(e);
             throw new BugDetectedException("Bad Reflection Argument!");
-        } return tuple;
+        }
+        return tuple;
     }
 
     static private Object getFieldValue(Table tuple, Field field) {
@@ -210,7 +213,7 @@ public class Reflection {
         } catch (IllegalAccessException | InstantiationException e) {
             error(e);
             throw new BugDetectedException("Bad Reflection Argument!");
-        } 
+        }
     }
 
     static private Constructor<?> getConstructor(Class<?> model, Class<?>[] types) {
@@ -234,8 +237,8 @@ public class Reflection {
 
     static public class FieldInfos {
 
-        protected Map<String,List<String>> modifiable = new HashMap<>();
-        protected Map<String,Field> fieldByName;
+        protected Map<String, List<String>> modifiable = new HashMap<>();
+        protected Map<String, Field> fieldByName;
         protected Field[] fields;
 
         public int count;
@@ -245,6 +248,7 @@ public class Reflection {
         public List<String> bounded, discrete;
 
         Class<? extends Table> model;
+
         private FieldInfos(Class<? extends Table> model) {
             this.model = model;
 
@@ -254,13 +258,15 @@ public class Reflection {
                 if (!Modifier.isStatic(field.getModifiers())) {
                     filteredModelFields.add(field);
                 }
-            } var modelFields = filteredModelFields.toArray(Field[]::new);
+            }
+            var modelFields = filteredModelFields.toArray(Field[]::new);
 
-            Field[] effectiveFields = new Field[modelFields.length+1];
+            Field[] effectiveFields = new Field[modelFields.length + 1];
             effectiveFields[0] = Reflection.getField(Table.class, "id");
-            for (int i=0;i<modelFields.length;i++) {
-                effectiveFields[i+1] = modelFields[i];
-            } this.fields = effectiveFields;
+            for (int i = 0; i < modelFields.length; i++) {
+                effectiveFields[i + 1] = modelFields[i];
+            }
+            this.fields = effectiveFields;
 
             this.count = fields.length;
             this.names = new String[count];
@@ -270,13 +276,14 @@ public class Reflection {
             this.fieldByName = new HashMap<>();
             this.constraints = new Constraints[count];
 
-            for (int i=0;i<count;i++) {
+            for (int i = 0; i < count; i++) {
 
                 names[i] = fields[i].getName();
                 types[i] = fields[i].getType();
                 constraints[i] = fields[i].getAnnotation(Constraints.class);
                 if (constraints[i] == null) {
-                    throw new BugDetectedException(String.format("getAnnotation() return 'null' when called on %s", fields[i]));
+                    throw new BugDetectedException(
+                            String.format("getAnnotation() return 'null' when called on %s", fields[i]));
                 }
 
                 if (constraints[i].bounded() || constraints[i].lowerBound()) {
@@ -296,17 +303,19 @@ public class Reflection {
                     if (hasSetter(model, att, visibleTypeOf(att))) {
                         list.add(att);
                     }
-                } return list;
+                }
+                return list;
             });
         }
 
-        public List<String> haveConstraint(Function<Constraints,Boolean> check) {
+        public List<String> haveConstraint(Function<Constraints, Boolean> check) {
             var fields = new ArrayList<String>();
-            for (int i=0;i<count;i++) {
+            for (int i = 0; i < count; i++) {
                 if (check.apply(constraints[i])) {
                     fields.add(names[i]);
                 }
-            } return fields;
+            }
+            return fields;
         }
 
         public Constraints constraintsOf(String name) {
@@ -325,7 +334,8 @@ public class Reflection {
             Class<?> type = typeOf(name);
             if (type.equals(LocalDate.class)) {
                 type = String.class;
-            } return type;
+            }
+            return type;
         }
     }
 
@@ -357,7 +367,8 @@ public class Reflection {
             if (!discrete.contains(attName)) {
                 String s = "%s is not a discrete criteria!";
                 throw new IllegalArgumentException(String.format(s, attName));
-            } return set(attName, value);
+            }
+            return set(attName, value);
         }
 
         public void callSetter(String attribute, Object value) {

@@ -2,7 +2,7 @@ package orm.model;
 
 import orm.Table;
 
-import orm.util.Constraints;
+import orm.Constraints;
 
 import java.util.Vector;
 import java.util.Objects;
@@ -33,7 +33,8 @@ public class Reservation extends Table {
     @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String status;
 
-    public Reservation() {}
+    public Reservation() {
+    }
 
     public Reservation(Client client, Vehicle vehicle, String startDate, String endDate) {
         setClient(client);
@@ -47,20 +48,23 @@ public class Reservation extends Table {
     public int add() {
         if (hasConflict()) {
             return 0;
-        } return super.add();
+        }
+        return super.add();
     }
 
     @Override
     public int edit() {
         if (hasConflict()) {
             return 0;
-        } return super.add();
+        }
+        return super.add();
     }
 
     private void setTotalAmountAndStatus() {
         if (vehicle != null && startDate != null && endDate != null) {
-            totalAmount = (ChronoUnit.DAYS.between(startDate, endDate)+1)*vehicle.getPricePerDay();
-        } updateStatus();
+            totalAmount = (ChronoUnit.DAYS.between(startDate, endDate) + 1) * vehicle.getPricePerDay();
+        }
+        updateStatus();
     }
 
     public void updateStatus() {
@@ -76,9 +80,8 @@ public class Reservation extends Table {
 
     private boolean isOngoing() {
         LocalDate currentDate = LocalDate.now();
-        return 
-            (currentDate.isAfter(startDate) || currentDate.isEqual(startDate))
-            && (currentDate.isBefore(endDate) || currentDate.isEqual(endDate));
+        return (currentDate.isAfter(startDate) || currentDate.isEqual(startDate))
+                && (currentDate.isBefore(endDate) || currentDate.isEqual(endDate));
     }
 
     public boolean hasConflict() {
@@ -92,7 +95,8 @@ public class Reservation extends Table {
         }
 
         Vector<Table> conflicts = new Vector<>();
-        for (Table tuple : search(new Reservation().setVehicle(vehicle), "startDate", startDate.toString(), endDate.toString())) {
+        for (Table tuple : search(new Reservation().setVehicle(vehicle), "startDate", startDate.toString(),
+                endDate.toString())) {
             Reservation r = (Reservation) tuple;
             if (!r.getStatus().equals(CANCELED)) {
                 conflicts.add(r);
@@ -103,9 +107,8 @@ public class Reservation extends Table {
         boolean hasConflict = (conflicts.size() != 0) && !conflicts.elementAt(0).equals(this);
         if (hasConflict) {
             error(
-                "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n%s",
-                conflicts.size(), this, Console.toString(conflicts)
-            );
+                    "Found %d conflicts trying to input\n\n%s\n\nTake a look for yourself:\n\n%s",
+                    conflicts.size(), this, Console.toString(conflicts));
         }
 
         return hasConflict;
@@ -120,7 +123,8 @@ public class Reservation extends Table {
         if (c != null && c.isTupleOrElseThrow()) {
             this.client = c;
             setTotalAmountAndStatus();
-        } return this;
+        }
+        return this;
     }
 
     public Reservation setVehicle(Vehicle v) {
@@ -128,7 +132,8 @@ public class Reservation extends Table {
         if (v != null && v.isTupleOrElseThrow()) {
             this.vehicle = v;
             setTotalAmountAndStatus();
-        } return this;
+        }
+        return this;
     }
 
     public Reservation setStartDate(String startDate) {

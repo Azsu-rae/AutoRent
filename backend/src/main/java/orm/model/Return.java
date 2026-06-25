@@ -2,7 +2,7 @@ package orm.model;
 
 import orm.Table;
 
-import orm.util.Constraints;
+import orm.Constraints;
 
 import java.time.LocalDate;
 import java.util.Vector;
@@ -23,7 +23,8 @@ public class Return extends Table {
     @Constraints(type = "DECIMAL", nullable = false, bounded = true)
     private Double additionalFees;
 
-    public Return() {}
+    public Return() {
+    }
 
     public Return(Reservation reservation, String returnDate, String returnState, Double additionalFees) {
         setReservation(reservation);
@@ -35,7 +36,8 @@ public class Return extends Table {
     public Return setReservation(Reservation r) {
         if (r != null && r.isTupleOrElseThrow()) {
             this.reservation = r;
-        } return this;
+        }
+        return this;
     }
 
     public Return setReturnDate(String returnDate) {

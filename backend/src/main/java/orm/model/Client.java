@@ -1,7 +1,7 @@
 package orm.model;
 
 import orm.Table;
-import orm.util.Constraints;
+import orm.Constraints;
 
 import java.util.Vector;
 
@@ -29,7 +29,8 @@ public class Client extends Table {
         return this;
     }
 
-    public Client() {}
+    public Client() {
+    }
 
     public Client(String name, String surname, String email, String phoneNumber, String drivingLicence) {
         this.name = name;

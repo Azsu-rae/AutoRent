@@ -1,7 +1,7 @@
 package orm.model;
 
 import orm.Table;
-import orm.util.Constraints;
+import orm.Constraints;
 
 import java.util.Vector;
 
@@ -24,7 +24,8 @@ public class User extends Table {
     @Constraints(type = "TEXT", nullable = false, enumerated = true)
     private String role;
 
-    public User() {}
+    public User() {
+    }
 
     public User(String name, String surname, String email, String password, String role) {
         this.name = name;
@@ -36,7 +37,7 @@ public class User extends Table {
 
     public static boolean authenticate(String id, String password) {
         return search(new User().setEmail(id).setPassword(password)).size() >= 1
-            || search(new User().setUsername(id).setPassword(password)).size() >= 1;
+                || search(new User().setUsername(id).setPassword(password)).size() >= 1;
     }
 
     public User setSurname(String surname) {

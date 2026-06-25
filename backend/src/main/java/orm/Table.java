@@ -22,7 +22,7 @@ import java.io.File;
 import orm.Reflection.FieldInfos;
 import orm.util.BugDetectedException;
 import orm.util.Console;
-import orm.util.Constraints;
+import orm.Constraints;
 import orm.util.Pair;
 
 import static orm.util.Console.error;
@@ -40,12 +40,13 @@ public abstract class Table {
     // loading subclasses into the JVM
     private static Set<Class<? extends Table>> models = new HashSet<>();
     static {
-        Reflection.loadModels(new String[] {"Client", "Vehicle", "Reservation", "Return", "Payment", "User"});
+        Reflection.loadModels(new String[] { "Client", "Vehicle", "Reservation", "Return", "Payment", "User" });
     }
 
     // ID given by the DB, so no setter
     @Constraints(type = "INTEGER", primaryKey = true)
     protected Integer id;
+
     public Integer getId() {
         return this.id;
     }
@@ -53,6 +54,7 @@ public abstract class Table {
     // Reflection is used to access subclasse (model) specifics
     public final Reflection reflect;
     final SQLiteQueryConstructor query;
+
     protected Table() {
         this.reflect = new Reflection(this);
         this.query = new SQLiteQueryConstructor(this);
@@ -65,7 +67,7 @@ public abstract class Table {
         StringBuilder s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
 
         boolean first = true;
-        for (int i=1;i<reflect.fields.count;i++) {
+        for (int i = 1; i < reflect.fields.count; i++) {
 
             Object curr = reflect.fields.get(i);
             if (curr == null) {
@@ -80,8 +82,8 @@ public abstract class Table {
                 }
                 s.append("|\n+->");
             } else {
-                    s.append((first ? " Attributes: (" : ", " ) + curr.toString());
-                    first = false;
+                s.append((first ? " Attributes: (" : ", ") + curr.toString());
+                first = false;
             }
         }
         s.append(first ? " EMPTY" : ")");
@@ -131,7 +133,7 @@ public abstract class Table {
         Vector<Table> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template())) {
+                PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template())) {
 
             bindValues(pstmt, preparedQuery.values());
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
@@ -153,7 +155,7 @@ public abstract class Table {
         int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             Statement stmt = conn.createStatement();) {
+                Statement stmt = conn.createStatement();) {
 
             stmt.execute(query.define.table());
 
@@ -163,7 +165,8 @@ public abstract class Table {
             pstmt.close();
 
         } catch (SQLException e) {
-            throw new BugDetectedException(String.format("%s\n\nTable creation query:\n\n%s\n\nInsert: %s", e, query.define.table(), preparedQuery.template()));
+            throw new BugDetectedException(String.format("%s\n\nTable creation query:\n\n%s\n\nInsert: %s", e,
+                    query.define.table(), preparedQuery.template()));
         }
 
         return affected;
@@ -184,7 +187,7 @@ public abstract class Table {
         int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
+                PreparedStatement pstmt = conn.prepareStatement(statement.template())) {
 
             bindValues(pstmt, statement.values());
             affected = pstmt.executeUpdate();
@@ -216,7 +219,7 @@ public abstract class Table {
         int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, this.id);
             affected = pstmt.executeUpdate();
@@ -246,8 +249,8 @@ public abstract class Table {
         boolean ans = false;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(String.format(checkTable, query.tableName))) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(String.format(checkTable, query.tableName))) {
 
             ans = rs.next();
 
@@ -263,7 +266,7 @@ public abstract class Table {
     public boolean isValid() {
 
         boolean valid = true;
-        for (int i=1;i<reflect.fields.count;i++) {
+        for (int i = 1; i < reflect.fields.count; i++) {
             Constraints col = reflect.fields.constraints[i];
             if (!col.nullable() && reflect.fields.get(i) == null) {
                 valid = false;
@@ -284,7 +287,8 @@ public abstract class Table {
         if (!isTuple(this)) {
             String s = "Illegal attempt of insertion! Invalid %s:\n\n%s";
             throw new IllegalArgumentException(String.format(s, getClass().getSimpleName(), this));
-        } return true;
+        }
+        return true;
     }
 
     // wrapper arround the db()
@@ -319,8 +323,9 @@ public abstract class Table {
         Set<String> values = new HashSet<>();
         var tuples = search(getClass().getSimpleName());
         for (var tuple : tuples) {
-            values.add((String)tuple.reflect.fields.get(att));
-        } return values;
+            values.add((String) tuple.reflect.fields.get(att));
+        }
+        return values;
     }
 
     // Model-related methods
@@ -374,9 +379,10 @@ public abstract class Table {
     }
 
     // Used for to search for specific ranges
-    static public class Range extends Pair<Object,Object> {
+    static public class Range extends Pair<Object, Object> {
 
-        // In the case of an attribute having a 'lowerBound' & 'upperBound', use the lowerBound name
+        // In the case of an attribute having a 'lowerBound' & 'upperBound', use the
+        // lowerBound name
         public String attributeName;
 
         public Range(String attributeName, Object lowerBound, Object upperBound) {
@@ -402,11 +408,10 @@ public abstract class Table {
         }
 
         public boolean isValidCriteriaFor(FieldInfos fields) {
-            return
-                attributeName != null && first != null && second != null
-                && fields.visibleTypeOf(attributeName).equals(first.getClass())
-                && first.getClass().equals(second.getClass())
-                && fields.bounded.contains(attributeName);
+            return attributeName != null && first != null && second != null
+                    && fields.visibleTypeOf(attributeName).equals(first.getClass())
+                    && first.getClass().equals(second.getClass())
+                    && fields.bounded.contains(attributeName);
         }
     }
 }

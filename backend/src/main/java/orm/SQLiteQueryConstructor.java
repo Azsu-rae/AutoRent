@@ -3,7 +3,7 @@ package orm;
 import java.util.Arrays;
 import java.util.Vector;
 
-import orm.util.Constraints;
+import orm.Constraints;
 import orm.util.Pair;
 import static orm.util.Console.print;
 
@@ -38,7 +38,8 @@ class SQLiteQueryConstructor {
         boolean where, close;
         Column col;
 
-        private DataManipulation() {}
+        private DataManipulation() {
+        }
 
         void init(String s) {
 
@@ -54,7 +55,7 @@ class SQLiteQueryConstructor {
 
             init("SELECT * FROM " + tableName);
 
-            for (i=0;i<columns.size();i++) {
+            for (i = 0; i < columns.size(); i++) {
 
                 col = columns.elementAt(i);
 
@@ -79,7 +80,7 @@ class SQLiteQueryConstructor {
             StringBuilder valuesQuery = new StringBuilder("VALUES (");
 
             boolean first = true;
-            for (i=1;i<columns.size();i++) {
+            for (i = 1; i < columns.size(); i++) {
 
                 Object curr = instance.reflect.fields.get(i);
                 if (curr == null) {
@@ -105,14 +106,14 @@ class SQLiteQueryConstructor {
             Vector<Object> inputs = new Vector<>();
 
             boolean first = true;
-            for (int i=1;i<columns.size();i++) {
+            for (int i = 1; i < columns.size(); i++) {
 
                 Object curr = instance.reflect.fields.get(i);
                 if (curr == null) {
                     continue;
                 }
 
-                query.append((!first ? ", " : "") + columns.elementAt(i).name() + " = ? "); 
+                query.append((!first ? ", " : "") + columns.elementAt(i).name() + " = ? ");
                 inputs.add(curr);
                 first = false;
             }
@@ -156,7 +157,7 @@ class SQLiteQueryConstructor {
 
         private void appendDiscreteCondition(Vector<? extends Table> discreteCriterias) {
 
-            for (int j=0;j<discreteCriterias.size();j++) {
+            for (int j = 0; j < discreteCriterias.size(); j++) {
 
                 Object curr = discreteCriterias.elementAt(j).reflect.fields.get(i);
                 if (curr == null) {
@@ -172,9 +173,10 @@ class SQLiteQueryConstructor {
                     for (var att : instance.reflect.fields.haveConstraint(Constraints::searchedText)) {
                         queryString.append((needOr ? " OR " : "") + att);
                         queryString.append(" LIKE ?");
-                        queryInputs.add(String.valueOf(curr)+"%");
+                        queryInputs.add(String.valueOf(curr) + "%");
                         needOr = true;
-                    } continue;
+                    }
+                    continue;
                 }
 
                 queryString.append(columns.elementAt(i).name());
@@ -197,9 +199,10 @@ class SQLiteQueryConstructor {
                 queryString.append(connector);
                 if (curr != null) {
                     queryInputs.add(curr);
-                } return true;
+                }
+                return true;
             } else if (currentAttribute < i) {
-                queryString.append((close ? ")" : "" ) + " AND ");
+                queryString.append((close ? ")" : "") + " AND ");
                 close = false;
             }
             currentAttribute = i;
@@ -208,10 +211,9 @@ class SQLiteQueryConstructor {
 
         private void appendOverlap(String lowerBoundName, String upperBoundName, Object lowerBound, Object upperBound) {
 
-            String overlapCondition =
-                "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +
-                "(" + upperBoundName + " BETWEEN ? AND ?) OR " +
-                "(" + lowerBoundName + " < ? AND " + upperBoundName + " > ?)";
+            String overlapCondition = "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +
+                    "(" + upperBoundName + " BETWEEN ? AND ?) OR " +
+                    "(" + lowerBoundName + " < ? AND " + upperBoundName + " > ?)";
 
             queryString.append("(" + overlapCondition.toString() + ")");
             queryInputs.add(lowerBound);
@@ -235,7 +237,7 @@ class SQLiteQueryConstructor {
             Vector<String> foreignKeys = new Vector<>();
             boolean first = true;
 
-            for (int i=0;i<instance.reflect.fields.count;i++) {
+            for (int i = 0; i < instance.reflect.fields.count; i++) {
 
                 if (constraints[i].foreignKey()) {
                     String foreignKey = "FOREIGN KEY (id_%s) REFERENCES %ss(id)";
@@ -244,10 +246,10 @@ class SQLiteQueryConstructor {
                 }
 
                 table
-                    .append(first ? "" : ", ")
-                    .append(names[i] + " " + constraints[i].type())
-                    .append(constraints[i].nullable() ? "" : " NOT NULL")
-                    .append(constraints[i].primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "");
+                        .append(first ? "" : ", ")
+                        .append(names[i] + " " + constraints[i].type())
+                        .append(constraints[i].nullable() ? "" : " NOT NULL")
+                        .append(constraints[i].primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "");
 
                 columns.add(new Column(names[i], constraints[i]));
                 first = false;
@@ -266,7 +268,7 @@ class SQLiteQueryConstructor {
         }
     }
 
-    class Column extends Pair<String,Constraints> {
+    class Column extends Pair<String, Constraints> {
 
         private Column(String name, Constraints constraints) {
             super(name, constraints);
@@ -281,7 +283,7 @@ class SQLiteQueryConstructor {
         }
     }
 
-    class PreparedQuery extends Pair<String,Vector<Object>> {
+    class PreparedQuery extends Pair<String, Vector<Object>> {
 
         private PreparedQuery(String template, Vector<Object> values) {
             super(template, values);
