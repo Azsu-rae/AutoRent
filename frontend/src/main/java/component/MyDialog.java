@@ -1,8 +1,7 @@
 package component;
 
+import java.awt.Dimension;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -18,10 +17,13 @@ abstract public class MyDialog<T> extends JDialog {
     }
 
     public void display() {
-        var panel = initialize();
-        // panel.setPreferredSize(new Dimension(200, 200));
-        setContentPane(panel);
-        // pack();
+
+        setContentPane(initialize());
+
+        pack();
+        Dimension d = getSize();
+        setSize(Math.max(d.width, 200), Math.max(d.height, 200));
+
         setLocationRelativeTo(Opts.MAIN_FRAME);
         setVisible(true);
     }

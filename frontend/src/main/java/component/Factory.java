@@ -12,7 +12,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import mapper.FieldLabelFormatter;
-import util.Parser;
 
 public class Factory {
 

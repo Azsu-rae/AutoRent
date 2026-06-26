@@ -55,7 +55,7 @@ public class MainApp extends JFrame implements Listener {
         // JFrame settings
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(panels);
-        setSize(1600, 1200);
+        setSize(1200, 800);
         setVisible(true);
     }
 
