@@ -105,12 +105,16 @@ by calling the function defined in the `Listener` interface to communicate with 
 
 # TODOs
 
+## Pending
+
+- Engineer a mapping layer to map data types to their corresponding input UI
+
+## Done
+
 - `./frontend/src/main/java/gui/util/Parser.java` does too much. Extract the string/name management into a separate class
     - FieldValueMapper
     - FieldLabelFormatter
 
 - fix the `MyDialog` implementations
-
-- Engineer a mapping layer to map data types to their corresponding input UI
 
 - Extract non-UI element classes out of the `gui` package
