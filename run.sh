@@ -2,4 +2,6 @@
 
 set -e
 
-./frontend/run.sh
+source ./build.sh
+
+java -cp $CLASSPATH gui.MainApp
