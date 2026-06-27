@@ -12,14 +12,10 @@ It was overall a great learning experience.
 
 # Dependencies
 
-## Backend
-
 - **sqlite-jdbc-3.50.3.0.jar:** SQLite Implementation of JDBC
 - **json-20250517.jar:** To store sample data using JSON key-value pairs
 
-## Frontend
-
-- **jcalendar-1.4.jar:** For date picking (potentially)
+- **jcalendar-1.4.jar:** UI for date picking (potentially)
 - **flatlaf-3.6.2.jar:** Better Look-and-Feel
 
 # Documentation
@@ -30,7 +26,7 @@ It was overall a great learning experience.
 
 # Code Explanations
 
-## Backend structure
+## ORM
 
 I wrote a simple ORM using reflection and annotations. The structure is pretty straightforward:
 
@@ -53,55 +49,61 @@ The following structure reduces boilerplate and tries to separate concerns into 
 trying not to spiral and drown in abstraction. That's harder than it seems to an inexperienced programmer. There is a lot of
 re-writting that happened and that's invisible in the final product.
 
-```
-src
-└── main
-    ├── java
-    │   ├── component
-    │   │   ├── Factory.java
-    │   │   ├── MyButton.java
-    │   │   ├── MyDialog.java
-    │   │   ├── MyLabel.java
-    │   │   └── MyPanel.java
-    │   ├── contract
-    │   │   ├── Listener.java
-    │   │   └── ToClear.java
-    │   ├── gui
-    │   │   ├── dashboard
-    │   │   │   ├── Dashboard.java
-    │   │   │   ├── Home.java
-    │   │   │   ├── record
-    │   │   │   │   ├── dialog
-    │   │   │   │   │   ├── ForeignPicker.java
-    │   │   │   │   │   ├── MultipleSelections.java
-    │   │   │   │   │   ├── RangeSelection.java
-    │   │   │   │   │   ├── RecordEditor.java
-    │   │   │   │   │   └── SearchProfile.java
-    │   │   │   │   ├── Record.java
-    │   │   │   │   ├── TableView.java
-    │   │   │   │   └── ToolBar.java
-    │   │   │   ├── Records.java
-    │   │   │   └── Sidebar.java
-    │   │   ├── MainApp.java
-    │   │   ├── Opts.java
-    │   │   └── SignIn.java
-    │   ├── mapper
-    │   │   ├── FieldEditorMapper.java
-    │   │   ├── FieldLabelFormatter.java
-    │   │   └── FieldValueMapper.java
-```
-
 **gui package**
+
+```
+gui
+├── dashboard
+│   ├── Dashboard.java
+│   ├── Home.java
+│   ├── record
+│   │   ├── dialog
+│   │   │   ├── ForeignPicker.java
+│   │   │   ├── MultipleSelections.java
+│   │   │   ├── RangeSelection.java
+│   │   │   ├── RecordEditor.java
+│   │   │   └── SearchProfile.java
+│   │   ├── Record.java
+│   │   ├── TableView.java
+│   │   └── ToolBar.java
+│   ├── Records.java
+│   └── Sidebar.java
+├── MainApp.java
+├── Opts.java
+└── SignIn.java
+```
 
 The idea is that 1 UI Entity = 1 class = 1 file. Since there's no tag-based language to represent swing components I thought i
 would at least try to structure it to limit spagheti-like code but i wasn't really able to eliminate it.
 
 **contract package**
 
+```
+contract
+├── Listener.java
+└── ToClear.java
+```
+
 Encapsulation using packages brought a problem of communication between components. The solution I found was using interfaces as
 contracts to communicate between elements (log in, log out, clear event, selections, ...). This fixed the problem that happens
 when separating a `SideBar` which naturally contains the buttons to navigate the dashboard. It only needs to fire a `HOME` event
 by calling the function defined in the `Listener` interface to communicate with the main container to switch the main visible panel.
+
+**utilitites**
+
+```
+component
+├── Factory.java
+├── MyButton.java
+├── MyDialog.java
+├── MyLabel.java
+└── MyPanel.java
+mapper
+├── FieldEditorMapper.java
+├── FieldLabelFormatter.java
+└── FieldValueMapper.java
+```
+
 
 # TODOs
 
