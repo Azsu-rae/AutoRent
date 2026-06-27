@@ -118,3 +118,5 @@ by calling the function defined in the `Listener` interface to communicate with 
 - fix the `MyDialog` implementations
 
 - Extract non-UI element classes out of the `gui` package
+
+- Collapse the frontend/backend separation into a single project package

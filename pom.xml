@@ -9,7 +9,6 @@
     <groupId>asura</groupId>
     <artifactId>AutoRent</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
