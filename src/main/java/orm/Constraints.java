@@ -1,10 +1,16 @@
 package orm;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Constraints {
+
+    String INTEGER = "INT";
 
     String type();
 
@@ -23,8 +29,4 @@ public @interface Constraints {
     boolean enumerated() default false;
 
     boolean unique() default false;
-
-    boolean primaryKey() default false;
-
-    boolean foreignKey() default false;
 }

@@ -3,6 +3,7 @@ package model;
 import orm.Table;
 
 import orm.Constraints;
+import orm.Constraints.Type;
 
 import java.time.LocalDate;
 import java.util.Vector;
@@ -13,7 +14,7 @@ public class Vehicle extends Table {
         registerModel(Vehicle.class);
     }
 
-    @Constraints(type = "DECIMAL", nullable = false, bounded = true)
+    @Constraints(type = Type.REAL, nullable = false, bounded = true)
     private Double pricePerDay;
     @Constraints(type = "TEXT", nullable = false)
     private String state;
