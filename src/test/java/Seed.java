@@ -1,4 +1,6 @@
 
+import static orm.Reflection.getModelInstance;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -6,14 +8,13 @@ import java.nio.charset.StandardCharsets;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import model.*;
-
+import model.AcademicLevel;
+import model.Group;
+import model.Section;
+import model.Specialty;
+import model.Student;
+import model.TeachingAssistant;
 import orm.Table;
-import util.CaseConverter;
-
-import static util.CaseConverter.*;
-
-import static orm.Reflection.getModelInstance;
 
 public class Seed {
 
@@ -36,13 +37,20 @@ public class Seed {
         Table instance = getModelInstance(modelName);
         last_serialized = instance;
         for (var key : jsonObject.keySet()) {
+            Object attributeValue = null;
             if (Table.isACollection(key)) {
                 seed(jsonObject.getJSONArray(key), key, instance);
             } else if (instance.isFieldAModelInstance(key)) {
-                serialize(camelToPascal(key), jsonObject.getJSONObject(key), null);
+                attributeValue = serialize(instance.reflect.fields.typeOf(key).getSimpleName(),
+                        jsonObject.getJSONObject(key), null);
             } else {
-                instance.reflect.fields.callSetter(key, jsonObject.get(key));
+                attributeValue = jsonObject.get(key);
             }
+
+            if (attributeValue != null) {
+                instance.reflect.fields.callSetter(key, attributeValue);
+            }
+
         }
 
         if (aggregator != null) {
@@ -54,19 +62,7 @@ public class Seed {
 
     static void naive_seeding() {
 
-        InputStream in = Main.class.getResourceAsStream("samples/curriculum_structure.json");
-        if (in == null) {
-            throw new RuntimeException("Resouce not found!");
-        }
-
-        String curriculum_string = "";
-        try {
-            curriculum_string = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        in = Main.class.getResourceAsStream("samples/pedagogical_structure.json");
+        InputStream in = Main.class.getResourceAsStream("samples/pedagogical_structure.json");
         if (in == null) {
             throw new RuntimeException("Resouce not found!");
         }

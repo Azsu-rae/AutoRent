@@ -1,28 +1,10 @@
 
-import static util.CaseConverter.*;
+import static util.Util.getResourceFileAsString;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import model.AcademicLevel;
-import model.Group;
-import model.Section;
 import model.Specialty;
-import model.Student;
-import model.TeachingAssistant;
-import orm.Reflection;
 import orm.Table;
-import orm.annotation.Collection;
-import util.BugDetectedException;
-
-import static util.Util.*;
 
 public class Main {
 
