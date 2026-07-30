@@ -12,37 +12,62 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import orm.Reflection.FieldInfos;
+import orm.annotation.Constraints;
+import orm.annotation.Collection;
 import util.BugDetectedException;
 import util.Console;
-import orm.Constraints;
 import util.Pair;
 
+import static util.CaseConverter.pascalToCamel;
 import static util.Console.error;
 import static util.Console.print;
 
 import static orm.Reflection.getModelInstance;
-import static orm.Constraints.*;
-
+import static orm.annotation.Constraints.*;
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
-
-import static util.Database.dbPath;
 
 public abstract class Table {
 
     // loading subclasses into the JVM
     private static Set<Class<? extends Table>> models = new HashSet<>();
-    static {
-        Reflection.loadModels(new String[] { "AcademicLevel", "Course", "Enrollment", "Group", "Section",
-                "SemesterCourse", "Semester", "Specialty", "Student", "TeachingAssistant" });
+    private static Map<String, String> collectionNames = new HashMap<>();
+
+    public static void debug() {
+        System.out.println(collectionNames.toString());
+    }
+
+    public static void JVMInit(String[] classes) {
+        Reflection.loadModels(classes);
+    }
+
+    // called when 'loadModels' does its thing
+    protected static void registerModel(Class<? extends Table> model) {
+        models.add(model);
+        collectionNames.put(model.getAnnotation(Collection.class).value(), model.getClass().getSimpleName());
+    }
+
+    public static final String dbPath = dbPath().toString();
+
+    private static Path dbPath() {
+        String override = System.getenv("AUTORENT_DB_PATH");
+        if (override != null) {
+            return Paths.get(override);
+        } else {
+            throw new BugDetectedException("Please set the AUTORENT_DB_PATH");
+        }
     }
 
     // ID given by the DB, so no setter
@@ -161,6 +186,11 @@ public abstract class Table {
 
     public int add() {
 
+        if (!db()) {
+            String s = "No database or no table found for the class: %s while attempting to add!";
+            throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
+        }
+
         if (!isValid()) {
             return 0;
         }
@@ -169,14 +199,17 @@ public abstract class Table {
         int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-                Statement stmt = conn.createStatement();) {
+                PreparedStatement pstmt = conn.prepareStatement(
+                        preparedQuery.template(),
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.execute(query.define.table());
-
-            var pstmt = conn.prepareStatement(preparedQuery.template());
             bindValues(pstmt, preparedQuery.values());
             affected = pstmt.executeUpdate();
-            pstmt.close();
+
+            ResultSet keys = pstmt.getGeneratedKeys();
+            if (keys.next()) {
+                keys.getInt(1);
+            }
 
         } catch (SQLException e) {
             throw new BugDetectedException(String.format("%s\n\nTable creation query:\n\n%s\n\nInsert: %s", e,
@@ -346,10 +379,6 @@ public abstract class Table {
 
     // Model-related methods
 
-    protected static void registerModel(Class<? extends Table> model) {
-        models.add(model);
-    }
-
     public static Set<Class<? extends Table>> getModels() {
         return Collections.unmodifiableSet(models);
     }
@@ -360,6 +389,18 @@ public abstract class Table {
 
     public static boolean hasSubClass(String className) {
         return getModelNames().contains(className);
+    }
+
+    public static boolean isSubClassInstance(String className) {
+        return getModelNames().stream().map(s -> pascalToCamel(s)).toList().contains(className);
+    }
+
+    public static String getModelNameFromCollectionName(String collectionName) {
+        return collectionNames.get(collectionName);
+    }
+
+    public static boolean isACollection(String key) {
+        return collectionNames.keySet().contains(key);
     }
 
     // Overloads for convenience
