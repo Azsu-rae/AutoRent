@@ -1,12 +1,14 @@
 package model;
 
-import orm.Constraints;
 import orm.Table;
+import orm.annotation.Collection;
+import orm.annotation.Constraints;
 
-import static orm.Constraints.*;
+import static orm.annotation.Constraints.*;
 
 import java.util.Vector;
 
+@Collection("sections")
 public class Section extends Table {
 
     static {
@@ -40,8 +42,9 @@ public class Section extends Table {
         return number;
     }
 
-    public void setNumber(Integer number) {
+    public Section setNumber(Integer number) {
         this.number = number;
+        return this;
     }
 
     public static boolean isSearchable() {

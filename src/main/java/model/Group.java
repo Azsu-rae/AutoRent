@@ -1,13 +1,14 @@
 package model;
 
 import orm.Table;
+import orm.annotation.Constraints;
+import orm.annotation.Collection;
 
-import orm.Constraints;
-
-import static orm.Constraints.*;
+import static orm.annotation.Constraints.*;
 
 import java.util.Vector;
 
+@Collection("groups")
 public class Group extends Table {
 
     static {
@@ -35,8 +36,9 @@ public class Group extends Table {
         return section;
     }
 
-    public void setSection(Section section) {
+    public Group setSection(Section section) {
         this.section = section;
+        return this;
     }
 
     public Integer getNumber() {

@@ -1,12 +1,14 @@
 package model;
 
-import orm.Constraints;
-import static orm.Constraints.*;
+import static orm.annotation.Constraints.*;
 
 import java.util.Vector;
 
 import orm.Table;
+import orm.annotation.Constraints;
+import orm.annotation.Collection;
 
+@Collection("enrollments")
 public class Enrollment extends Table {
 
     static {

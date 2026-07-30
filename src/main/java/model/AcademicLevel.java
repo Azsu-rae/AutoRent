@@ -1,10 +1,12 @@
 package model;
 
-import orm.Constraints;
+import static orm.annotation.Constraints.*;
+
 import orm.Table;
+import orm.annotation.Constraints;
+import orm.annotation.Collection;
 
-import static orm.Constraints.*;
-
+@Collection("academicLevels")
 public class AcademicLevel extends Table {
 
     static {
@@ -21,8 +23,8 @@ public class AcademicLevel extends Table {
     }
 
     public AcademicLevel(Specialty specialty, Integer number) {
-        this.specialty = specialty;
-        this.number = number;
+        this.setSpecialty(specialty);
+        this.setNumber(number);
     }
 
     public Specialty getSpecialty() {

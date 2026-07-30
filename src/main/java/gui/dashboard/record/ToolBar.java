@@ -17,7 +17,7 @@ import component.MyButton;
 import component.MyPanel;
 
 import orm.Table.Range;
-import orm.Constraints;
+import orm.annotation.Constraints;
 import orm.Table;
 
 import static orm.Reflection.getModelInstance;

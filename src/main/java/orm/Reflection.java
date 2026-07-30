@@ -3,6 +3,7 @@ package orm;
 import java.util.*;
 import java.util.function.Function;
 
+import orm.annotation.Constraints;
 import util.*;
 import static util.Console.*;
 
@@ -18,7 +19,7 @@ public class Reflection {
     public static void loadModels(String[] modelNames) {
         for (String name : modelNames) {
             var model = getModel(name);
-            fieldInfos.computeIfAbsent(model, k -> new FieldInfos(k));
+            fieldInfos.computeIfAbsent(model, absentModel -> new FieldInfos(absentModel));
         }
     }
 
@@ -325,6 +326,17 @@ public class Reflection {
             return fields;
         }
 
+        public List<String> haveType(Class<?> type) {
+            var fields = new ArrayList<String>();
+            for (int i = 0; i < count; i++) {
+                if (types[i].equals(type)) {
+                    fields.add(names[i]);
+                }
+            }
+
+            return fields;
+        }
+
         public Constraints constraintsOf(String name) {
             return fieldByName.get(name).getAnnotation(Constraints.class);
         }
@@ -337,6 +349,8 @@ public class Reflection {
             return fieldByName.get(name).getType();
         }
 
+        // visible is relative to the user of the model. Sometimes the user only passes
+        // strings that are then parsed to a LocalData for example.
         public Class<?> visibleTypeOf(String name) {
             Class<?> type = typeOf(name);
             if (type.equals(LocalDate.class)) {
@@ -380,6 +394,19 @@ public class Reflection {
 
         public void callSetter(String attribute, Object value) {
             invoke(getSetter(tuple, attribute), tuple, value);
+        }
+
+        public void callSetter(Class<? extends Table> fieldType, Object value) {
+            var fieldsWithSaidType = haveType(fieldType);
+            assert fieldsWithSaidType.size() == 1 : "Ambiguous setter call during reflection!";
+            try {
+                invoke(getSetter(tuple, fieldsWithSaidType.get(0)), tuple, value);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Trying to get: " + fieldType.getSimpleName());
+                System.err.println("Tuple class: " + tuple.getClass().getSimpleName());
+                throw new RuntimeException("Stopping.");
+            }
         }
     }
 }

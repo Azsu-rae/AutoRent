@@ -37,6 +37,10 @@ public class CaseConverter {
         return converted;
     }
 
+    public static String pascalToCamel(String toConvert) {
+        return String.valueOf(toConvert.charAt(0)).toLowerCase() + toConvert.substring(1);
+    }
+
     public static String[] pascalToSnake(String[] toConvert) {
         return pascalOrCamelToSnake(toConvert);
     }
@@ -51,5 +55,9 @@ public class CaseConverter {
 
     public static String camelToSnake(String toConvert) {
         return pascalOrCamelToSnake(toConvert)[0];
+    }
+
+    public static String camelToPascal(String toConvert) {
+        return toConvert.substring(0, 1).toUpperCase() + toConvert.substring(1);
     }
 }

@@ -1,12 +1,14 @@
 package model;
 
 import orm.Table;
-import orm.Constraints;
+import orm.annotation.Collection;
+import orm.annotation.Constraints;
+
+import static orm.annotation.Constraints.*;
 
 import java.util.Vector;
 
-import static orm.Constraints.*;
-
+@Collection("teachingAssistants")
 public class TeachingAssistant extends Table {
 
     static {

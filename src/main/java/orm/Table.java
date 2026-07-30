@@ -30,6 +30,7 @@ import util.BugDetectedException;
 import util.Console;
 import util.Pair;
 
+import static util.CaseConverter.camelToPascal;
 import static util.CaseConverter.pascalToCamel;
 import static util.Console.error;
 import static util.Console.print;
@@ -56,7 +57,7 @@ public abstract class Table {
     // called when 'loadModels' does its thing
     protected static void registerModel(Class<? extends Table> model) {
         models.add(model);
-        collectionNames.put(model.getAnnotation(Collection.class).value(), model.getClass().getSimpleName());
+        collectionNames.put(model.getAnnotation(Collection.class).value(), model.getSimpleName());
     }
 
     public static final String dbPath = dbPath().toString();
@@ -391,8 +392,8 @@ public abstract class Table {
         return getModelNames().contains(className);
     }
 
-    public static boolean isSubClassInstance(String className) {
-        return getModelNames().stream().map(s -> pascalToCamel(s)).toList().contains(className);
+    public boolean isFieldAModelInstance(String fieldName) {
+        return hasSubClass(reflect.fields.typeOf(fieldName).getSimpleName());
     }
 
     public static String getModelNameFromCollectionName(String collectionName) {

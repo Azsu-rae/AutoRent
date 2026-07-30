@@ -1,13 +1,15 @@
 package model;
 
-import orm.Constraints;
 import orm.Table;
+import orm.annotation.Collection;
+import orm.annotation.Constraints;
 
-import static orm.Constraints.*;
+import static orm.annotation.Constraints.*;
 
 import java.util.Set;
 import java.util.Vector;
 
+@Collection("specialties")
 public class Specialty extends Table {
 
     static {
@@ -30,8 +32,9 @@ public class Specialty extends Table {
     }
 
     public Specialty(String name, String acronyme, String cycle) {
-        this.name = name;
-        this.cycle = cycle;
+        this.setName(name);
+        this.setAcronyme(acronyme);
+        this.setCycle(cycle);
     }
 
     public String getAcronyme() {

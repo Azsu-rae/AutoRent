@@ -103,7 +103,7 @@ Let's draw that much already:
 	<img src="./media/enrollment_structure.svg">
 </div>
 
-Now a professor should obviously work on the courses within the *current* semester. So we must automatically enroll students in all of the courses of the current semester that they should be enrolled in according to their group's specialty and academic level.
+Now a professor should obviously work on the courses within the *current* semester. So we must automatically enroll students in all of the courses of the current semester that they should be enrolled in according to their group's specialty and academic level.g
 
 ## 3.1. Enrollment
 

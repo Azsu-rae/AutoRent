@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.Vector;
 import java.util.stream.Stream;
 
-import orm.Constraints;
 import util.CaseConverter;
 import util.Pair;
 
 import orm.Table.Range;
+import orm.annotation.Constraints;
 
 import static util.Console.print;
 import static util.CaseConverter.*;
