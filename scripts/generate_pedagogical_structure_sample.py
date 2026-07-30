@@ -17,6 +17,9 @@ def gen_phoneNumber():
 fake = Faker('fr_DZ')
 
 specialties = []
+collection = {
+    "specialties": specialties
+}
 
 for specialty_data in SPECIALTIES:
 
@@ -74,5 +77,5 @@ for specialty_data in SPECIALTIES:
 
 
 with open('src/test/resources/samples/pedagogical_structure.json', 'w') as f:
-    json.dump(specialties, f, indent=2)
+    json.dump(collection, f, indent=2)
     pass

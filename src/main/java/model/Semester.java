@@ -16,7 +16,7 @@ public class Semester extends Table {
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
-    private Specialty specialty;
+    private AcademicLevel academicLevel;
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
     Integer number;
@@ -24,17 +24,17 @@ public class Semester extends Table {
     public Semester() {
     }
 
+    public AcademicLevel getAcademicLevel() {
+        return academicLevel;
+    }
+
+    public Semester setAcademicLevel(AcademicLevel academicLevel) {
+        this.academicLevel = academicLevel;
+        return this;
+    }
+
     public Integer getNumber() {
         return number;
-    }
-
-    public Specialty getSpecialty() {
-        return specialty;
-    }
-
-    public Semester setSpecialty(Specialty specialty) {
-        this.specialty = specialty;
-        return this;
     }
 
     public Semester setNumber(Integer number) {

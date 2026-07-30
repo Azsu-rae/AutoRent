@@ -3,7 +3,7 @@
 set -e
 
 mkdir -p ./data
-AUTORENT_DB_PATH="./data/"
+AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db"
 export AUTORENT_DB_PATH
 
 ORM=$(find "./src/main/java/orm/" -type f -name "*.java")

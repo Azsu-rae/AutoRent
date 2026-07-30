@@ -18,41 +18,45 @@ SPECIALTIES = [
 
 # specialty_acronyme -> array of semester objects
 SEMESTERS = {
-    "ST": {
-        1: [
+    "academicLevels": [
             {
                 "number": 1,
-                "courses": [
+                "specialty_acronyme": "ST",
+                "semesters": [
+                    {
+                        "number": 1,
+                        "courses": [
 
-                    "Algorithmique - Informatique",
-                    "Bureautique",
+                            "Algorithmique - Informatique",
+                            "Bureautique",
 
-                    "Chimie I",
-                    "Physique I",
-                    "Mathematique I",
+                            "Chimie I",
+                            "Physique I",
+                            "Mathematique I",
 
-                    "Methodologie de la redaction I",
-                    "Techniques de Communication et d'Expression I",
+                            "Methodologie de la redaction I",
+                            "Techniques de Communication et d'Expression I",
 
-                    "Metier en Science et Technologie I",
+                            "Metier en Science et Technologie I",
+                        ]
+                    },
+                    {
+                        "number": 2,
+                        "courses": [
+
+                            "Bureautique",
+
+                            "Chimie II",
+                            "Physique II",
+                            "Mathematique II",
+
+                            "Methodologie de la redaction II",
+                            "Techniques de Communication et d'Expression II",
+
+                            "Metier en Science et Technologie II",
+                        ]
+                    },
                 ]
-            },
-            {
-                "number": 2,
-                "courses": [
-
-                    "Bureautique",
-
-                    "Chimie II",
-                    "Physique II",
-                    "Mathematique II",
-
-                    "Methodologie de la redaction II",
-                    "Techniques de Communication et d'Expression II",
-
-                    "Metier en Science et Technologie II",
-                ]
-            },
-        ]
-    },
+            }
+    ],
 }
