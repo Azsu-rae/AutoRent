@@ -16,7 +16,7 @@ public class Reflection {
     static Map<Class<? extends Table>, FieldInfos> fieldInfos = new HashMap<>();
     static String qualifiedPackageName = "model.";
 
-    public static void loadModels(String[] modelNames) {
+    public static void JVMloadModels(String[] modelNames) {
         for (String name : modelNames) {
             var model = getModel(name);
             fieldInfos.computeIfAbsent(model, absentModel -> new FieldInfos(absentModel));

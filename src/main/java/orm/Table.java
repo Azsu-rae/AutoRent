@@ -47,14 +47,14 @@ public abstract class Table {
     private static Map<String, String> collectionNames = new HashMap<>();
 
     public static void debug() {
-        System.out.println(collectionNames.toString());
+        // System.out.println(collectionNames.toString());
     }
 
     public static void JVMInit(String[] classes) {
-        Reflection.loadModels(classes);
+        Reflection.JVMloadModels(classes);
     }
 
-    // called when 'loadModels' does its thing
+    // called when 'Reflection.loadModels' does its thing
     protected static void registerModel(Class<? extends Table> model) {
         models.add(model);
         collectionNames.put(model.getAnnotation(Collection.class).value(), model.getSimpleName());
@@ -400,7 +400,7 @@ public abstract class Table {
         return collectionNames.get(collectionName);
     }
 
-    public static boolean isACollection(String key) {
+    public static boolean isACollectionKey(String key) {
         return collectionNames.keySet().contains(key);
     }
 

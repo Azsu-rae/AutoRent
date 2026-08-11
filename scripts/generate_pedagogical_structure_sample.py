@@ -2,7 +2,7 @@
 import json
 import random
 
-from hardcoded import SPECIALTIES
+from .hardcoded import SPECIALTIES
 from faker import Faker
 
 

@@ -1,3 +1,4 @@
+package aex;
 
 import static orm.Reflection.getModelInstance;
 
@@ -20,29 +21,32 @@ public class Seed {
 
     public static Table last_serialized = null;
 
-    static Table[] seed(JSONArray jsonArray, String collectionName, Table aggregator) {
+    static Table[] seedJSONCollection(JSONArray collectionJSONArray, String collectionName, Table aggregator) {
 
-        var seeded = new Table[jsonArray.length()];
+        var seeded = new Table[collectionJSONArray.length()];
         String modelName = Table.getModelNameFromCollectionName(collectionName);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            seeded[i] = serialize(modelName, jsonObject, aggregator);
+        for (int i = 0; i < collectionJSONArray.length(); i++) {
+            JSONObject jsonObject = collectionJSONArray.getJSONObject(i);
+            seeded[i] = serialize(modelName, jsonObject);
+            if (aggregator != null) {
+                seeded[i].reflect.fields.callSetter(aggregator.getClass(), aggregator);
+            }
         }
 
         return seeded;
     }
 
-    static Table serialize(String modelName, JSONObject jsonObject, Table aggregator) {
+    static Table serialize(String modelName, JSONObject jsonObject) {
 
         Table instance = getModelInstance(modelName);
         last_serialized = instance;
         for (var key : jsonObject.keySet()) {
             Object attributeValue = null;
-            if (Table.isACollection(key)) {
-                seed(jsonObject.getJSONArray(key), key, instance);
+            if (Table.isACollectionKey(key)) {
+                seedJSONCollection(jsonObject.getJSONArray(key), key, instance);
             } else if (instance.isFieldAModelInstance(key)) {
                 attributeValue = serialize(instance.reflect.fields.typeOf(key).getSimpleName(),
-                        jsonObject.getJSONObject(key), null);
+                        jsonObject.getJSONObject(key));
             } else {
                 attributeValue = jsonObject.get(key);
             }
@@ -51,10 +55,6 @@ public class Seed {
                 instance.reflect.fields.callSetter(key, attributeValue);
             }
 
-        }
-
-        if (aggregator != null) {
-            instance.reflect.fields.callSetter(aggregator.getClass(), aggregator);
         }
 
         return instance;
