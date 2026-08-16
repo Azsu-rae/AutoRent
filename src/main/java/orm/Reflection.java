@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import orm.annotation.Constraints;
 import util.*;
-import static util.Console.*;
+import static util.Log.*;
 
 import java.lang.reflect.*;
 

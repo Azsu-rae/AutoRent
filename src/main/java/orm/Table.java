@@ -27,14 +27,13 @@ import orm.Reflection.FieldInfos;
 import orm.annotation.Constraints;
 import orm.annotation.Collection;
 import util.BugDetectedException;
-import util.Console;
 import util.Pair;
 
-import static util.CaseConverter.camelToPascal;
-import static util.CaseConverter.pascalToCamel;
-import static util.Console.error;
-import static util.Console.print;
-
+import static util.Log.cinit;
+import static util.Log.notice;
+import static util.Log.error;
+import static util.Log.fail;
+import static util.Log.sql;
 import static orm.Reflection.getModelInstance;
 import static orm.annotation.Constraints.*;
 import static orm.DataMapper.bindValues;
@@ -54,8 +53,12 @@ public abstract class Table {
         Reflection.JVMloadModels(classes);
     }
 
-    // called when 'Reflection.loadModels' does its thing
+    // ............. ^^^^^^^^^^^^^^^^^^^
+    // ............. ---- Called by ----
+    // ............. |||||||||||||||||||
+
     protected static void registerModel(Class<? extends Table> model) {
+        cinit("Registering %s", model.toString());
         models.add(model);
         collectionNames.put(model.getAnnotation(Collection.class).value(), model.getSimpleName());
     }
@@ -67,7 +70,7 @@ public abstract class Table {
         if (override != null) {
             return Paths.get(override);
         } else {
-            throw new BugDetectedException("Please set the AUTORENT_DB_PATH");
+            throw new BugDetectedException("Please set the AUTORENT_DB_PATH environment variable.");
         }
     }
 
@@ -134,6 +137,7 @@ public abstract class Table {
             return false;
         }
 
+        // TODO: think about how to compare by value if applicable
         if (this.id == null) {
             return false;
         }
@@ -153,7 +157,7 @@ public abstract class Table {
 
         Table instance = discreteCriterias.elementAt(0);
         if (!instance.db()) {
-            String s = "No Database or no table found for the model: %s while attempting a search!";
+            String s = "No Database or no table found for the model '%s' while attempting a search!";
             throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName()));
         }
 
@@ -165,6 +169,7 @@ public abstract class Table {
 
             bindValues(pstmt, preparedQuery.values());
             tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
+            sql("Ran query: %s", pstmt.toString());
 
         } catch (SQLException e) {
             throw new BugDetectedException(String.format("%s\n\nFor Query: %s", e, preparedQuery.template()));
@@ -175,14 +180,18 @@ public abstract class Table {
 
     public void migrate() {
 
+        String tableDefinitionQuery = null;
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                 Statement stmt = conn.createStatement();) {
 
-            stmt.execute(query.define.table());
+            tableDefinitionQuery = query.define.table();
+            stmt.execute(tableDefinitionQuery);
 
         } catch (SQLException e) {
             throw new BugDetectedException(e + "\n\nTable creation query:\n\n" + query.define.table());
         }
+
+        sql("Defined table %s with the query:\n\n%s", query.define.tableName, tableDefinitionQuery);
     }
 
     public int add() {
@@ -193,7 +202,21 @@ public abstract class Table {
         }
 
         if (!isValid()) {
+            fail("Invalid insertion attempt of the tuple:\n%s", this.toString());
             return 0;
+        }
+
+        for (String fieldName : this.reflect.fields.names) {
+            if (this.isFieldOfModel(fieldName)) {
+                Table modelInstance = (Table) reflect.fields.get(fieldName);
+                if (modelInstance != null && !Table.isTuple(modelInstance)) {
+                    notice("Dependecy graph creation!");
+                    if (modelInstance.add() == 0) {
+                        return 0;
+                    }
+                }
+
+            }
         }
 
         var preparedQuery = query.manipulate.insert();
@@ -209,12 +232,13 @@ public abstract class Table {
 
             ResultSet keys = pstmt.getGeneratedKeys();
             if (keys.next()) {
-                keys.getInt(1);
+                this.id = keys.getInt(1);
             }
 
+            sql("Ran query: %s\nGenerated key: %d", pstmt.toString(), this.id);
+
         } catch (SQLException e) {
-            throw new BugDetectedException(String.format("%s\n\nTable creation query:\n\n%s\n\nInsert: %s", e,
-                    query.define.table(), preparedQuery.template()));
+            throw new BugDetectedException(String.format("%s\n\nInserttion query: %s", e, preparedQuery.template()));
         }
 
         return affected;
@@ -228,6 +252,8 @@ public abstract class Table {
         }
 
         if (!isValid() || id == null) {
+            fail("Attempting to edit " + (!isValid() ? "whilst in invalid state" : "a non-tuple") + ": %s",
+                    this.toString());
             return 0;
         }
 
@@ -239,6 +265,7 @@ public abstract class Table {
 
             bindValues(pstmt, statement.values());
             affected = pstmt.executeUpdate();
+            sql("Ran query: %s", pstmt.toString());
 
         } catch (SQLException e) {
             throw new BugDetectedException(String.format("%s\n\nUpdating query: %s", e, statement.template()));
@@ -271,6 +298,7 @@ public abstract class Table {
 
             pstmt.setInt(1, this.id);
             affected = pstmt.executeUpdate();
+            sql("Ran query: %s", pstmt.toString());
 
         } catch (SQLException e) {
             throw new BugDetectedException(String.format("%s\n\nDeletion query: %s", e, sql));
@@ -339,7 +367,6 @@ public abstract class Table {
         return true;
     }
 
-    // wrapper arround the db()
     public static boolean isSearchable(String modelName) {
         return getModelInstance(modelName).db();
     }
@@ -392,7 +419,7 @@ public abstract class Table {
         return getModelNames().contains(className);
     }
 
-    public boolean isFieldAModelInstance(String fieldName) {
+    public boolean isFieldOfModel(String fieldName) {
         return hasSubClass(reflect.fields.typeOf(fieldName).getSimpleName());
     }
 
@@ -400,7 +427,7 @@ public abstract class Table {
         return collectionNames.get(collectionName);
     }
 
-    public static boolean isACollectionKey(String key) {
+    public static boolean isKeyACollection(String key) {
         return collectionNames.keySet().contains(key);
     }
 

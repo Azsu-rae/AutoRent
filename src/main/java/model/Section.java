@@ -18,12 +18,12 @@ public class Section extends Table {
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private AcademicLevel academicLevel;
 
-    @Constraints(type = INT, nullable = false)
-    private Integer number;
+    @Constraints(type = TEXT, nullable = false)
+    private String identifier;
 
-    public Section(AcademicLevel academicLevel, Integer number) {
+    public Section(AcademicLevel academicLevel, String identifier) {
         this.academicLevel = academicLevel;
-        this.number = number;
+        this.identifier = identifier;
     }
 
     public Section() {
@@ -38,12 +38,12 @@ public class Section extends Table {
         return this;
     }
 
-    public Integer getNumber() {
-        return number;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public Section setNumber(Integer number) {
-        this.number = number;
+    public Section setIdentifier(String identifier) {
+        this.identifier = identifier;
         return this;
     }
 

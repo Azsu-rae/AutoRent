@@ -5,7 +5,30 @@ import java.util.Vector;
 import orm.Table;
 import orm.Table.Range;
 
-public class Console {
+/**
+ * Log
+ */
+public class Log {
+
+    public static void notice(String format, Object... args) {
+        System.out.println();
+        System.out.println(String.format(format, args));
+    }
+
+    public static void cinit(String format, Object... args) {
+        System.out.println();
+        System.out.println(String.format(format, args));
+    }
+
+    public static void sql(String format, Object... args) {
+        System.out.println();
+        System.out.println(String.format(format, args));
+    }
+
+    public static void fail(String format, Object... args) {
+        System.out.println();
+        System.out.println(String.format(format, args));
+    }
 
     public static void error(Exception e) {
         e.printStackTrace();

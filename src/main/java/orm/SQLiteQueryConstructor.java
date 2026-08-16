@@ -8,9 +8,10 @@ import util.CaseConverter;
 import util.Pair;
 
 import orm.Table.Range;
+import orm.annotation.Collection;
 import orm.annotation.Constraints;
 
-import static util.Console.print;
+import static util.Log.print;
 import static util.CaseConverter.*;
 
 class SQLiteQueryConstructor {
@@ -245,7 +246,7 @@ class SQLiteQueryConstructor {
          */
         private DataDefinition() {
 
-            tableName = pascalToSnake(instance.getClass().getSimpleName()) + "s";
+            tableName = pascalToSnake(instance.getClass().getAnnotation(Collection.class).value());
             columnInfos = new Vector<>();
 
             Constraints[] constraints = reflect.fields.constraints;

@@ -17,14 +17,14 @@ public class AcademicLevel extends Table {
     Specialty specialty;
 
     @Constraints(type = INT, nullable = false)
-    Integer number;
+    Integer level;
 
     public AcademicLevel() {
     }
 
-    public AcademicLevel(Specialty specialty, Integer number) {
+    public AcademicLevel(Specialty specialty, Integer level) {
         this.setSpecialty(specialty);
-        this.setNumber(number);
+        this.setLevel(level);
     }
 
     public Specialty getSpecialty() {
@@ -36,12 +36,12 @@ public class AcademicLevel extends Table {
         return this;
     }
 
-    public Integer getNumber() {
-        return number;
+    public Integer getLevel() {
+        return level;
     }
 
-    public AcademicLevel setNumber(Integer number) {
-        this.number = number;
+    public AcademicLevel setLevel(Integer level) {
+        this.level = level;
         return this;
     }
 

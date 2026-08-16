@@ -1,22 +1,27 @@
 
-
 # TODOs
+
+## Urgent
 
 ## Pending
 
 ### ORM
 
-- make sure the `Table.add` method checks wether migrations have beed done
-- test the ORM with a new schema with a sample data seeding
-
 - should i eventually check for misaligned migrations????
-- I have to rethink the exceptions thrown and logging mechanisms
 
 ### GUI
 
 - Engineer a mapping layer to map data types to their corresponding input UI
 
 ## Done
+
+- test the ORM with a new schema with a sample data seeding
+
+- check if the generated keys mechanism works as intended
+
+- Implement adequate logging in `Table` for sanity's sake
+
+- make sure the `Table.add` method checks wether migrations have beed done
 
 - Preliminary modelization of the new business purpose
 
