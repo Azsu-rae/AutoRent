@@ -21,13 +21,17 @@ each model implementation `ModelClass` must:
 - use the `@Constraints` annotation for it's non-static fields
 - use the `@Collection` annotation to set the plural version of it's name
 
-- implement the static methods
-    - `isSearchable()`
-    - `search()`
-    - `search(String attName, Object value)`
-    - `search(String boundedAttributeName, Object lowerBound, Object upperBound)`
-    - `searchRanges(Vector<Range> boundedCriterias)`
-  for API ease of use
+and finally, implement the static methods:
+
+```java
+isSearchable();
+search();
+search(String attName, Object value);
+search(String boundedAttributeName, Object lowerBound, Object upperBound);
+searchRanges(Vector<Range> boundedCriterias);
+```
+
+for API ease of use
 
 **orm**
 
