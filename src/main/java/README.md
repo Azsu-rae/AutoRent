@@ -32,18 +32,3 @@ searchRanges(Vector<Range> boundedCriterias);
 ```
 
 for API ease of use
-
-**orm**
-
-A simple ORM using reflection and annotations. The structure is pretty straightforward:
-
-```
-orm
-├── annotation
-│   ├── Collection.java
-│   └── Constraints.java
-├── DataMapper.java
-├── Reflection.java
-├── SQLiteQueryConstructor.java
-└── Table.java
-```
