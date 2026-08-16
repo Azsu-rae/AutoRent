@@ -7,7 +7,7 @@ AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db"
 export AUTORENT_DB_PATH
 
 SRC=""
-packages=('orm' 'model' 'util' 'mannara')
+packages=('orm' 'model' 'util' 'mannara' 'gui')
 for package in "${packages[@]}"; do
     SRC="$(find "./src/main/java/$package/" -type f -name "*.java") $SRC"
 done
