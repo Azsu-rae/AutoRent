@@ -2,10 +2,6 @@
 
 set -e
 
-mkdir -p ./data
-AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db"
-export AUTORENT_DB_PATH
-
 SRC=""
 packages=('orm' 'model' 'util' 'mannara' 'gui')
 for package in "${packages[@]}"; do
@@ -13,5 +9,4 @@ for package in "${packages[@]}"; do
 done
 
 CLASSPATH="./bin:$(find './lib/' -type f | paste -sd: -)"
-
 javac -g -cp "$CLASSPATH" -d "./bin" $SRC
