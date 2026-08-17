@@ -2,6 +2,7 @@
 .*
 
 !.gitignore
+!.env.pub.sh
 
 dependency-reduced-pom.xml
 
