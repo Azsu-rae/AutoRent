@@ -23,52 +23,28 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import orm.Reflection.FieldInfos;
 import orm.annotation.Constraints;
 import orm.annotation.Collection;
 import util.BugDetectedException;
 import util.Pair;
 
-import static util.Log.cinit;
-import static util.Log.notice;
-import static util.Log.error;
-import static util.Log.fail;
-import static util.Log.sql;
-import static orm.Reflection.getModelInstance;
+import static util.Log.*;
 import static orm.annotation.Constraints.*;
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
+import static orm.SQLiteQueryConstructor.DataDefinition.*;
+import static orm.SQLiteQueryConstructor.DataManipulation.*;
 
-public abstract class Table {
-
-    // loading subclasses into the JVM
-    private static Set<Class<? extends Table>> models = new HashSet<>();
-    private static Map<String, String> collectionNames = new HashMap<>();
+public abstract class Table<T extends Table<T>> {
 
     public static void debug() {
-        // System.out.println(collectionNames.toString());
     }
 
-    public static void JVMInit(String[] classes) {
-        Reflection.JVMloadModels(classes);
-    }
-
-    // ............. ^^^^^^^^^^^^^^^^^^^
-    // ............. ---- Called by ----
-    // ............. |||||||||||||||||||
-
-    protected static void registerModel(Class<? extends Table> model) {
-        cinit("Registering %s", model.toString());
-        models.add(model);
-        collectionNames.put(model.getAnnotation(Collection.class).value(), model.getSimpleName());
-    }
-
-    public static final String dbPath = dbPath().toString();
-
-    private static Path dbPath() {
-        String override = System.getenv("AUTORENT_DB_PATH");
-        if (override != null) {
-            return Paths.get(override);
+    public static final String dbPath;
+    static {
+        String enVar = System.getenv("AUTORENT_DB_PATH");
+        if (enVar != null) {
+            dbPath = Paths.get(enVar);
         } else {
             throw new BugDetectedException("Please set the AUTORENT_DB_PATH environment variable.");
         }
@@ -83,10 +59,13 @@ public abstract class Table {
     }
 
     // Reflection is used to access subclasse (model) specifics
-    public final Reflection reflect;
     final SQLiteQueryConstructor query;
+    final Model<T> model;
 
-    protected Table() {
+    public final Reflection reflect;
+
+    protected Table(Class<T> klass) {
+        this.model = Model.get(klass);
         this.reflect = new Reflection(this);
         this.query = new SQLiteQueryConstructor(this);
     }
@@ -95,34 +74,39 @@ public abstract class Table {
     @Override
     public String toString() {
 
-        StringBuilder s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
+        String s = new String(". " + this.getClass().getSimpleName() + "\n|\n+->");
+        var attributes = new ArrayList<String>();
 
-        boolean first = true;
-        for (int i = 1; i < reflect.fields.count; i++) {
+        for (var column : model.columns) {
 
-            Object curr = reflect.fields.get(i);
+            Object curr = reflect.field(column.name).getValue();
             if (curr == null) {
                 continue;
             }
 
-            if (hasSubClass(curr.getClass().getSimpleName())) {
-                boolean firstLine = true;
+            if (Model.existsFor(curr.getClass())) {
+                var lines = new List<String>();
                 for (String line : curr.toString().split("\n")) {
-                    s.append((firstLine ? "" : "|  ") + line + "\n");
-                    firstLine = false;
+                    lines.add(line);
                 }
-                s.append("|\n+->");
+                s += String.join("\n|  ", lines);
+                s += "|\n+->";
             } else {
-                s.append((first ? " Attributes: (" : ", ") + curr.toString());
-                first = false;
+                attributes.add(curr.toString());
             }
         }
-        s.append(first ? " EMPTY" : ")");
+
+        if (attributes.size() != 0) {
+            s += " Attributes: (" + String.join(", ", attributes) + ")";
+        } else {
+            s += " EMPTY";
+        }
+
         if (id != null) {
             s.append("\n+-> ID: " + id);
         }
 
-        return s.toString();
+        return s;
     }
 
     // checks equality using the ID
@@ -137,38 +121,40 @@ public abstract class Table {
             return false;
         }
 
-        // TODO: think about how to compare by value if applicable
         if (this.id == null) {
             return false;
         }
 
-        Table tuple = (Table) obj;
+        Table<?> tuple = (Table<?>) obj;
         return this.id.equals(tuple.getId());
     }
 
     // CRUD operations: (Create, Read, Update, Delete) = (add, search, edit, delete)
 
-    public static Vector<Table> search(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
+    public static <T extends Table<T>> Vector<T> search(
+            Class<T> klass,
+            Vector<?> discreteCriterias,
+            Vector<Range> boundedCriterias) {
 
-        if (discreteCriterias == null || discreteCriterias.size() == 0 || discreteCriterias.elementAt(0) == null) {
-            String s = "Give at least one discrete criteria when searching!";
+        if (klass == null) {
+            String s = "Class<T> cannot be null when searching!";
             throw new IllegalArgumentException(String.format(s));
         }
 
-        Table instance = discreteCriterias.elementAt(0);
-        if (!instance.db()) {
+        var model = Model.get(klass);
+        if (!db(model)) {
             String s = "No Database or no table found for the model '%s' while attempting a search!";
-            throw new IllegalStateException(String.format(s, instance.getClass().getSimpleName()));
+            throw new IllegalStateException(String.format(s, klass));
         }
 
-        var preparedQuery = instance.query.manipulate.select(discreteCriterias, boundedCriterias);
-        Vector<Table> tuples = null;
+        var preparedQuery = select(model, discreteCriterias, boundedCriterias);
+        Vector<T> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                 PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template())) {
 
             bindValues(pstmt, preparedQuery.values());
-            tuples = fetchResutls(pstmt, instance.getClass().getSimpleName());
+            tuples = fetchResutls(pstmt, model);
             sql("Ran query: %s", pstmt.toString());
 
         } catch (SQLException e) {
@@ -178,20 +164,21 @@ public abstract class Table {
         return tuples;
     }
 
-    public void migrate() {
+    public static void migrate(Model<?> model) {
 
         String tableDefinitionQuery = null;
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                 Statement stmt = conn.createStatement();) {
 
-            tableDefinitionQuery = query.define.table();
+            tableDefinitionQuery = tableDefinitionQuery(model);
             stmt.execute(tableDefinitionQuery);
 
         } catch (SQLException e) {
-            throw new BugDetectedException(e + "\n\nTable creation query:\n\n" + query.define.table());
+            throw new BugDetectedException(
+                    e + "\n\nTable creation query:\n\n" + tableName(model));
         }
 
-        sql("Defined table %s with the query:\n\n%s", query.define.tableName, tableDefinitionQuery);
+        sql("Defined table %s with the query:\n\n%s", tableName(model), tableDefinitionQuery);
     }
 
     public int add() {
@@ -206,8 +193,8 @@ public abstract class Table {
             return 0;
         }
 
-        for (String fieldName : this.reflect.fields.names) {
-            if (this.isFieldOfModel(fieldName)) {
+        for (var column : this.model.columns) {
+            if (Model.existsFor(column.type)) {
                 Table modelInstance = (Table) reflect.fields.get(fieldName);
                 if (modelInstance != null && !Table.isTuple(modelInstance)) {
                     notice("Dependecy graph creation!");
@@ -307,15 +294,17 @@ public abstract class Table {
         return affected;
     }
 
-    // Verification methods
-
     static public boolean dbFile() {
         File db = new File(dbPath);
         return db.exists() && db.isFile();
     }
 
-    // checks if there's a DB and that the SQLite table is created
     public boolean db() {
+        return db(model);
+    }
+
+    // checks if there's a DB and that the SQLite table is created
+    public static boolean db(Model<?> model) {
 
         if (!dbFile()) {
             return false;
@@ -326,7 +315,7 @@ public abstract class Table {
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(String.format(checkTable, query.define.tableName))) {
+                ResultSet rs = stmt.executeQuery(String.format(checkTable, tableName(model)))) {
 
             ans = rs.next();
 
@@ -415,52 +404,16 @@ public abstract class Table {
         return getModels().stream().map(Class::getSimpleName).toList();
     }
 
-    public static boolean hasSubClass(String className) {
-        return getModelNames().contains(className);
-    }
-
     public boolean isFieldOfModel(String fieldName) {
         return hasSubClass(reflect.fields.typeOf(fieldName).getSimpleName());
     }
 
     public static String getModelNameFromCollectionName(String collectionName) {
-        return collectionNames.get(collectionName);
+        return Model.byCollectionName().get(collectionName).name;
     }
 
     public static boolean isKeyACollection(String key) {
-        return collectionNames.keySet().contains(key);
-    }
-
-    // Overloads for convenience
-
-    public static Vector<Table> search(String className) {
-        return search(getModelInstance(className));
-    }
-
-    public static Vector<Table> search(String modelName, String attName, Object value) {
-        return search(getModelInstance(modelName).reflect.fields.setDiscrete(attName, value));
-    }
-
-    public static Vector<Table> search(Table discreteCriteria) {
-        return search(discreteCriteria, null, null, null);
-    }
-
-    public static Vector<Table> search(Vector<? extends Table> discreteCriterias) {
-        return search(discreteCriterias, null);
-    }
-
-    public static Vector<Table> search(Table discrete, String boundedName, Object lowerBound, Object upperBound) {
-
-        Vector<Table> discreteContainer = new Vector<>();
-        discreteContainer.add(discrete);
-
-        Vector<Range> boundedContainer = null;
-        if (boundedName != null && lowerBound != null && upperBound != null) {
-            boundedContainer = new Vector<>();
-            boundedContainer.add(new Range(boundedName, lowerBound, upperBound));
-        }
-
-        return search(discreteContainer, boundedContainer);
+        return Model.byCollectionName().keySet().contains(key);
     }
 
     // Used for to search for specific ranges
@@ -488,15 +441,15 @@ public abstract class Table {
             return second;
         }
 
-        public boolean isValidCriteriaFor(Reflection r) {
-            return isValidCriteriaFor(r.fields);
-        }
-
-        public boolean isValidCriteriaFor(FieldInfos fields) {
-            return attributeName != null && first != null && second != null
-                    && fields.visibleTypeOf(attributeName).equals(first.getClass())
-                    && first.getClass().equals(second.getClass())
-                    && fields.bounded.contains(attributeName);
-        }
+        // public boolean isValidCriteriaFor(Reflection r) {
+        // return isValidCriteriaFor(r.fields);
+        // }
+        //
+        // public boolean isValidCriteriaFor(Fields fields) {
+        // return attributeName != null && first != null && second != null
+        // && fields.visibleTypeOf(attributeName).equals(first.getClass())
+        // && first.getClass().equals(second.getClass())
+        // && fields.bounded.contains(attributeName);
+        // }
     }
 }

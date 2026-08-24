@@ -1,6 +1,5 @@
 package mannara;
 
-import static orm.Reflection.getModelInstance;
 import static util.CaseConverter.pascalToCamel;
 
 import java.net.URI;

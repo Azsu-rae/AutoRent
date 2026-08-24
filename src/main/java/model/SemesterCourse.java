@@ -6,22 +6,26 @@ import orm.annotation.Constraints;
 
 import static orm.annotation.Constraints.*;
 
-import java.util.Vector;
+import orm.Model;
 
 @Collection("semester_course_many_to_many")
-public class SemesterCourse extends Table {
+public class SemesterCourse extends Table<SemesterCourse> {
 
     static {
-        registerModel(SemesterCourse.class);
-    }
-
-    public SemesterCourse() {
+        Model.register(SemesterCourse.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
     Semester semester;
     @Constraints(type = INT, nullable = false, foreignKey = true)
     Course course;
+
+    public static record Record() {
+    }
+
+    public SemesterCourse() {
+        super(SemesterCourse.class);
+    }
 
     public Semester getSemester() {
         return semester;
@@ -39,27 +43,5 @@ public class SemesterCourse extends Table {
     public SemesterCourse setCourse(Course course) {
         this.course = course;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("SemesterCourse");
-    }
-
-    public static Vector<Table> search() {
-        return search(new SemesterCourse());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("SemesterCourse", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new SemesterCourse(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new SemesterCourse());
-        return search(tuples, boundedCriterias);
     }
 }

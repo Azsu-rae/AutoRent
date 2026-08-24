@@ -2,15 +2,16 @@ package model;
 
 import static orm.annotation.Constraints.*;
 
+import orm.Model;
 import orm.Table;
 import orm.annotation.Constraints;
 import orm.annotation.Collection;
 
 @Collection("academicLevels")
-public class AcademicLevel extends Table {
+public class AcademicLevel extends Table<AcademicLevel> {
 
     static {
-        registerModel(AcademicLevel.class);
+        Model.register(AcademicLevel.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -19,10 +20,15 @@ public class AcademicLevel extends Table {
     @Constraints(type = INT, nullable = false)
     Integer level;
 
+    public static record Record(String specialty_acronyme, int level) {
+    }
+
     public AcademicLevel() {
+        super(AcademicLevel.class);
     }
 
     public AcademicLevel(Specialty specialty, Integer level) {
+        this();
         this.setSpecialty(specialty);
         this.setLevel(level);
     }
@@ -44,5 +50,4 @@ public class AcademicLevel extends Table {
         this.level = level;
         return this;
     }
-
 }

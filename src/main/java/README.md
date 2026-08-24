@@ -1,27 +1,33 @@
 
-# Packages
+# How to use the ORM and define models
 
-**model**
-
-each model implementation `ModelClass` must:
-
-- extend the `Table` class
-- register itself:
+The ORM will as usual have you define models that go in the `model` package. Each model implementation `ModelClass` extends the `orm.Table` class and registers itself in its own static block as follow:
 
 ```java
+@Collection("models") // the plural version of the model name. Used for the JSON collection and SQLite table names
+public class ModelClass extends Table {
+
     static {
-        registerModel(ModelClass.class);
+        ORM.Model.register(ModelClass.class);
     }
+
+    // mandatory no-args constructor
+    public ModelClass() {
+        super(ModelClass.class);
+    }
+
+    // rest of the model defintion, read the text below
+
+}
 ```
 
-- you can have static fields in models but you can't add fields other than to-be database columns
-- impelement getters and setters for each field (to implement business logic details)
-- all fields must be private
+- Database columns are defined by
+    - having the `@Constraints` annotation.
+    - being private
 
-- use the `@Constraints` annotation for it's non-static fields
-- use the `@Collection` annotation to set the plural version of it's name
+Reflection-based read and write operations in the ORM go through the getter and setter methods; Not defining a getter/setter will result in the field being un-readable/un-writable. This can be used to control the behavior of the ORM.
 
-and finally, implement the static methods:
+Additionally, implementing the static methods below could benefit your experience using the API:
 
 ```java
 isSearchable();
@@ -30,5 +36,3 @@ search(String attName, Object value);
 search(String boundedAttributeName, Object lowerBound, Object upperBound);
 searchRanges(Vector<Range> boundedCriterias);
 ```
-
-for API ease of use

@@ -6,13 +6,13 @@ import orm.annotation.Collection;
 
 import static orm.annotation.Constraints.*;
 
-import java.util.Vector;
+import orm.Model;
 
 @Collection("groups")
-public class Group extends Table {
+public class Group extends Table<Group> {
 
     static {
-        registerModel(Group.class);
+        Model.register(Group.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -23,10 +23,15 @@ public class Group extends Table {
     @Constraints(type = INT, nullable = false)
     private Integer number;
 
+    public static record Record(int number) {
+    }
+
     public Group() {
+        super(Group.class);
     }
 
     public Group(TeachingAssistant teachingAssistant, Section section, Integer number) {
+        this();
         this.teachingAssistant = teachingAssistant;
         this.section = section;
         this.number = number;
@@ -57,27 +62,5 @@ public class Group extends Table {
     public Group setTeachingAssistant(TeachingAssistant teachingAssistant) {
         this.teachingAssistant = teachingAssistant;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Group");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Group());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Group", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Group(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Group());
-        return search(tuples, boundedCriterias);
     }
 }

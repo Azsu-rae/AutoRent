@@ -6,13 +6,13 @@ import orm.annotation.Constraints;
 
 import static orm.annotation.Constraints.*;
 
-import java.util.Vector;
+import orm.Model;
 
 @Collection("students")
-public class Student extends Table {
+public class Student extends Table<Student> {
 
     static {
-        registerModel(Student.class);
+        Model.register(Student.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -27,6 +27,13 @@ public class Student extends Table {
     private String matricule;
     @Constraints(type = TEXT)
     private String email;
+
+    public static record Record(String surname, String name, String matricule, String email) {
+    }
+
+    public Student() {
+        super(Student.class);
+    }
 
     public Group getGroup() {
         return group;
@@ -75,23 +82,5 @@ public class Student extends Table {
 
     public static boolean isSearchable() {
         return isSearchable("Student");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Student());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Student", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Student(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Student());
-        return search(tuples, boundedCriterias);
     }
 }

@@ -6,32 +6,36 @@ import orm.annotation.Constraints;
 
 import static orm.annotation.Constraints.*;
 
-import java.util.Set;
-import java.util.Vector;
+import orm.Model;
 
 @Collection("specialties")
-public class Specialty extends Table {
+public class Specialty extends Table<Specialty> {
 
     static {
-        registerModel(Specialty.class);
+        Model.register(Specialty.class);
     }
 
-    static final public String LICENCE = "Licence";
-    static final public String MASTER = "Master";
-
-    static final private Set<String> cyclePossibilities = Set.of(LICENCE, MASTER);
+    enum Cycle {
+        LICENCE,
+        MASTER
+    }
 
     @Constraints(type = TEXT, nullable = false, searchedText = true)
     private String name;
     @Constraints(type = TEXT, nullable = false, searchedText = true)
     private String acronyme;
     @Constraints(type = TEXT, nullable = false, enumerated = true)
-    private String cycle;
+    private Cycle cycle;
+
+    public static record Record(String name, String acronyme, Cycle cycle) {
+    }
 
     public Specialty() {
+        super(Specialty.class);
     }
 
     public Specialty(String name, String acronyme, String cycle) {
+        this();
         this.setName(name);
         this.setAcronyme(acronyme);
         this.setCycle(cycle);
@@ -56,37 +60,28 @@ public class Specialty extends Table {
     }
 
     public String getCycle() {
-        return cycle;
+        switch (cycle) {
+            case LICENCE:
+                return "Licence";
+            case MASTER:
+                return "Master";
+            default:
+                return null;
+        }
     }
 
     public Specialty setCycle(String cycle) {
-        if (!cyclePossibilities.contains(cycle)) {
-            throw new IllegalArgumentException("Invalid cycle passed!");
+        switch (cycle) {
+            case "Licence":
+                this.cycle = Cycle.LICENCE;
+                break;
+            case "Master":
+                this.cycle = Cycle.MASTER;
+                break;
+            default:
+                throw new IllegalArgumentException(cycle + " is not a valid specialty cycle!");
         }
 
-        this.cycle = cycle;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Specialty");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Specialty());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Specialty", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Specialty(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Specialty());
-        return search(tuples, boundedCriterias);
     }
 }

@@ -6,13 +6,13 @@ import orm.annotation.Constraints;
 
 import static orm.annotation.Constraints.*;
 
-import java.util.Vector;
+import orm.Model;
 
 @Collection("sections")
-public class Section extends Table {
+public class Section extends Table<Section> {
 
     static {
-        registerModel(Section.class);
+        Model.register(Section.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -21,12 +21,17 @@ public class Section extends Table {
     @Constraints(type = TEXT, nullable = false)
     private String identifier;
 
-    public Section(AcademicLevel academicLevel, String identifier) {
-        this.academicLevel = academicLevel;
-        this.identifier = identifier;
+    public static record Record(String identifier) {
     }
 
     public Section() {
+        super(Section.class);
+    }
+
+    public Section(AcademicLevel academicLevel, String identifier) {
+        this();
+        this.academicLevel = academicLevel;
+        this.identifier = identifier;
     }
 
     public AcademicLevel getAcademicLevel() {
@@ -45,27 +50,5 @@ public class Section extends Table {
     public Section setIdentifier(String identifier) {
         this.identifier = identifier;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Group");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Group());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Group", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Group(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Group());
-        return search(tuples, boundedCriterias);
     }
 }
