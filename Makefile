@@ -15,7 +15,7 @@ $(MARKER): $(SOURCES)
 	touch $(MARKER)
 
 run: build
-	AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db" java -cp "$(BUILD_DIR):$(CLASSPATH)" $(TEST) $(MODELS)
+	AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db" java -ea -cp "$(BUILD_DIR):$(CLASSPATH)" $(TEST) $(MODELS)
 
 clean:
 	rm -rf bin
