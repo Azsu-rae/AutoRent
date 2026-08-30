@@ -1,4 +1,8 @@
 
+# QUESTIONS
+
+- How to handle multi-class generic types?
+
 # How to use the ORM and define models
 
 The ORM will as usual have you define models that go in the `model` package. Each model implementation `ModelClass` extends the `orm.Table` class and registers itself in its own static block as follow:

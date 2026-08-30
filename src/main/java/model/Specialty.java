@@ -1,18 +1,22 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-import orm.Model;
+import static orm.annotate.Constraints.*;
 
 @Collection("specialties")
 public class Specialty extends Table<Specialty> {
 
     static {
-        Model.register(Specialty.class);
+        Model.register(Specialty.class, Specialty.Record.class);
     }
 
     enum Cycle {
@@ -27,7 +31,11 @@ public class Specialty extends Table<Specialty> {
     @Constraints(type = TEXT, nullable = false, enumerated = true)
     private Cycle cycle;
 
-    public static record Record(String name, String acronyme, Cycle cycle) {
+    public static record Record(String name, String acronyme, Cycle cycle) implements Reflected<Specialty, RecordComponent> {
+        @Override
+        public Meta<Specialty, RecordComponent> meta() {
+            return Model.of(Specialty.class).record;
+        }
     }
 
     public Specialty() {

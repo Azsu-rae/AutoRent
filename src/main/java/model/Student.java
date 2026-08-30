@@ -1,18 +1,22 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-import orm.Model;
+import static orm.annotate.Constraints.*;
 
 @Collection("students")
 public class Student extends Table<Student> {
 
     static {
-        Model.register(Student.class);
+        Model.register(Student.class, Student.Record.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -28,7 +32,11 @@ public class Student extends Table<Student> {
     @Constraints(type = TEXT)
     private String email;
 
-    public static record Record(String surname, String name, String matricule, String email) {
+    public static record Record(String surname, String name, String matricule, String email) implements Reflected<Student, RecordComponent> {
+        @Override
+        public Meta<Student, RecordComponent> meta() {
+            return Model.of(Student.class).record;
+        }
     }
 
     public Student() {
@@ -78,9 +86,5 @@ public class Student extends Table<Student> {
     public Student setEmail(String email) {
         this.email = email;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Student");
     }
 }

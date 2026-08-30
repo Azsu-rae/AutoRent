@@ -1,18 +1,23 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import orm.Model;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-@Collection("semester_course_many_to_many")
+import static orm.annotate.Constraints.*;
+
+@Collection("semesterCourseManyToMany")
 public class SemesterCourse extends Table<SemesterCourse> {
 
     static {
-        Model.register(SemesterCourse.class);
+        Model.register(SemesterCourse.class, SemesterCourse.Record.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
@@ -20,7 +25,11 @@ public class SemesterCourse extends Table<SemesterCourse> {
     @Constraints(type = INT, nullable = false, foreignKey = true)
     Course course;
 
-    public static record Record() {
+    public static record Record(String course_name) implements Reflected<SemesterCourse, RecordComponent> {
+        @Override
+        public Meta<SemesterCourse, RecordComponent> meta() {
+            return Model.of(SemesterCourse.class).record;
+        }
     }
 
     public SemesterCourse() {

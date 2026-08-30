@@ -7,45 +7,43 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
+import orm.annotate.Constraints;
+import orm.reflect.Meta;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
+
 import util.BugDetectedException;
 import util.Pair;
 
 import static util.Log.*;
-import static orm.annotation.Constraints.*;
+
 import static orm.DataMapper.bindValues;
 import static orm.DataMapper.fetchResutls;
-import static orm.SQLiteQueryConstructor.DataDefinition.*;
-import static orm.SQLiteQueryConstructor.DataManipulation.*;
 
-public abstract class Table<T extends Table<T>> {
+import static orm.SQLiteQueryConstructor.DataDefinition.tableName;
+import static orm.SQLiteQueryConstructor.DataDefinition.tableDefinitionQuery;
 
-    public static void debug() {
-    }
+import static orm.SQLiteQueryConstructor.DataManipulation.select;
+
+// import static orm.SQLiteQueryConstructor.Dat
+
+import static orm.annotate.Constraints.*;
+
+public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
 
     public static final String dbPath;
     static {
-        String enVar = System.getenv("AUTORENT_DB_PATH");
-        if (enVar != null) {
-            dbPath = Paths.get(enVar);
-        } else {
+        try {
+            dbPath = Paths.get(System.getenv("AUTORENT_DB_PATH")).toString();
+        } catch (NullPointerException _) {
             throw new BugDetectedException("Please set the AUTORENT_DB_PATH environment variable.");
         }
     }
@@ -58,60 +56,55 @@ public abstract class Table<T extends Table<T>> {
         return this.id;
     }
 
-    // Reflection is used to access subclasse (model) specifics
-    final SQLiteQueryConstructor query;
-    final Model<T> model;
+    private final SQLiteQueryConstructor query;
+    public final Model<T> model;
 
-    public final Reflection reflect;
+    @Override
+    public Meta<T,Field> meta() {
+        return model;
+    }
 
     protected Table(Class<T> klass) {
-        this.model = Model.get(klass);
-        this.reflect = new Reflection(this);
+        this.model = Model.of(klass);
         this.query = new SQLiteQueryConstructor(this);
     }
 
-    // print in a tree-like structure (to represent aggregations)
     @Override
-    public String toString() {
+    public String toString() { // print in a tree-like structure (to represent aggregations)
 
-        String s = new String(". " + this.getClass().getSimpleName() + "\n|\n+->");
+        var s = new StringBuilder(". " + this.getClass().getSimpleName() + "\n|\n+->");
         var attributes = new ArrayList<String>();
 
         for (var column : model.columns) {
 
-            Object curr = reflect.field(column.name).getValue();
+            Object curr = reflect(column.field).getValue();
             if (curr == null) {
                 continue;
             }
 
             if (Model.existsFor(curr.getClass())) {
-                var lines = new List<String>();
-                for (String line : curr.toString().split("\n")) {
-                    lines.add(line);
-                }
-                s += String.join("\n|  ", lines);
-                s += "|\n+->";
+                s.append(String.join("\n|  ", curr.toString().split("\n")));
+                s.append("|\n+->");
             } else {
                 attributes.add(curr.toString());
             }
         }
 
         if (attributes.size() != 0) {
-            s += " Attributes: (" + String.join(", ", attributes) + ")";
+            s.append(" Attributes: (" + String.join(", ", attributes) + ")");
         } else {
-            s += " EMPTY";
+            s.append(" EMPTY");
         }
 
         if (id != null) {
             s.append("\n+-> ID: " + id);
         }
 
-        return s;
+        return s.toString();
     }
 
-    // checks equality using the ID
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj) { // checks equality using the ID
 
         if (this == obj) {
             return true;
@@ -131,24 +124,64 @@ public abstract class Table<T extends Table<T>> {
 
     // CRUD operations: (Create, Read, Update, Delete) = (add, search, edit, delete)
 
-    public static <T extends Table<T>> Vector<T> search(
-            Class<T> klass,
-            Vector<?> discreteCriterias,
-            Vector<Range> boundedCriterias) {
+    public static <T extends Table<T>> T withId(Model<T> model, int id) {
 
-        if (klass == null) {
-            String s = "Class<T> cannot be null when searching!";
+        if (model == null) {
+            String s = "Model<T> cannot be null when searching!";
             throw new IllegalArgumentException(String.format(s));
         }
 
-        var model = Model.get(klass);
         if (!db(model)) {
             String s = "No Database or no table found for the model '%s' while attempting a search!";
-            throw new IllegalStateException(String.format(s, klass));
+            throw new IllegalStateException(String.format(s, model));
         }
 
-        var preparedQuery = select(model, discreteCriterias, boundedCriterias);
-        Vector<T> tuples = null;
+        String sql = "SELECT * FROM " + tableName(model) + " WHERE id=?";
+        List<T> tuples = null;
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(0, id);
+            tuples = fetchResutls(pstmt, model);
+            sql("Ran query: %s", pstmt.toString());
+
+        } catch (SQLException e) {
+            throw new BugDetectedException("%s\n\nFor Query: %s".formatted(e, sql));
+        }
+
+        return tuples.size() > 0 ? tuples.get(0) : null;
+    }
+
+    // --------------------------------------------------------------------------------
+    // SEARCH
+    //
+    // each record instance is a criteria that can hold one enumeration of each model attribute
+    // the moment we hit a 'null' it means that we ran out of enuerations for that specific attribute
+    // e.g.
+    //      Car('Toyota',   'Malibu',    'Good State')
+    //      Car('Mercedes', 'Expensive', 'Excellent State')
+    //      Car(null,    null,       'Poor State')
+    // 
+    // The state of the car has 3 possible values while the brand and type only have 2
+    public static <T extends Table<T>,V> List<T> search(
+            Meta<T,V> meta,
+            List<Reflected<T,V>> discreteCriterias,
+            List<Range> boundedCriterias) {
+
+        if (meta == null) {
+            String s = "Meta cannot be null when searching!";
+            throw new IllegalArgumentException(String.format(s));
+        }
+
+        Model<T> model = meta.model();
+        if (!db(model)) {
+            String s = "No Database or no table found for the model '%s' while attempting a search!";
+            throw new IllegalStateException(String.format(s, model.name));
+        }
+
+        var preparedQuery = select(meta, discreteCriterias, boundedCriterias);
+        List<T> tuples = null;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                 PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template())) {
@@ -174,8 +207,7 @@ public abstract class Table<T extends Table<T>> {
             stmt.execute(tableDefinitionQuery);
 
         } catch (SQLException e) {
-            throw new BugDetectedException(
-                    e + "\n\nTable creation query:\n\n" + tableName(model));
+            throw new BugDetectedException("%s\n\nTable creation query:\n\n".formatted(e, tableName(model)));
         }
 
         sql("Defined table %s with the query:\n\n%s", tableName(model), tableDefinitionQuery);
@@ -193,26 +225,24 @@ public abstract class Table<T extends Table<T>> {
             return 0;
         }
 
+        int affected = 0;
         for (var column : this.model.columns) {
             if (Model.existsFor(column.type)) {
-                Table modelInstance = (Table) reflect.fields.get(fieldName);
+                Table<?> modelInstance = (Table<?>) reflect(column.field).getValue();
                 if (modelInstance != null && !Table.isTuple(modelInstance)) {
                     notice("Dependecy graph creation!");
                     if (modelInstance.add() == 0) {
-                        return 0;
-                    }
+                        return affected;
+                    } ++affected;
                 }
 
             }
         }
 
         var preparedQuery = query.manipulate.insert();
-        int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-                PreparedStatement pstmt = conn.prepareStatement(
-                        preparedQuery.template(),
-                        Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template(), Statement.RETURN_GENERATED_KEYS)) {
 
             bindValues(pstmt, preparedQuery.values());
             affected = pstmt.executeUpdate();
@@ -220,6 +250,8 @@ public abstract class Table<T extends Table<T>> {
             ResultSet keys = pstmt.getGeneratedKeys();
             if (keys.next()) {
                 this.id = keys.getInt(1);
+            } else {
+                error("NO GENERATED KEYS!");
             }
 
             sql("Ran query: %s\nGenerated key: %d", pstmt.toString(), this.id);
@@ -239,8 +271,7 @@ public abstract class Table<T extends Table<T>> {
         }
 
         if (!isValid() || id == null) {
-            fail("Attempting to edit " + (!isValid() ? "whilst in invalid state" : "a non-tuple") + ": %s",
-                    this.toString());
+            fail("Attempting to edit %s: %s".formatted((!isValid() ? "whilst in invalid state" : "a non-tuple"), this.toString()));
             return 0;
         }
 
@@ -268,16 +299,11 @@ public abstract class Table<T extends Table<T>> {
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
 
-        if (!reflect.cascadeDeletion()) {
-            String s = "Faillure to cascade deletion on this %s:\n\n%s";
-            throw new BugDetectedException(String.format(s, getClass().getSimpleName(), this));
-        }
-
         if (id == null) {
             return 0;
         }
 
-        String sql = String.format("DELETE FROM %s WHERE id=?", query.define.tableName);
+        String sql = "DELETE FROM %s WHERE id=?".formatted(tableName(model));
         int affected = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
@@ -293,6 +319,24 @@ public abstract class Table<T extends Table<T>> {
 
         return affected;
     }
+
+    // OVERLOADS
+
+    public static <T extends Table<T>> List<T> search(Model<T> model, Field field, String value) {
+        return Table.search(model, List.of(model.createInstance().reflect(field).setValue(value)), null);
+    }
+
+    // HELPERS
+
+    public java.lang.Record asRecord() {
+        // for (var column : model.columns) {
+        //     reflect().field(column.field).getValue();
+        // }
+        // return model.record.construct();
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    // VERIFICATIONS
 
     static public boolean dbFile() {
         File db = new File(dbPath);
@@ -320,7 +364,7 @@ public abstract class Table<T extends Table<T>> {
             ans = rs.next();
 
         } catch (SQLException e) {
-            error(e);
+            error(e.toString());
             throw new BugDetectedException("Bad SQLite!");
         }
 
@@ -331,9 +375,8 @@ public abstract class Table<T extends Table<T>> {
     public boolean isValid() {
 
         boolean valid = true;
-        for (int i = 1; i < reflect.fields.count; i++) {
-            Constraints col = reflect.fields.constraints[i];
-            if (!col.nullable() && reflect.fields.get(i) == null) {
+        for (var column : model.columns) {
+            if (!column.constraints.nullable() && reflect(column.field).getValue() == null) {
                 valid = false;
                 break;
             }
@@ -343,7 +386,7 @@ public abstract class Table<T extends Table<T>> {
     }
 
     // checks if it is a tuple, meaning a line from a sqlite table
-    static public boolean isTuple(Table tuple) {
+    static public boolean isTuple(Table<?> tuple) {
         return tuple.isValid() && tuple.getId() != null;
     }
 
@@ -356,64 +399,8 @@ public abstract class Table<T extends Table<T>> {
         return true;
     }
 
-    public static boolean isSearchable(String modelName) {
-        return getModelInstance(modelName).db();
-    }
-
-    // Utilities
-
-    // accepts null values but throws at invalid formats
-    public static LocalDate stringToDate(String s) {
-
-        if (s == null || s.equals("")) {
-            return null;
-        }
-
-        try {
-            return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid date format: " + s);
-        }
-    }
-
-    // Getting all the different values an enumerated attribute takes in the current
-    // DB state
-    public Set<String> getEnumeratedValuesOf(String att) {
-
-        if (!reflect.fields.constraintsOf(att).enumerated()) {
-            String s = "Attempting to get the values of an attribute that is not enumerated: %s";
-            throw new IllegalArgumentException(String.format(s, att));
-        }
-
-        var tuples = search(getClass().getSimpleName());
-        Set<String> values = new HashSet<>();
-        for (var tuple : tuples) {
-            values.add((String) tuple.reflect.fields.get(att));
-        }
-
-        return values;
-    }
-
-    // Model-related methods
-
-    public static Set<Class<? extends Table>> getModels() {
-        return Collections.unmodifiableSet(models);
-    }
-
-    public static List<String> getModelNames() {
-        return getModels().stream().map(Class::getSimpleName).toList();
-    }
-
-    public boolean isFieldOfModel(String fieldName) {
-        return hasSubClass(reflect.fields.typeOf(fieldName).getSimpleName());
-    }
-
-    public static String getModelNameFromCollectionName(String collectionName) {
-        return Model.byCollectionName().get(collectionName).name;
-    }
-
-    public static boolean isKeyACollection(String key) {
-        return Model.byCollectionName().keySet().contains(key);
+    public static boolean checkMigration(Model<?> model) {
+        return db(model);
     }
 
     // Used for to search for specific ranges

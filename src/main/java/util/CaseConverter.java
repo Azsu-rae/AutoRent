@@ -21,11 +21,7 @@ public class CaseConverter {
      *
      */
 
-    public static String pascalToTitle(String toConvert) {
-        return toConvert.replaceAll("([a-z])([A-Z])", "$1 $2");
-    }
-
-    public static String[] pascalOrCamelToSnake(String... toConvert) {
+    private static String[] pascalOrCamelToSnake(String... toConvert) {
         var converted = new String[toConvert.length];
         for (int i = 0; i < toConvert.length; i++) {
             converted[i] = String.join("_", Stream
@@ -35,6 +31,10 @@ public class CaseConverter {
 
         }
         return converted;
+    }
+
+    public static String pascalToTitle(String toConvert) {
+        return toConvert.replaceAll("([a-z])([A-Z])", "$1 $2");
     }
 
     public static String pascalToCamel(String toConvert) {

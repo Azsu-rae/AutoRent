@@ -1,6 +1,6 @@
 
 import mannara.Api;
-import orm.Reflection;
+import orm.reflect.Reflection;
 
 /**
  *
@@ -12,7 +12,7 @@ public class Test {
 
         Reflection.migrateModels();
 
-        new Api.JSONSeed(Api.Seed.fetchCollection("specialties")).persist();
-        new Api.JSONSeed(Api.Seed.fetchCollection("academicLevels")).persist();
+        new Api.Seed(Api.Seed.fetchCollection("specialties")).persist();
+        new Api.Seed(Api.Seed.fetchCollection("academicLevels")).persist();
     }
 }

@@ -1,17 +1,23 @@
 package model;
 
-import static orm.annotation.Constraints.*;
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
 
-import orm.Model;
+import static orm.annotate.Constraints.*;
+
 import orm.Table;
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
+
+import orm.reflect.Reflected;
+import orm.reflect.Model;
+
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
 @Collection("enrollments")
 public class Enrollment extends Table<Enrollment> {
 
     static {
-        Model.register(Enrollment.class);
+        Model.register(Enrollment.class, Enrollment.Record.class);
     }
 
     @Constraints(type = INT, foreignKey = true, nullable = false)
@@ -19,7 +25,11 @@ public class Enrollment extends Table<Enrollment> {
     @Constraints(type = INT, foreignKey = true, nullable = false)
     private Course course;
 
-    public static record Record() {
+    public static record Record(String course_name, String student_matricule) implements Reflected<Enrollment, RecordComponent> {
+        @Override
+        public Meta<Enrollment, RecordComponent> meta() {
+            return Model.of(Enrollment.class).record;
+        }
     }
 
     public Enrollment() {

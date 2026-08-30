@@ -1,75 +1,65 @@
 package orm;
 
 import java.util.ArrayList;
-import java.util.Vector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import util.BugDetectedException;
+import java.util.List;
 import util.Pair;
 
 import orm.Table.Range;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.reflect.Meta;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
 import static util.CaseConverter.*;
+import static java.util.stream.Collectors.joining;
 
 class SQLiteQueryConstructor {
 
     private final Table<?> instance;
-    private final Reflection reflect;
     private final Model<?> model;
 
     final DataManipulation manipulate;
 
-    SQLiteQueryConstructor(Table<?> instance) {
+    private final String tableName;
 
+    SQLiteQueryConstructor(Table<?> instance) {
         this.instance = instance;
-        this.reflect = instance.reflect;
         this.model = instance.model;
 
+        this.tableName = DataDefinition.tableName(model);
         this.manipulate = new DataManipulation();
     }
 
     class DataManipulation {
 
-        static PreparedQuery select(
-                Model<?> model,
-                Vector<?> discreteCriterias,
-                Vector<Range> boundedCriterias) {
+        static <V> PreparedQuery select(Meta<?,V> meta, List<? extends Reflected<?,V>> discreteCriterias, List<Range> boundedCriterias) {
 
-            var queryString = new StringBuilder("SELECT * FROM " + DataDefinition.tableName(model));
-            var queryInputs = new Vector<>();
+            var queryString = new StringBuilder("SELECT * FROM " + DataDefinition.tableName(meta.model()));
+            var queryInputs = new ArrayList<>(); // corresponding Object to each '?'
 
+            // an 'enumeration' is a String of the form: <field> IN(<value1>, <value2>, <value3>, ...)
             var enumerations = new ArrayList<String>();
-            for (var field : model.record.getDeclaredFields()) {
+            for (var component : meta.components()) {
+
+                // getting all the values `component` takes
                 var values = new ArrayList<>();
                 for (var criteria : discreteCriterias) {
-                    Object value;
-                    try {
-                        value = field.get(criteria);
-                    } catch (IllegalArgumentException | IllegalAccessException e) {
-                        throw new BugDetectedException("Record fields are private?!?");
-                    }
+                    var reflected = criteria;
+                    Object value = reflected.reflect(component).getValue();
                     if (value == null) {
                         break;
-                    }
-
-                    values.add(value);
+                    } values.add(value);
                 }
 
+                // constructing the enumeration
                 if (values.size() != 0) {
-                    var joined = values.stream()
-                            .map(_ -> "?")
-                            .collect(Collectors.joining(", "));
-                    enumerations.add(camelToSnake(field.getName()) + " IN(" + joined + ")");
                     queryInputs.addAll(values);
+                    enumerations.add(camelToSnake(meta.nameOf(component))
+                            + " IN(" + values.stream().map(_ -> "?").collect(joining(", ")) + ")");
                 }
             }
 
             if (enumerations.size() != 0) {
-                var joined = String.join(" AND ", enumerations);
-                queryString.append(" WHERE " + joined);
+                queryString.append(" WHERE " + String.join(" AND ", enumerations));
 
             }
 
@@ -78,23 +68,22 @@ class SQLiteQueryConstructor {
 
         PreparedQuery insert() {
 
-            var values = new Vector<>();
-            var names = new ArrayList<String>();
+            var columnNames = new ArrayList<String>();
+            var values = new ArrayList<>();
+
+            // getting all the (columName, value) couples
             for (var column : model.columns) {
-                Object curr = reflect.field(column.name).getValue();
+                Object curr = instance.reflect(column.field).getValue();
                 if (curr != null) {
+                    columnNames.add(camelToSnake(column.name));
                     values.add(curr);
-                    names.add(camelToSnake(column.name));
                 }
             }
 
-            var queryString = "INSERT INTO "
-                    + DataDefinition.tableName(model)
-                    + "(" + String.join(", ", names)
-                    + ") VALUES ("
+            var queryString = "INSERT INTO " + tableName + "(" + String.join(", ", columnNames) + ") VALUES ("
                     + values.stream()
                             .map(_ -> "?")
-                            .collect(Collectors.joining(", "))
+                            .collect(joining(", "))
                     + ");";
 
             return new PreparedQuery(queryString, values);
@@ -102,35 +91,34 @@ class SQLiteQueryConstructor {
 
         PreparedQuery update() {
 
-            var names = new ArrayList<String>();
-            var values = new Vector<>();
+            var columnNames = new ArrayList<String>();
+            var values = new ArrayList<>();
+
+            // getting all the (columnName, value) couples
             for (var column : model.columns) {
-
-                Object curr = reflect.field(column.name).getValue();
+                Object curr = instance.reflect(column.field).getValue();
                 if (curr == null) {
-                    continue;
+                    values.add(curr);
+                    columnNames.add(camelToSnake(column.name));
                 }
-
-                values.add(curr);
-                names.add(camelToSnake(column.name));
             }
 
-            var query = "UPDATE "
-                    + DataDefinition.tableName(model)
-                    + " SET "
-                    + names.stream().map(name -> name + " = ?").collect(Collectors.joining(", "));
-
-            query += " WHERE id=?;";
+            var query = "UPDATE " + tableName + " SET "
+                + columnNames
+                    .stream()
+                    .map(name -> name + " = ?")
+                    .collect(joining(", "))
+                + " WHERE id=?;";
             values.add(instance.id);
 
-            return new PreparedQuery(query.toString(), values);
+            return new PreparedQuery(query, values);
         }
     }
 
     class DataDefinition {
 
         public static String tableName(Model<?> model) {
-            return pascalToSnake(model.collectionName);
+            return camelToSnake(model.collectionName);
         }
 
         public static String tableDefinitionQuery(Model<?> model) {
@@ -138,16 +126,15 @@ class SQLiteQueryConstructor {
             var tableName = tableName(model);
 
             StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(");
-            Vector<String> foreignKeyDefinitions = new Vector<>();
-            Vector<String> columnDefinitions = new Vector<>();
+            List<String> foreignKeyDefinitions = new ArrayList<>();
+            List<String> columnDefinitions = new ArrayList<>();
 
             for (var column : model.columns) {
 
                 var name = camelToSnake(column.name);
                 if (column.constraints.foreignKey()) {
                     var inferedReferencedTable = pascalToSnake(column.type.getSimpleName());
-                    foreignKeyDefinitions.add(
-                            "FOREIGN KEY (" + name + ") REFERENCES " + inferedReferencedTable + "s(id)");
+                    foreignKeyDefinitions.add("FOREIGN KEY (" + name + ") REFERENCES " + inferedReferencedTable + "s(id)");
                 }
 
                 String columnDefinition = name + " " + column.constraints.type();
@@ -167,9 +154,9 @@ class SQLiteQueryConstructor {
         }
     }
 
-    class PreparedQuery extends Pair<String, Vector<Object>> {
+    static class PreparedQuery extends Pair<String, List<Object>> {
 
-        private PreparedQuery(String template, Vector<Object> values) {
+        private PreparedQuery(String template, List<Object> values) {
             super(template, values);
         }
 
@@ -177,7 +164,7 @@ class SQLiteQueryConstructor {
             return first;
         }
 
-        Vector<Object> values() {
+        List<Object> values() {
             return second;
         }
     }

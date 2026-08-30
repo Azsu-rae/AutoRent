@@ -1,29 +1,38 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
 
-import static orm.annotation.Constraints.*;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import orm.Model;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
+
+import static orm.annotate.Constraints.*;
 
 @Collection("groups")
 public class Group extends Table<Group> {
 
     static {
-        Model.register(Group.class);
+        Model.register(Group.class, Group.Record.class);
     }
+
+    @Constraints(type = INT, nullable = false)
+    private Integer number;
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private TeachingAssistant teachingAssistant;
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private Section section;
 
-    @Constraints(type = INT, nullable = false)
-    private Integer number;
-
-    public static record Record(int number) {
+    public static record Record(int number, String teachingAssistant_email, String section_identifier) implements Reflected<Group, RecordComponent> {
+        @Override
+        public Meta<Group, RecordComponent> meta() {
+            return Model.of(Group.class).record;
+        }
     }
 
     public Group() {

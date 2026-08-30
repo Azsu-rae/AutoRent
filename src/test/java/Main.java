@@ -1,15 +1,9 @@
 
-import orm.Reflection;
-import orm.Table;
-
-import gui.MainFrame;
-import model.TeachingAssistant;
+import orm.ORM;
 
 public class Main {
-
     public static void main(String[] args) {
-        // must always run. DO NOT REMOVE
-        Reflection.JVMInit(args[0].split("\n"));
-        javax.swing.SwingUtilities.invokeLater(() -> new MainFrame());
+        // args (containing the model names) must always be forwared
+        ORM.initializeInstance(args);
     }
 }
