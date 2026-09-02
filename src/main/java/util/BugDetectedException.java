@@ -1,7 +1,7 @@
 package util;
 
 public class BugDetectedException extends RuntimeException {
-    public BugDetectedException(String message) {
-        super(message);
+    public BugDetectedException(String template, Object... args) {
+        super(String.format(template, args));
     }
 }

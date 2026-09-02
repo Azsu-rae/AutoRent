@@ -24,7 +24,7 @@ public class Semester extends Table<Semester> {
     private AcademicLevel academicLevel;
 
     @Constraints(type = INT, nullable = false)
-    Integer number;
+    private Integer number;
 
     public static record Record(int number) implements Reflected<Semester, RecordComponent> {
         @Override

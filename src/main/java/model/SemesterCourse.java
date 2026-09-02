@@ -21,9 +21,9 @@ public class SemesterCourse extends Table<SemesterCourse> {
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
-    Semester semester;
+    private Semester semester;
     @Constraints(type = INT, nullable = false, foreignKey = true)
-    Course course;
+    private Course course;
 
     public static record Record(String course_name) implements Reflected<SemesterCourse, RecordComponent> {
         @Override

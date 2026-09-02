@@ -124,6 +124,23 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
 
     // CRUD operations: (Create, Read, Update, Delete) = (add, search, edit, delete)
 
+    // creates the DB file if it doesn't exist and defines the table
+    public static void migrate(Model<?> model) {
+
+        String tableDefinitionQuery = null;
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+                Statement stmt = conn.createStatement();) {
+
+            tableDefinitionQuery = tableDefinitionQuery(model);
+            stmt.execute(tableDefinitionQuery);
+
+        } catch (SQLException e) {
+            throw new BugDetectedException("%s\n\nTable creation query:\n\n%s", e, tableDefinitionQuery(model));
+        }
+
+        sql("Defined table %s with the query:\n\n%s", tableName(model), tableDefinitionQuery);
+    }
+
     public static <T extends Table<T>> T withId(Model<T> model, int id) {
 
         if (model == null) {
@@ -131,7 +148,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
             throw new IllegalArgumentException(String.format(s));
         }
 
-        if (!db(model)) {
+        if (!DBExists() || !migrated(model)) {
             String s = "No Database or no table found for the model '%s' while attempting a search!";
             throw new IllegalStateException(String.format(s, model));
         }
@@ -175,7 +192,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         }
 
         Model<T> model = meta.model();
-        if (!db(model)) {
+        if (!DBExists() || !migrated(model)) {
             String s = "No Database or no table found for the model '%s' while attempting a search!";
             throw new IllegalStateException(String.format(s, model.name));
         }
@@ -197,25 +214,9 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         return tuples;
     }
 
-    public static void migrate(Model<?> model) {
-
-        String tableDefinitionQuery = null;
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-                Statement stmt = conn.createStatement();) {
-
-            tableDefinitionQuery = tableDefinitionQuery(model);
-            stmt.execute(tableDefinitionQuery);
-
-        } catch (SQLException e) {
-            throw new BugDetectedException("%s\n\nTable creation query:\n\n".formatted(e, tableName(model)));
-        }
-
-        sql("Defined table %s with the query:\n\n%s", tableName(model), tableDefinitionQuery);
-    }
-
     public int add() {
 
-        if (!db()) {
+        if (!DBExists() || !migrated()) {
             String s = "No database or no table found for the class: %s while attempting to add!";
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
@@ -229,7 +230,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         for (var column : this.model.columns) {
             if (Model.existsFor(column.type)) {
                 Table<?> modelInstance = (Table<?>) reflect(column.field).getValue();
-                if (modelInstance != null && !Table.isTuple(modelInstance)) {
+                if (modelInstance != null && modelInstance.id == null) {
                     notice("Dependecy graph creation!");
                     if (modelInstance.add() == 0) {
                         return affected;
@@ -265,7 +266,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
 
     public int edit() {
 
-        if (!db()) {
+        if (!DBExists() || !migrated()) {
             String s = "No database or no table found for the class: %s while attempting editting!";
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
@@ -294,7 +295,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
 
     public int delete() {
 
-        if (!db()) {
+        if (!DBExists() || !migrated()) {
             String s = "No database or no table found while attempting deletion for class: %s";
             throw new IllegalStateException(String.format(s, getClass().getSimpleName()));
         }
@@ -320,39 +321,21 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         return affected;
     }
 
-    // OVERLOADS
-
-    public static <T extends Table<T>> List<T> search(Model<T> model, Field field, String value) {
-        return Table.search(model, List.of(model.createInstance().reflect(field).setValue(value)), null);
-    }
-
     // HELPERS
 
     public java.lang.Record asRecord() {
-        // for (var column : model.columns) {
-        //     reflect().field(column.field).getValue();
-        // }
-        // return model.record.construct();
+        // TODO: Implement record conversion!
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
     // VERIFICATIONS
 
-    static public boolean dbFile() {
+    static public boolean DBExists() {
         File db = new File(dbPath);
         return db.exists() && db.isFile();
     }
 
-    public boolean db() {
-        return db(model);
-    }
-
-    // checks if there's a DB and that the SQLite table is created
-    public static boolean db(Model<?> model) {
-
-        if (!dbFile()) {
-            return false;
-        }
+    public static boolean migrated(Model<?> model) {
 
         String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='%s';";
         boolean ans = false;
@@ -385,22 +368,14 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         return valid;
     }
 
-    // checks if it is a tuple, meaning a line from a sqlite table
-    static public boolean isTuple(Table<?> tuple) {
-        return tuple.isValid() && tuple.getId() != null;
+    // OVERLOADS
+
+    public static <T extends Table<T>> List<T> search(Model<T> model, Field field, String value) {
+        return Table.search(model, List.of(model.createInstance().reflect(field).setValue(value)), null);
     }
 
-    // throws an exception if it's not
-    public boolean isTupleOrElseThrow() {
-        if (!isTuple(this)) {
-            String s = "Illegal attempt of insertion! Invalid %s:\n\n%s";
-            throw new IllegalArgumentException(String.format(s, getClass().getSimpleName(), this));
-        }
-        return true;
-    }
-
-    public static boolean checkMigration(Model<?> model) {
-        return db(model);
+    public boolean migrated() {
+        return migrated(model);
     }
 
     // Used for to search for specific ranges

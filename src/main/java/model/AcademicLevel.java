@@ -21,10 +21,10 @@ public class AcademicLevel extends Table<AcademicLevel> {
     }
 
     @Constraints(type = INT, nullable = false)
-    Integer level;
+    private Integer level;
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
-    Specialty specialty;
+    private Specialty specialty;
 
     public static record Record(int level, String specialty_acronyme) implements Reflected<AcademicLevel, RecordComponent> {
         @Override

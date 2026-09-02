@@ -61,7 +61,7 @@ public class Api {
             var meta = payload.getJSONObject("meta");
             var data = payload.get("data");
 
-            model = Model.byCollectionName(meta.getString("collectionName"));
+            model = Model.ofCollectionName(meta.getString("collectionName"));
             if (model == null) {
                 throw new JSONSchemaException("Unknown collection name `%s`", meta.getString("collectionName"));
             }
@@ -70,7 +70,7 @@ public class Api {
 
                 var aggregatedBy = meta.getJSONObject("aggregatedBy");
 
-                var aggregatorModel = Model.byName(aggregatedBy.getString("model"));
+                var aggregatorModel = Model.ofName(aggregatedBy.getString("model"));
                 if (aggregatorModel == null) {
                     throw new JSONSchemaException("Unknown model name `%s`", aggregatedBy.getString("model"));
                 }
@@ -91,13 +91,16 @@ public class Api {
 
         private Table<?> fetchAggregator(Model<?> model, Field field, String clue) {
             var queryResult = Table.search(model, field, clue);
-            if (queryResult.size() != 1){
+            if (queryResult.size() != 1) {
                 throw new BugDetectedException("Aggregator clue isn't a candidate key");
             }
             return queryResult.get(0);
         }
 
         public void persist() {
+            for (var collection : collections) {
+                collection.serialize();
+            }
         }
     }
 }

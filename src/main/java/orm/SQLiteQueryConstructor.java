@@ -131,10 +131,10 @@ class SQLiteQueryConstructor {
 
             for (var column : model.columns) {
 
-                var name = camelToSnake(column.name);
+                var name = column.sqlName();
                 if (column.constraints.foreignKey()) {
-                    var inferedReferencedTable = pascalToSnake(column.type.getSimpleName());
-                    foreignKeyDefinitions.add("FOREIGN KEY (" + name + ") REFERENCES " + inferedReferencedTable + "s(id)");
+                    var referencedTable = tableName(Model.ofWildcard(column.type));
+                    foreignKeyDefinitions.add("FOREIGN KEY (" + name + ") REFERENCES " + referencedTable + "(id)");
                 }
 
                 String columnDefinition = name + " " + column.constraints.type();

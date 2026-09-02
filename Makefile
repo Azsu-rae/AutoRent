@@ -4,6 +4,7 @@ MARKER := $(BUILD_DIR)/.compiled
 CLASSPATH := lib/*
 TEST := ./src/test/java/Main.java
 MODELS := $(shell find ./src/main/java/model/ -type f -exec basename -s .java {} \;)
+DB_PATH := ./data/WhatAreTheyWorth.db
 
 .PHONY: all clean run
 
@@ -15,7 +16,8 @@ $(MARKER): $(SOURCES)
 	touch $(MARKER)
 
 run: build
-	AUTORENT_DB_PATH="./data/WhatAreTheyWorth.db" java -ea -cp "$(BUILD_DIR):$(CLASSPATH)" $(TEST) $(MODELS)
+	AUTORENT_DB_PATH=$(DB_PATH) java -ea -cp "$(BUILD_DIR):$(CLASSPATH)" $(TEST) $(MODELS)
 
 clean:
 	rm -rf bin
+	rm $(DB_PATH)

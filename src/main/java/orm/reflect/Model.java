@@ -5,16 +5,20 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.RecordComponent;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import util.BugDetectedException;
 import orm.annotate.Constraints;
 
-import static util.CaseConverter.camelToPascal;
+import static util.CaseConverter.*;
 import static util.Log.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,23 +34,48 @@ import util.ModelDefinitionException;
  */
 public class Model<T extends Table<T>> extends Meta<T,Field> {
 
+    public static void debug() {
+    }
+
+    // --------------------------------------------------------------------------------
+    // STATIC CACHE & GETTERS
+
+    public static final DGraph dgraph;
+
     private static final Map<Class<? extends Table<?>>, Model<?>> pool = new HashMap<>();
+
+    @SuppressWarnings("unchecked") // TODO: check if Table.class is allowed here
+    public static <T extends Table<T>> Model<T> of(Class<T> modelClass) {
+        return (Model<T>) pool.get(modelClass);
+    }
+
+    public static Model<?> ofWildcard(Class<?> modelClass) {
+        if (!pool.containsKey(modelClass)) {
+            throw new IllegalArgumentException(modelClass + " is not a model!");
+        }
+        return pool.get(modelClass);
+    }
+
     public static boolean existsFor(Class<?> klass) {
-        return pool.keySet().contains(klass);
+        return pool.containsKey(klass);
+    }
+
+    public static Collection<Model<?>> all() {
+        return Collections.unmodifiableCollection(pool.values());
     }
 
     private static final Map<String, Model<?>> byName = new HashMap<>();
-    public static Model<?> byName(String name) {
+    public static Model<?> ofName(String name) {
         return byName.get(name);
     }
 
     private static final Map<String, Model<?>> byCollectionName = new HashMap<>();
-    public static Model<?> byCollectionName(String collectionName) {
+    public static Model<?> ofCollectionName(String collectionName) {
         return byCollectionName.get(collectionName);
     }
 
     // --------------------------------------------------------------------------------
-    // CACHING LOGIC
+    // INITIALIZATION & CACHING MECHANISM
 
     public static void touch() {
         /* no-op, just triggers JVM loading */
@@ -54,10 +83,12 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
     static {
         buildCache();
+        dgraph = new DGraph();
     }
 
     private static final String qualifiedPackageName = "model.";
 
+    // TODO: make sure of the ORM's proper initialization
     static public void buildCache() {
         cinit("BUILDING CACHE...");
         for (var name : ORM.getInstance().bootModelNames) {
@@ -76,15 +107,17 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
         cinit("Registering %s", modelKlass);
 
         var model = new Model<T>(modelKlass, recordKlass);
-        if (pool.putIfAbsent(modelKlass, model)                                  != null
-            || byCollectionName.putIfAbsent(model.collectionName, model)    != null
-            || byName.putIfAbsent(model.name, model)                        != null) {
+        if (pool.putIfAbsent(modelKlass, model)                          != null
+            || byCollectionName.putIfAbsent(model.collectionName, model) != null
+            || byName.putIfAbsent(model.name, model)                     != null) {
 
             throw new IllegalStateException("You can't create the same model twice!");
         }
     }
 
-    // About
+    // --------------------------------------------------------------------------------
+    // IMPLEMENTATION
+
     public final String name;
     public final Class<T> klass;
     public final String collectionName;
@@ -109,16 +142,33 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
         this.record = new Record(modelKlass, recordKlass);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Table<T>> Model<T> of(Class<T> modelClass) {
-        return (Model<T>) pool.get(modelClass);
+    @Override public String toString() {
+        return name;
     }
 
-    public static Model<?> ofWildcard(Class<?> modelClass) {
-        if (Table.class.isAssignableFrom(modelClass)) {
-            return pool.get(modelClass);
-        } throw new BugDetectedException("That's not a model!");
+    // equality is checked using identity since instances are pooled
+    @Override public boolean equals(Object obj) {
+        return super.equals(obj);
     }
+
+    @Override public Model<T> model() {
+        return this;
+    }
+
+    @Override public List<Field> components() {
+        return List.of(fields.all);
+    }
+
+    @Override public Method setter(Field field) throws NoSuchMethodException {
+        return klass.getDeclaredMethod("set" + camelToPascal(field.getName()), field.getType());
+    }
+
+    @Override public Method getter(Field field) throws NoSuchMethodException {
+        return klass.getDeclaredMethod("get" + camelToPascal(field.getName()));
+    }
+
+    // --------------------------------------------------------------------------------
+    // METHODS
 
     public T createInstance() {
         try {
@@ -133,26 +183,6 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
         }
     }
 
-    @Override
-    public Model<T> model() {
-        return this;
-    }
-
-    @Override
-    public List<Field> components() {
-        return List.of(fields.all);
-    }
-
-    @Override
-    public Method setter(Field field) throws NoSuchMethodException {
-        return klass.getDeclaredMethod("set" + camelToPascal(field.getName()), field.getType());
-    }
-
-    @Override
-    public Method getter(Field field) throws NoSuchMethodException {
-        return klass.getDeclaredMethod("get" + camelToPascal(field.getName()));
-    }
-
     public boolean hasSetter(Field field) {
         try {
             setter(field);
@@ -161,6 +191,12 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
         }
 
         return true;
+    }
+
+    public static void migrateAll() {
+        for (var model : all()) {
+            Table.migrate(model);
+        }
     }
 
     public class Record extends Meta<T,RecordComponent> {
@@ -176,6 +212,22 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             pool.put(this.modelKlass, this);
         }
 
+        @Override public Model<T> model() {
+            return Model.this;
+        }
+
+        @Override public Method getter(RecordComponent component) throws NoSuchMethodException {
+            return component.getAccessor();
+        }
+
+        @Override public Method setter(RecordComponent component) throws NoSuchMethodException {
+            return null;
+        }
+
+        @Override public List<RecordComponent> components() {
+            return List.of(modelKlass.getRecordComponents());
+        }
+
         public java.lang.Record construct(Object... values) {
             try {
                 return recordKlass.getConstructor(paramTypes()).newInstance(values);
@@ -186,26 +238,6 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
                     | NoSuchMethodException e) {
                 throw new BugDetectedException("Failed to construct record of %s!".formatted(modelKlass));
             }
-        }
-
-        @Override
-        public Model<T> model() {
-            return Model.this;
-        }
-
-        @Override
-        public Method getter(RecordComponent component) throws NoSuchMethodException {
-            return component.getAccessor();
-        }
-
-        @Override
-        public Method setter(RecordComponent component) throws NoSuchMethodException {
-            return null;
-        }
-
-        @Override
-        public List<RecordComponent> components() {
-            return List.of(modelKlass.getRecordComponents());
         }
 
         public Class<?>[] paramTypes() {
@@ -241,7 +273,7 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             try {
                 all[0] = Table.class.getDeclaredField("id");
             } catch (NoSuchFieldException _) {
-                throw new BugDetectedException("-___________________-");
+                throw new BugDetectedException("`id` field is not defined!");
             }
 
             for (int i = 0; i < modelFields.length; i++) {
@@ -255,10 +287,12 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
             for (int i = 0; i < all.length; i++) {
 
-                var name = all[i].getName();
-                var constraints = all[i].getAnnotation(Constraints.class);
+                var field = all[i];
+
+                var name = field.getName();
+                var constraints = field.getAnnotation(Constraints.class);
                 if (constraints == null) {
-                    throw new BugDetectedException("No 'Constraints' annotation found for " + all[i]);
+                    throw new BugDetectedException("No 'Constraints' annotation found for " + field);
                 }
 
                 if (constraints.bounded() || constraints.lowerBound()) {
@@ -267,22 +301,12 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
                     discrete.add(name);
                 }
 
-                if (model.hasSetter(all[i])) {
+                if (model.hasSetter(field)) {
                     modifiable.add(name);
                 }
 
-                byName.put(all[i].getName(), all[i]);
+                byName.put(field.getName(), field);
             }
-        }
-
-        private List<Column> asColumns() {
-            return Stream.of(all)
-                         .map(field -> new Column(
-                                         field.getName(),
-                                         field.getType(),
-                                         field.getAnnotation(Constraints.class),
-                                         field))
-                         .toList();
         }
 
         public List<Column> haveConstraint(Function<Constraints, Boolean> check) {
@@ -293,7 +317,7 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
         public List<Column> ofType(Class<?> type) {
             return columns.stream()
-                    .filter(c -> c.type.equals(type))
+                    .filter(c -> type.isAssignableFrom(c.type))
                     .toList();
         }
 
@@ -306,8 +330,18 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             } return type;
         }
 
-        public boolean has(String name) {
+        public boolean contains(String name) {
             return byName.containsKey(name);
+        }
+
+        private List<Column> asColumns() {
+            return Stream.of(all)
+                         .map(field -> new Column(
+                                         field.getName(),
+                                         field.getType(),
+                                         field.getAnnotation(Constraints.class),
+                                         field))
+                         .toList();
         }
     }
 
@@ -324,5 +358,57 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             this.constraints = constraints;
             this.field = field;
         }
+
+        public String sqlName() {
+            if (Table.class.isAssignableFrom(type)) {
+                return camelToSnake(name) + "_id";
+            } else {
+                return camelToSnake(name);
+            }
+        }
     }
+}
+
+class DGraph extends HashMap<Model<?>, List<Model<?>>> {
+
+    Map<Model<?>, List<Model<?>>> transitiveDependencies = new HashMap<>();
+    Set<Model<?>> independentModels = new HashSet<>(Model.all());
+
+    DGraph() {
+        for (var model : Model.all()) {
+            for (var dependency : model.fields.ofType(Table.class)) {
+                this.computeIfAbsent(model, _ -> new ArrayList<>()).add(Model.ofWildcard(dependency.type));
+            }
+        }
+    }
+
+    void compute() {
+        for (var dependent : this.keySet()){
+            transitiveDependencies(dependent);
+        }
+    }
+
+    void transitiveDependencies(Model<?> vertice) {
+
+        if (transitiveDependencies.containsKey(vertice)) {
+            return;
+        }
+
+        var dependencies = new ArrayList<Model<?>>();
+        dependencies.add(vertice);
+
+        if (this.get(vertice) == null) {
+            transitiveDependencies.put(vertice, dependencies);
+            return;
+        }
+
+        for (var dependency : this.get(vertice)) {
+            independentModels.remove(dependency);
+            transitiveDependencies(dependency);
+            dependencies.addAll(transitiveDependencies.get(dependency));
+        }
+
+        transitiveDependencies.put(vertice, dependencies);
+    }
+
 }
