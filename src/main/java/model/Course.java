@@ -1,27 +1,41 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
 
-import static orm.annotation.Constraints.*;
+import orm.reflect.Reflected;
+import orm.reflect.Model;
 
-import java.util.Vector;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
+
+import static orm.annotate.Constraints.*;
 
 @Collection("courses")
-public class Course extends Table {
+public class Course extends Table<Course> {
 
     static {
-        registerModel(Course.class);
+        Model.register(Course.class, Course.Record.class);
     }
 
     @Constraints(type = TEXT, nullable = false, searchedText = true)
     private String name;
 
+    public static record Record(String name) implements Reflected<Course, RecordComponent> {
+        @Override
+        public Meta<Course, RecordComponent> meta() {
+            return Model.of(Course.class).record;
+        }
+    }
+
     public Course() {
+        super(Course.class);
     }
 
     public Course(String name) {
+        this();
         this.name = name;
     }
 
@@ -32,27 +46,5 @@ public class Course extends Table {
     public Course setName(String name) {
         this.name = name;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Course");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Course());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Course", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Course(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Course());
-        return search(tuples, boundedCriterias);
     }
 }

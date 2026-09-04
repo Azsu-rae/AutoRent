@@ -4,117 +4,89 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.time.LocalDate;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
-import static orm.Reflection.getModelInstance;
+import orm.reflect.Model;
+import util.BugDetectedException;
 
 class DataMapper {
 
-    private static Map<Class<?>, PreparedStatementSetter> javaClassPstmtSetter;
-    private static Map<Class<?>, ResultSetGetter> javaClassResultSetGetter;
-
     static {
-        javaClassPstmtSetter = new HashMap<>();
-        javaClassResultSetGetter = new HashMap<>();
         addType(
                 String.class,
                 ResultSet::getString,
-                (pstmt, i, value) -> pstmt.setString(i, (String) value));
+                PreparedStatement::setString);
         addType(
                 Double.class,
                 ResultSet::getDouble,
-                (pstmt, i, value) -> pstmt.setDouble(i, (Double) value));
+                PreparedStatement::setDouble);
         addType(
                 Integer.class,
                 ResultSet::getInt,
-                (pstmt, i, value) -> pstmt.setInt(i, (Integer) value));
-        addType(
-                LocalDate.class,
-                (rs, col) -> Table.stringToDate(rs.getString(col)),
-                (pstmt, i, value) -> pstmt.setString(i, value.toString()));
+                PreparedStatement::setInt);
     }
 
-    static void bindValues(PreparedStatement pstmt, Vector<Object> atts) throws SQLException {
-        int i = 1;
-        for (Object att : atts) {
-            if (att instanceof Table) {
-                pstmt.setInt(i, ((Table) att).getId());
-            } else {
-                getSetter(att.getClass()).set(pstmt, i, att);
-            }
-            i++;
+    static void bindValues(PreparedStatement pstmt, List<Object> values) throws SQLException {
+        for (int i = 1; i <= values.size(); i++) {
+            var att = values.get(i - 1);
+            PstmtSetter.applyFor(att.getClass(), pstmt, att, i);
         }
     }
 
-    static Vector<Table> fetchResutls(PreparedStatement pstmt, String className) throws SQLException {
+    static <T extends Table<T>> List<T> fetchResutls(PreparedStatement pstmt, Model<T> model) throws SQLException {
 
-        Vector<Table> tuples = new Vector<>();
+        List<T> tuples = new ArrayList<>();
         ResultSet rs = pstmt.executeQuery();
 
         while (rs.next()) {
-            Table tuple = getModelInstance(className);
-            for (int i = 0; i < tuple.reflect.fields.count; i++) {
-                String colName = tuple.query.define.columnInfos.elementAt(i).name();
-                Class<?> attClass = tuple.reflect.fields.typeOf(i);
-                Object value = getValue(rs, colName, attClass);
-                tuple.reflect.fields.set(i, value);
+            T tuple = model.createInstance();
+            for (var column : model.columns) {
+                Object value;
+                value = ResultSetGetter.of(column.visibleType()).get(rs, column.sqlName());
+                tuple.reflect(column.field).setValue(rs.wasNull() ? null : value);
             }
+            tuple.id = (Integer) ResultSetGetter.of(Integer.class).get(rs, "id");
             tuples.add(tuple);
         }
         return tuples;
     }
 
-    private static Object getValue(ResultSet rs, String columnName, Class<?> attributeClass) throws SQLException {
-        if (Table.class.isAssignableFrom(attributeClass)) {
-            return idToInstance(rs.getInt(columnName), attributeClass.getSimpleName());
-        } else {
-            Object v = getGetter(attributeClass).get(rs, columnName);
-            return rs.wasNull() ? null : v;
-        }
-    }
-
-    private static Table idToInstance(int id, String className) {
-
-        Table c = getModelInstance(className);
-        c.id = id;
-
-        Integer found = null;
-        if (Table.isSearchable(className)) {
-            Vector<Table> r = Table.search(c);
-            found = r.size();
-            if (r.size() > 0) {
-                return r.elementAt(0);
-            }
-        }
-
-        String s = "idToInstance exception: (isSearchable, size, className) = (%s, %s, %s)";
-        throw new IllegalArgumentException(String.format(s, Table.isSearchable(className), found, className));
-    }
-
-    private static void addType(Class<?> type, ResultSetGetter resultSetGetter, PreparedStatementSetter pstmtSetter) {
-        javaClassPstmtSetter.put(type, pstmtSetter);
-        javaClassResultSetGetter.put(type, resultSetGetter);
-    }
-
-    private static PreparedStatementSetter getSetter(Class<?> type) {
-        return javaClassPstmtSetter.get(type);
-    }
-
-    private static ResultSetGetter getGetter(Class<?> type) {
-        return javaClassResultSetGetter.get(type);
+    private static <T> void addType(Class<?> type, ResultSetGetter resultSetGetter, PstmtSetter<T> pstmtSetter) {
+        PstmtSetter.pool.put(type, pstmtSetter);
+        ResultSetGetter.pool.put(type, resultSetGetter);
     }
 
     @FunctionalInterface
-    private interface PreparedStatementSetter {
-        public void set(PreparedStatement pstmt, int i, Object value) throws SQLException;
+    private interface PstmtSetter<T> {
+
+        public void set(PreparedStatement pstmt, int i, T value) throws SQLException;
+
+        final static Map<Class<?>, PstmtSetter<?>> pool = new HashMap<>();
+
+        @SuppressWarnings("unchecked")
+        private static <T> void applyFor(Class<T> type, PreparedStatement pstmt, Object att, int i) throws SQLException {
+            if (att instanceof Table) {
+                pstmt.setInt(i, ((Table<?>) att).getId());
+            } else {
+                ((PstmtSetter<T>) pool.get(att.getClass())).set(pstmt, i, (T) att);
+            }
+        }
     }
 
     @FunctionalInterface
     private interface ResultSetGetter {
         public Object get(ResultSet rs, String col) throws SQLException;
+
+        final static Map<Class<?>, ResultSetGetter> pool = new HashMap<>();
+
+        static ResultSetGetter of(Class<?> klass) {
+            if (Table.class.isAssignableFrom(klass)) {
+                return (rs, columnName) -> Table.withId(Model.ofWildcard(klass), rs.getInt(columnName));
+            }
+            return pool.get(klass);
+        }
     }
 }

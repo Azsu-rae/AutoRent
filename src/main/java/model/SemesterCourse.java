@@ -1,27 +1,40 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import java.util.Vector;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-@Collection("semester_course_many_to_many")
-public class SemesterCourse extends Table {
+import static orm.annotate.Constraints.*;
+
+@Collection("semesterCourseManyToMany")
+public class SemesterCourse extends Table<SemesterCourse> {
 
     static {
-        registerModel(SemesterCourse.class);
+        Model.register(SemesterCourse.class, SemesterCourse.Record.class);
+    }
+
+    @Constraints(type = INT, nullable = false, foreignKey = true)
+    private Semester semester;
+    @Constraints(type = INT, nullable = false, foreignKey = true)
+    private Course course;
+
+    public static record Record(String course_name) implements Reflected<SemesterCourse, RecordComponent> {
+        @Override
+        public Meta<SemesterCourse, RecordComponent> meta() {
+            return Model.of(SemesterCourse.class).record;
+        }
     }
 
     public SemesterCourse() {
+        super(SemesterCourse.class);
     }
-
-    @Constraints(type = INT, nullable = false, foreignKey = true)
-    Semester semester;
-    @Constraints(type = INT, nullable = false, foreignKey = true)
-    Course course;
 
     public Semester getSemester() {
         return semester;
@@ -39,27 +52,5 @@ public class SemesterCourse extends Table {
     public SemesterCourse setCourse(Course course) {
         this.course = course;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("SemesterCourse");
-    }
-
-    public static Vector<Table> search() {
-        return search(new SemesterCourse());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("SemesterCourse", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new SemesterCourse(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new SemesterCourse());
-        return search(tuples, boundedCriterias);
     }
 }

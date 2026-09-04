@@ -1,32 +1,50 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
 
-import static orm.annotation.Constraints.*;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import java.util.Vector;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
+
+import static orm.annotate.Constraints.*;
 
 @Collection("groups")
-public class Group extends Table {
+public class Group extends Table<Group> {
 
     static {
-        registerModel(Group.class);
+        Model.register(Group.class, Group.Record.class);
     }
+
+    @Constraints(type = INT, nullable = false)
+    private Integer number;
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private TeachingAssistant teachingAssistant;
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private Section section;
 
-    @Constraints(type = INT, nullable = false)
-    private Integer number;
+    public static record Record(int number, String teachingAssistant_email, String section_identifier) implements Reflected<Group, RecordComponent> {
+        @Override
+        public Meta<Group, RecordComponent> meta() {
+            return Model.of(Group.class).record;
+        }
+    }
 
     public Group() {
+        super(Group.class);
+    }
+
+    @Override public String toString() {
+        return "G" + number;
     }
 
     public Group(TeachingAssistant teachingAssistant, Section section, Integer number) {
+        this();
         this.teachingAssistant = teachingAssistant;
         this.section = section;
         this.number = number;
@@ -57,27 +75,5 @@ public class Group extends Table {
     public Group setTeachingAssistant(TeachingAssistant teachingAssistant) {
         this.teachingAssistant = teachingAssistant;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Group");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Group());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Group", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Group(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Group());
-        return search(tuples, boundedCriterias);
     }
 }

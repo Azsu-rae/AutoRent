@@ -2,16 +2,9 @@
 .*
 
 !.gitignore
-!.env.pub.sh
+!.gitkeep
 
 dependency-reduced-pom.xml
 
-__pycache__
-
 target/
 bin/
-
-/TODO.txt
-
-/backend/ressources/databases/AutoRent.db
-/backend/TODO.txt

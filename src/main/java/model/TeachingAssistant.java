@@ -1,18 +1,22 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-import java.util.Vector;
+import static orm.annotate.Constraints.*;
 
 @Collection("teachingAssistants")
-public class TeachingAssistant extends Table {
+public class TeachingAssistant extends Table<TeachingAssistant> {
 
     static {
-        registerModel(TeachingAssistant.class);
+        Model.register(TeachingAssistant.class, TeachingAssistant.Record.class);
     }
 
     @Constraints(type = TEXT, nullable = false, searchedText = true)
@@ -25,10 +29,19 @@ public class TeachingAssistant extends Table {
     @Constraints(type = TEXT, unique = true)
     private String phoneNumber;
 
+    public static record Record(String surname, String name, String email, String phoneNumber) implements Reflected<TeachingAssistant, RecordComponent>  {
+        @Override
+        public Meta<TeachingAssistant, RecordComponent> meta() {
+            return Model.of(TeachingAssistant.class).record;
+        }
+    }
+
     public TeachingAssistant() {
+        super(TeachingAssistant.class);
     }
 
     public TeachingAssistant(String name, String surname, String email, String phoneNumber) {
+        this();
         this.name = name;
         this.surname = surname;
 
@@ -70,27 +83,5 @@ public class TeachingAssistant extends Table {
     public TeachingAssistant setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("TeachingAssistant");
-    }
-
-    public static Vector<Table> search() {
-        return search(new TeachingAssistant());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("TeachingAssistant", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new TeachingAssistant(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new TeachingAssistant());
-        return search(tuples, boundedCriterias);
     }
 }

@@ -1,27 +1,40 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import java.util.Vector;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
+
+import static orm.annotate.Constraints.*;
 
 @Collection("semesters")
-public class Semester extends Table {
+public class Semester extends Table<Semester> {
 
     static {
-        registerModel(Semester.class);
+        Model.register(Semester.class, Semester.Record.class);
     }
 
     @Constraints(type = INT, nullable = false, foreignKey = true)
     private AcademicLevel academicLevel;
 
-    @Constraints(type = INT, nullable = false, foreignKey = true)
-    Integer number;
+    @Constraints(type = INT, nullable = false)
+    private Integer number;
+
+    public static record Record(int number) implements Reflected<Semester, RecordComponent> {
+        @Override
+        public Meta<Semester, RecordComponent> meta() {
+            return Model.of(Semester.class).record;
+        }
+    }
 
     public Semester() {
+        super(Semester.class);
     }
 
     public AcademicLevel getAcademicLevel() {
@@ -40,27 +53,5 @@ public class Semester extends Table {
     public Semester setNumber(Integer number) {
         this.number = number;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Semester");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Semester());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Semester", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Semester(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Semester());
-        return search(tuples, boundedCriterias);
     }
 }

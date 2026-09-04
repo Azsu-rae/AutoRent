@@ -1,6 +1,8 @@
 
 import mannara.Api;
-import orm.Reflection;
+import orm.reflect.Model;
+
+import static util.Log.*;
 
 /**
  *
@@ -10,9 +12,18 @@ public class Test {
 
     static void init() {
 
-        Reflection.migrateModels();
+        Model.migrateAll();
 
-        new Api.JSONSeed(Api.Seed.fetchCollection("specialties")).persist();
-        new Api.JSONSeed(Api.Seed.fetchCollection("academicLevels")).persist();
+        var seed = new Api.Seed("specialties");
+        for (var s : seed.collection) {
+            s.persist();
+        }
+
+        int count = 0;
+        seed = new Api.Seed("academicLevels");
+        for (var s : seed.collection) {
+            count += s.persist();
+        }
+        print("persisted = %d", count);
     }
 }

@@ -1,9 +1,10 @@
 package util;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import orm.Table;
-import orm.Table.Range;
 
 /**
  * Log
@@ -11,89 +12,50 @@ import orm.Table.Range;
 public class Log {
 
     public static void notice(String format, Object... args) {
-        System.out.println();
-        System.out.println(String.format(format, args));
+        print(String.format(format, args));
     }
 
     public static void cinit(String format, Object... args) {
-        System.out.println();
-        System.out.println(String.format(format, args));
+        print(String.format(format, args));
     }
 
     public static void sql(String format, Object... args) {
-        System.out.println();
-        System.out.println(String.format(format, args));
+        print(String.format(format, args));
+    }
+
+    public static void debug(String id, Object obj) {
+        print(id + obj);
     }
 
     public static void fail(String format, Object... args) {
-        System.out.println();
-        System.out.println(String.format(format, args));
+        print(String.format(format, args));
+    }
+
+    public static void error(String format, Object... args) {
+        print(String.format(format, args));
     }
 
     public static void error(Exception e) {
-        e.printStackTrace();
+        print(e);
     }
 
-    public static void error(Exception e, String[] suspects) {
-        e.printStackTrace();
-        for (String s : suspects) {
-            error(s);
-        }
+    public static void printArray(Object[] objects) {
+        print(arrayToString(objects));
     }
 
-    public static void error(Exception e, String s, Object... args) {
-        e.printStackTrace();
-        error(s, args);
+    public static void print(String template, Object... args) {
+        IO.println("\n" + String.format(template, args));
     }
 
-    public static void error(String s, Object... args) {
-        System.err.println(String.format("\n" + s, args));
+    public static void print(Object obj) {
+        IO.println("\n" + obj);
     }
 
-    public static void print(Object o) {
-        print("%s", o);
+    public static String arrayToString(Object... objects) {
+        return "[" + Stream.of(objects).map(o -> o.toString()).collect(Collectors.joining(", ")) + "]";
     }
 
-    public static void print(String s, Object... args) {
-        System.out.println(String.format("\n" + s, args));
-    }
-
-    public static void print(Vector<Range> ranges) {
-        for (var range : ranges) {
-            print(range.toString());
-        }
-    }
-
-    public static void print(Vector<? extends Table> tuples, String name) {
-
-        StringBuilder s = new StringBuilder();
-
-        s.append("\n");
-        if (tuples == null) {
-            s.append("No tuples passed (null!) called " + name + "!");
-        } else if (tuples.size() == 0) {
-            s.append("No Results for " + name + "!");
-        } else {
-            s.append(" --------------");
-            s.append(" Search Result for " + name);
-            s.append(" ------------");
-            s.append("\n\n");
-        }
-        s.append(toString(tuples));
-
-        print(s.toString());
-    }
-
-    public static String toString(Vector<? extends Table> tuples) {
-
-        StringBuilder s = new StringBuilder();
-        boolean first = true;
-
-        for (Table tuple : tuples) {
-            s.append((first ? "" : "\n\n") + tuple);
-            first = false;
-        }
-
-        return s.toString();
+    public static String toString(List<? extends Table<?>> list) {
+        return list.stream().map(s -> s.toString()).collect(Collectors.joining("\n\n"));
     }
 }

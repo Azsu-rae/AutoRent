@@ -1,317 +1,164 @@
 package orm;
 
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.stream.Stream;
-
-import util.CaseConverter;
+import java.util.ArrayList;
+import java.util.List;
 import util.Pair;
 
 import orm.Table.Range;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.reflect.Meta;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-import static util.Log.print;
 import static util.CaseConverter.*;
+import static java.util.stream.Collectors.joining;
+
+import static util.Log.*;
 
 class SQLiteQueryConstructor {
 
-    final Table instance;
-    final Reflection reflect;
+    private final Table<?> instance;
+    private final Model<?> model;
 
-    final DataDefinition define;
     final DataManipulation manipulate;
 
-    SQLiteQueryConstructor(Table instance) {
+    private final String tableName;
 
+    SQLiteQueryConstructor(Table<?> instance) {
         this.instance = instance;
-        this.reflect = instance.reflect;
+        this.model = instance.model;
 
-        this.define = new DataDefinition();
+        this.tableName = DataDefinition.tableName(model);
         this.manipulate = new DataManipulation();
     }
 
     class DataManipulation {
 
-        StringBuilder queryString;
-        Vector<Object> queryInputs;
+        static <V> PreparedQuery select(Meta<?,V> meta, List<? extends Reflected<?,V>> discreteCriterias, List<Range> boundedCriterias) {
 
-        int checkedBoundedCriterias, currentAttribute, i;
-        boolean where, close;
-        Column col;
+            var queryString = new StringBuilder("SELECT * FROM " + DataDefinition.tableName(meta.model()));
+            var queryInputs = new ArrayList<>(); // corresponding Object to each '?'
 
-        private DataManipulation() {
-        }
+            // an 'enumeration' is a String of the form: <field> IN(<value1>, <value2>, <value3>, ...)
+            var enumerations = new ArrayList<String>();
+            for (var component : meta.components()) {
 
-        void init(String s) {
-
-            queryString = new StringBuilder(s);
-            queryInputs = new Vector<>();
-            checkedBoundedCriterias = 0;
-            currentAttribute = 0;
-            where = true;
-            close = false;
-        }
-
-        PreparedQuery select(Vector<? extends Table> discreteCriterias, Vector<Range> boundedCriterias) {
-
-            init("SELECT * FROM " + define.tableName);
-
-            for (i = 0; i < define.columnInfos.size(); i++) {
-
-                col = define.columnInfos.elementAt(i);
-
-                if (col.constraints().upperBound()) {
-                    continue;
+                // getting all the values `component` takes
+                var values = new ArrayList<>();
+                for (var criteria : discreteCriterias) {
+                    var reflected = criteria;
+                    Object value = reflected.reflect(component).getValue();
+                    if (value == null) {
+                        break;
+                    } values.add(value);
                 }
 
-                if (col.constraints().bounded() || col.constraints().lowerBound()) {
-                    appendBoundedCondition(boundedCriterias);
-                } else {
-                    appendDiscreteCondition(discreteCriterias);
+                // constructing the enumeration
+                if (values.size() != 0) {
+                    queryInputs.addAll(values);
+                    enumerations.add(meta.nameOf(component)
+                            + " IN(" + values.stream().map(_ -> "?").collect(joining(", ")) + ")");
                 }
             }
-            queryString.append((close ? ")" : ""));
+
+            if (enumerations.size() != 0) {
+                queryString.append(" WHERE " + String.join(" AND ", enumerations));
+
+            }
 
             return new PreparedQuery(queryString.toString() + ";", queryInputs);
         }
 
         PreparedQuery insert() {
 
-            init("INSERT INTO " + define.tableName + "(");
-            StringBuilder valuesQuery = new StringBuilder("VALUES (");
+            var columnNames = new ArrayList<String>();
+            var values = new ArrayList<>();
 
-            boolean first = true;
-            for (i = 1; i < define.columnInfos.size(); i++) {
-
-                Object curr = reflect.fields.get(i);
-                if (curr == null) {
-                    continue;
+            // getting all the (columName, value) couples
+            for (var column : model.columns) {
+                Object curr = instance.reflect(column.field).getValue();
+                if (curr != null) {
+                    columnNames.add(column.sqlName());
+                    values.add(curr);
                 }
-
-                queryString.append((first ? "" : ", ") + define.columnInfos.elementAt(i).name());
-                valuesQuery.append((first ? "" : ", ") + "?");
-                queryInputs.add(curr);
-                first = false;
             }
 
-            queryString.append(") ");
-            valuesQuery.append(");");
-            String pstmt = queryString.toString() + valuesQuery.toString();
+            var queryString = "INSERT INTO " + tableName + "(" + String.join(", ", columnNames) + ") VALUES ("
+                    + values.stream()
+                            .map(_ -> "?")
+                            .collect(joining(", "))
+                    + ");";
 
-            return new PreparedQuery(pstmt, queryInputs);
+            return new PreparedQuery(queryString, values);
         }
 
         PreparedQuery update() {
 
-            StringBuilder query = new StringBuilder("UPDATE " + define.tableName + " SET ");
-            Vector<Object> inputs = new Vector<>();
+            var columnNames = new ArrayList<String>();
+            var values = new ArrayList<>();
 
-            boolean first = true;
-            for (int i = 1; i < define.columnInfos.size(); i++) {
-
-                Object curr = reflect.fields.get(i);
+            // getting all the (columnName, value) couples
+            for (var column : model.columns) {
+                Object curr = instance.reflect(column.field).getValue();
                 if (curr == null) {
-                    continue;
+                    values.add(curr);
+                    columnNames.add(column.sqlName());
                 }
-
-                query.append((!first ? ", " : "") + define.columnInfos.elementAt(i).name() + " = ? ");
-                inputs.add(curr);
-                first = false;
-            }
-            query.append("WHERE id=?;");
-            inputs.add(instance.id);
-
-            return new PreparedQuery(query.toString(), inputs);
-        }
-
-        private void appendBoundedCondition(Vector<Range> boundedCriterias) {
-
-            if (boundedCriterias == null || checkedBoundedCriterias == boundedCriterias.size()) {
-                return;
             }
 
-            for (Range criteria : boundedCriterias) {
+            var query = "UPDATE " + tableName + " SET "
+                + columnNames
+                    .stream()
+                    .map(name -> name + " = ?")
+                    .collect(joining(", "))
+                + " WHERE id=?;";
+            values.add(instance.id);
 
-                if (!criteria.isValidCriteriaFor(reflect)) {
-                    String s = "Invalid bounded criteria: %s!";
-                    throw new IllegalArgumentException(String.format(s, criteria));
-                }
-
-                if (!criteria.attributeName.equals(col.name())) {
-                    continue;
-                }
-
-                appendConnector(" OR ");
-
-                Object lowerBound = criteria.lowerBound(), upperBound = criteria.upperBound();
-                if (col.constraints().lowerBound()) {
-                    appendOverlap(col.name(), col.constraints().boundedPair(), lowerBound, upperBound);
-                } else {
-                    queryString.append(col.name() + " BETWEEN ? AND ?");
-                    queryInputs.add(lowerBound);
-                    queryInputs.add(upperBound);
-                }
-
-                checkedBoundedCriterias++;
-            }
-        }
-
-        private void appendDiscreteCondition(Vector<? extends Table> discreteCriterias) {
-
-            for (int j = 0; j < discreteCriterias.size(); j++) {
-
-                Object curr = discreteCriterias.elementAt(j).reflect.fields.get(i);
-                if (curr == null) {
-                    continue;
-                }
-
-                if (appendConnector(", ?", curr)) {
-                    continue;
-                }
-
-                if (define.columnInfos.elementAt(i).constraints().searchedText()) {
-                    boolean needOr = false;
-                    for (var att : reflect.fields.haveConstraint(Constraints::searchedText)) {
-                        queryString.append((needOr ? " OR " : "") + att);
-                        queryString.append(" LIKE ?");
-                        queryInputs.add(String.valueOf(curr) + "%");
-                        needOr = true;
-                    }
-                    continue;
-                }
-
-                queryString.append(define.columnInfos.elementAt(i).name());
-                queryString.append(" IN (?");
-                queryInputs.add(curr);
-                close = true;
-            }
-        }
-
-        private void appendConnector(String connector) {
-            appendConnector(connector, null);
-        }
-
-        private boolean appendConnector(String connector, Object curr) {
-
-            if (where) {
-                queryString.append(" WHERE ");
-                where = false;
-            } else if (currentAttribute == i) {
-                queryString.append(connector);
-                if (curr != null) {
-                    queryInputs.add(curr);
-                }
-                return true;
-            } else if (currentAttribute < i) {
-                queryString.append((close ? ")" : "") + " AND ");
-                close = false;
-            }
-            currentAttribute = i;
-            return false;
-        }
-
-        private void appendOverlap(String lowerBoundName, String upperBoundName, Object lowerBound, Object upperBound) {
-
-            String overlapCondition = "(" + lowerBoundName + " BETWEEN ? AND ?) OR " +
-                    "(" + upperBoundName + " BETWEEN ? AND ?) OR " +
-                    "(" + lowerBoundName + " < ? AND " + upperBoundName + " > ?)";
-
-            queryString.append("(" + overlapCondition.toString() + ")");
-            queryInputs.add(lowerBound);
-            queryInputs.add(upperBound);
-            queryInputs.add(lowerBound);
-            queryInputs.add(upperBound);
-            queryInputs.add(lowerBound);
-            queryInputs.add(upperBound);
+            return new PreparedQuery(query, values);
         }
     }
 
     class DataDefinition {
 
-        final String tableName;
-        final Vector<Column> columnInfos;
+        public static String tableName(Model<?> model) {
+            return camelToSnake(model.collectionName);
+        }
 
-        final private String tableCreationQuery;
+        public static String tableDefinitionQuery(Model<?> model) {
 
-        /*
-         * CREATE TABLE payments(
-         * id INTEGER PRIMARY KEY AUTOINCREMENT,
-         * id_reservation INTEGER NOT NULL,
-         * date DATE NOT NULL,
-         * method TEXT NOT NULL,
-         * amount DECIMAL NOT NULL,
-         * FOREIGN KEY (id_reservation) REFERENCES reservations(id)
-         * )
-         */
-        private DataDefinition() {
+            var tableName = tableName(model);
 
-            tableName = pascalToSnake(instance.getClass().getAnnotation(Collection.class).value());
-            columnInfos = new Vector<>();
+            List<String> foreignKeyDefinitions = new ArrayList<>();
+            List<String> columnDefinitions = new ArrayList<>();
 
-            Constraints[] constraints = reflect.fields.constraints;
-            String[] names = camelToSnake(reflect.fields.names);
-            String[] types = pascalToSnake(Stream
-                    .of(reflect.fields.types)
-                    .map(type -> type.getClass().getSimpleName())
-                    .toArray(String[]::new));
+            for (var column : model.columns) {
 
-            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(");
-            Vector<String> foreignKeyDefinitions = new Vector<>();
-            Vector<String> columnDefinitions = new Vector<>();
-
-            for (int i = 0; i < reflect.fields.count; i++) {
-
-                if (constraints[i].foreignKey()) {
-                    names[i] = names[i] + "_id";
-                    foreignKeyDefinitions.add("FOREIGN KEY (" + names[i] + ") REFERENCES " + types[i] + "s(id)");
+                var name = column.sqlName();
+                if (column.constraints.foreignKey()) {
+                    var referencedTable = tableName(Model.ofWildcard(column.type));
+                    foreignKeyDefinitions.add("FOREIGN KEY (" + name + ") REFERENCES " + referencedTable + "(id)");
                 }
 
-                String columnDefinition = names[i] + " " + constraints[i].type();
-                columnDefinition += constraints[i].nullable() ? "" : " NOT NULL";
-                columnDefinition += constraints[i].primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "";
+                String columnDefinition = name + " " + column.constraints.type();
+                columnDefinition += column.constraints.nullable() ? "" : " NOT NULL";
                 columnDefinitions.add(columnDefinition);
-
-                columnInfos.add(new Column(names[i], constraints[i]));
             }
 
-            String columns = String.join(", ", columnDefinitions);
-            String foreignKeys = String.join(", ", foreignKeyDefinitions);
+            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(id INTEGER PRIMARY KEY AUTOINCREMENT, ");
 
-            if (!foreignKeys.equals("")) {
-                table.append(String.join(", ", columns, foreignKeys));
-            } else {
-                table.append(columns);
+            table.append(String.join(", ", columnDefinitions));
+            if (foreignKeyDefinitions.size() != 0) {
+                table.append(", " + String.join(", ", foreignKeyDefinitions));
             }
 
             table.append(");");
 
-            this.tableCreationQuery = table.toString();
-        }
-
-        String table() {
-            return tableCreationQuery;
+            return table.toString();
         }
     }
 
-    class Column extends Pair<String, Constraints> {
+    static class PreparedQuery extends Pair<String, List<Object>> {
 
-        private Column(String name, Constraints constraints) {
-            super(name, constraints);
-        }
-
-        String name() {
-            return first;
-        }
-
-        Constraints constraints() {
-            return second;
-        }
-    }
-
-    class PreparedQuery extends Pair<String, Vector<Object>> {
-
-        private PreparedQuery(String template, Vector<Object> values) {
+        private PreparedQuery(String template, List<Object> values) {
             super(template, values);
         }
 
@@ -319,7 +166,7 @@ class SQLiteQueryConstructor {
             return first;
         }
 
-        Vector<Object> values() {
+        List<Object> values() {
             return second;
         }
     }

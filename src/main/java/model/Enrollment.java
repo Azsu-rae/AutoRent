@@ -1,24 +1,46 @@
 package model;
 
-import static orm.annotation.Constraints.*;
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
 
-import java.util.Vector;
+import static orm.annotate.Constraints.*;
 
 import orm.Table;
-import orm.annotation.Constraints;
-import orm.annotation.Collection;
+
+import orm.reflect.Reflected;
+import orm.reflect.Model;
+
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
 @Collection("enrollments")
-public class Enrollment extends Table {
+public class Enrollment extends Table<Enrollment> {
 
     static {
-        registerModel(Enrollment.class);
+        Model.register(Enrollment.class, Enrollment.Record.class);
     }
 
     @Constraints(type = INT, foreignKey = true, nullable = false)
     private Student student;
     @Constraints(type = INT, foreignKey = true, nullable = false)
     private Course course;
+
+    public static record Record(String course_name, String student_matricule) implements Reflected<Enrollment, RecordComponent> {
+        @Override
+        public Meta<Enrollment, RecordComponent> meta() {
+            return Model.of(Enrollment.class).record;
+        }
+    }
+
+    public Enrollment() {
+        super(Enrollment.class);
+    }
+
+    public Enrollment(Student student, Course course) {
+        this();
+        this.student = student;
+        this.course = course;
+    }
 
     public Student getStudent() {
         return student;
@@ -36,27 +58,5 @@ public class Enrollment extends Table {
     public Enrollment setCourse(Course course) {
         this.course = course;
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Enrollment");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Enrollment());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Enrollment", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Enrollment(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Enrollment());
-        return search(tuples, boundedCriterias);
     }
 }

@@ -1,37 +1,49 @@
 package model;
 
+import java.lang.reflect.RecordComponent;
+import orm.reflect.Meta;
+
 import orm.Table;
-import orm.annotation.Collection;
-import orm.annotation.Constraints;
+import orm.annotate.Collection;
+import orm.annotate.Constraints;
 
-import static orm.annotation.Constraints.*;
+import orm.reflect.Model;
+import orm.reflect.Reflected;
 
-import java.util.Set;
-import java.util.Vector;
+import static orm.annotate.Constraints.*;
 
 @Collection("specialties")
-public class Specialty extends Table {
+public class Specialty extends Table<Specialty> {
 
     static {
-        registerModel(Specialty.class);
+        Model.register(Specialty.class, Specialty.Record.class);
     }
 
-    static final public String LICENCE = "Licence";
-    static final public String MASTER = "Master";
-
-    static final private Set<String> cyclePossibilities = Set.of(LICENCE, MASTER);
+    public enum Cycle {
+        LICENCE,
+        MASTER
+    }
 
     @Constraints(type = TEXT, nullable = false, searchedText = true)
     private String name;
     @Constraints(type = TEXT, nullable = false, searchedText = true)
     private String acronyme;
     @Constraints(type = TEXT, nullable = false, enumerated = true)
-    private String cycle;
+    private Cycle cycle;
+
+    public static record Record(String name, String acronyme, Cycle cycle) implements Reflected<Specialty, RecordComponent> {
+        @Override
+        public Meta<Specialty, RecordComponent> meta() {
+            return Model.of(Specialty.class).record;
+        }
+    }
 
     public Specialty() {
+        super(Specialty.class);
     }
 
     public Specialty(String name, String acronyme, String cycle) {
+        this();
         this.setName(name);
         this.setAcronyme(acronyme);
         this.setCycle(cycle);
@@ -56,37 +68,21 @@ public class Specialty extends Table {
     }
 
     public String getCycle() {
-        return cycle;
+        if (cycle == null) {
+            return null;
+        }
+        return switch (cycle) {
+            case LICENCE -> "Licence";
+            case MASTER -> "Master";
+        };
     }
 
     public Specialty setCycle(String cycle) {
-        if (!cyclePossibilities.contains(cycle)) {
-            throw new IllegalArgumentException("Invalid cycle passed!");
-        }
-
-        this.cycle = cycle;
+        this.cycle = switch (cycle) {
+            case "Licence" -> Cycle.LICENCE;
+            case "Master" -> Cycle.MASTER;
+            default -> throw new IllegalArgumentException(cycle + " is not a valid specialty cycle!");
+        };
         return this;
-    }
-
-    public static boolean isSearchable() {
-        return isSearchable("Specialty");
-    }
-
-    public static Vector<Table> search() {
-        return search(new Specialty());
-    }
-
-    public static Vector<Table> search(String attName, Object value) {
-        return search("Specialty", attName, value);
-    }
-
-    public static Vector<Table> search(String boundedAttributeName, Object lowerBound, Object upperBound) {
-        return search(new Specialty(), boundedAttributeName, lowerBound, upperBound);
-    }
-
-    public static Vector<Table> searchRanges(Vector<Range> boundedCriterias) {
-        Vector<Table> tuples = new Vector<>();
-        tuples.add(new Specialty());
-        return search(tuples, boundedCriterias);
     }
 }
