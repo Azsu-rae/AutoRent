@@ -7,8 +7,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>asura</groupId>
-    <artifactId>AutoRent</artifactId>
-    <version>1.0</version>
+    <artifactId>YADL</artifactId>
+    <version>0.1</version>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -18,24 +18,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>Main</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-jar-plugin</artifactId>
               <version>3.3.0</version>
-              <configuration>
-                <archive>
-                  <manifest>
-                    <mainClass>gui.MainApp</mainClass>
-                  </manifest>
-                </archive>
-              </configuration>
             </plugin>
         </plugins>
     </build>
@@ -50,16 +35,6 @@
           <groupId>org.json</groupId>
           <artifactId>json</artifactId>
           <version>20250517</version>
-        </dependency>
-		<dependency>
-            <groupId>com.toedter</groupId>
-            <artifactId>jcalendar</artifactId>
-            <version>1.4</version>
-		</dependency>
-        <dependency>
-          <groupId>com.formdev</groupId>
-          <artifactId>flatlaf</artifactId>
-          <version>3.4</version>
         </dependency>
     </dependencies>
 </project>
