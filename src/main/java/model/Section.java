@@ -37,6 +37,10 @@ public class Section extends Table<Section> {
         super(Section.class);
     }
 
+    @Override public String toString() {
+        return "S" + identifier;
+    }
+
     public Section(AcademicLevel academicLevel, String identifier) {
         this();
         this.academicLevel = academicLevel;

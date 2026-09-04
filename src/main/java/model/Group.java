@@ -39,6 +39,10 @@ public class Group extends Table<Group> {
         super(Group.class);
     }
 
+    @Override public String toString() {
+        return "G" + number;
+    }
+
     public Group(TeachingAssistant teachingAssistant, Section section, Integer number) {
         this();
         this.teachingAssistant = teachingAssistant;

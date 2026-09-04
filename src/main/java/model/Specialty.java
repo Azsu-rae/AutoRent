@@ -19,7 +19,7 @@ public class Specialty extends Table<Specialty> {
         Model.register(Specialty.class, Specialty.Record.class);
     }
 
-    enum Cycle {
+    public enum Cycle {
         LICENCE,
         MASTER
     }
@@ -68,28 +68,21 @@ public class Specialty extends Table<Specialty> {
     }
 
     public String getCycle() {
-        switch (cycle) {
-            case LICENCE:
-                return "Licence";
-            case MASTER:
-                return "Master";
-            default:
-                return null;
+        if (cycle == null) {
+            return null;
         }
+        return switch (cycle) {
+            case LICENCE -> "Licence";
+            case MASTER -> "Master";
+        };
     }
 
     public Specialty setCycle(String cycle) {
-        switch (cycle) {
-            case "Licence":
-                this.cycle = Cycle.LICENCE;
-                break;
-            case "Master":
-                this.cycle = Cycle.MASTER;
-                break;
-            default:
-                throw new IllegalArgumentException(cycle + " is not a valid specialty cycle!");
-        }
-
+        this.cycle = switch (cycle) {
+            case "Licence" -> Cycle.LICENCE;
+            case "Master" -> Cycle.MASTER;
+            default -> throw new IllegalArgumentException(cycle + " is not a valid specialty cycle!");
+        };
         return this;
     }
 }

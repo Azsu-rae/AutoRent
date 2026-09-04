@@ -229,14 +229,16 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         int affected = 0;
         for (var column : this.model.columns) {
             if (Model.existsFor(column.type)) {
-                Table<?> modelInstance = (Table<?>) reflect(column.field).getValue();
-                if (modelInstance != null && modelInstance.id == null) {
-                    notice("Dependecy graph creation!");
-                    if (modelInstance.add() == 0) {
-                        return affected;
-                    } ++affected;
-                }
-
+               Table<?> modelInstance = (Table<?>) reflect(column.field).getValue();
+               if (modelInstance != null && modelInstance.id == null) {
+                   notice("Persisting dependecy graph!");
+                   int persisted = modelInstance.add();
+                   if (persisted == 0) {
+                       notice("Failed to persist dependency graph!");
+                       return affected;
+                   }
+                   affected += persisted;
+               }
             }
         }
 
@@ -246,7 +248,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
                 PreparedStatement pstmt = conn.prepareStatement(preparedQuery.template(), Statement.RETURN_GENERATED_KEYS)) {
 
             bindValues(pstmt, preparedQuery.values());
-            affected = pstmt.executeUpdate();
+            affected += pstmt.executeUpdate();
 
             ResultSet keys = pstmt.getGeneratedKeys();
             if (keys.next()) {

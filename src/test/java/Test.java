@@ -1,14 +1,8 @@
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import mannara.Api;
-import model.AcademicLevel;
-import model.Group;
-import orm.Table;
 import orm.reflect.Model;
+
+import static util.Log.*;
 
 /**
  *
@@ -20,11 +14,16 @@ public class Test {
 
         Model.migrateAll();
 
-        new Api.Seed(Api.Seed.fetchCollection("specialties")).persist();
-        // new Api.Seed(Api.Seed.fetchCollection("academicLevels")).persist();
-    }
+        var seed = new Api.Seed("specialties");
+        for (var s : seed.collection) {
+            s.persist();
+        }
 
-    static void print(Object[] objects) {
-        IO.println("[" + Stream.of(objects).map(o -> o.toString()).collect(Collectors.joining(", ")) + "]");
+        int count = 0;
+        seed = new Api.Seed("academicLevels");
+        for (var s : seed.collection) {
+            count += s.persist();
+        }
+        print("persisted = %d", count);
     }
 }

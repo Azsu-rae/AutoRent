@@ -15,8 +15,8 @@ public abstract class Meta<U extends Table<U>,V> {
 
     public String nameOf(V v) {
         return switch (v) {
-            case Field field -> field.getName();
-            case RecordComponent recordComponent -> recordComponent.getName();
+            case Field field -> Model.Fields.sqlName(field.getName(), field.getType());
+            case RecordComponent recordComponent -> Model.Fields.sqlName(recordComponent.getName(), recordComponent.getType());
             default -> throw new IllegalArgumentException(v.getClass() + " is not a field!");
         };
     }

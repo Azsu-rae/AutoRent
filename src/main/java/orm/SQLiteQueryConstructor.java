@@ -12,6 +12,8 @@ import orm.reflect.Reflected;
 import static util.CaseConverter.*;
 import static java.util.stream.Collectors.joining;
 
+import static util.Log.*;
+
 class SQLiteQueryConstructor {
 
     private final Table<?> instance;
@@ -53,7 +55,7 @@ class SQLiteQueryConstructor {
                 // constructing the enumeration
                 if (values.size() != 0) {
                     queryInputs.addAll(values);
-                    enumerations.add(camelToSnake(meta.nameOf(component))
+                    enumerations.add(meta.nameOf(component)
                             + " IN(" + values.stream().map(_ -> "?").collect(joining(", ")) + ")");
                 }
             }
@@ -75,7 +77,7 @@ class SQLiteQueryConstructor {
             for (var column : model.columns) {
                 Object curr = instance.reflect(column.field).getValue();
                 if (curr != null) {
-                    columnNames.add(camelToSnake(column.name));
+                    columnNames.add(column.sqlName());
                     values.add(curr);
                 }
             }
@@ -99,7 +101,7 @@ class SQLiteQueryConstructor {
                 Object curr = instance.reflect(column.field).getValue();
                 if (curr == null) {
                     values.add(curr);
-                    columnNames.add(camelToSnake(column.name));
+                    columnNames.add(column.sqlName());
                 }
             }
 
@@ -125,7 +127,6 @@ class SQLiteQueryConstructor {
 
             var tableName = tableName(model);
 
-            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(");
             List<String> foreignKeyDefinitions = new ArrayList<>();
             List<String> columnDefinitions = new ArrayList<>();
 
@@ -139,9 +140,10 @@ class SQLiteQueryConstructor {
 
                 String columnDefinition = name + " " + column.constraints.type();
                 columnDefinition += column.constraints.nullable() ? "" : " NOT NULL";
-                columnDefinition += column.constraints.primaryKey() ? " PRIMARY KEY AUTOINCREMENT" : "";
                 columnDefinitions.add(columnDefinition);
             }
+
+            StringBuilder table = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + "(id INTEGER PRIMARY KEY AUTOINCREMENT, ");
 
             table.append(String.join(", ", columnDefinitions));
             if (foreignKeyDefinitions.size() != 0) {

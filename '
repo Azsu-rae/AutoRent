@@ -1,0 +1,90 @@
+package orm.serialize;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import orm.Table;
+import orm.reflect.Model;
+import orm.reflect.Model.Column;
+import util.JSONSchemaException;
+
+import static util.Log.*;
+
+/**
+ * Seed
+ */
+public class Serializable extends JSONObject {
+
+    public static List<Serializable> getCollectionFromJSONArray(JSONArray jsonArray, Model<?> model) {
+        return jsonArray
+            .toList()
+            .stream()
+            .map(s -> new Serializable(model, (JSONObject) s))
+            .toList();
+    }
+
+    Table<?> serialized;
+    Model<?> model;
+
+    List<Serializable> aggregatedSeeds = null;
+
+    public Serializable(Model<?> model, JSONObject serializable) {
+        super(serializable);
+        this.model = model;
+    }
+
+    public Table<?> serialize(Table<?> aggregator) {
+
+        serialized = model.createInstance();
+        for (String key : this.keySet()) {
+
+            if (Model.ofCollectionName(key) != null) {
+                var aggregatedModel = Model.ofWildcard(model.fields.byName(key).getType());
+                aggregatedSeeds = getCollectionFromJSONArray(this.getJSONArray(key), aggregatedModel);
+                continue;
+            }
+
+            if (!model.fields.contains(key)) {
+                notice("Ignoring field %s while serializing", key);
+                continue;
+            }
+
+            var curr = this.get(key);
+            if (curr instanceof JSONArray) {
+                throw new JSONSchemaException("Can't have jsonArrays as a model field!");
+            } else if (curr instanceof JSONObject seed) {
+                curr = new Serializable(Model.ofWildcard(model.fields.byName(key).getType()), seed).serialize();
+            }
+
+            serialized.reflect(model.fields.byName(key)).setValue(curr);
+        }
+
+        if (aggregator != null) {
+            List<Column> ofAggregatorType = model.fields.ofType(aggregator.getClass());
+            if (ofAggregatorType.size() == 1) {
+                serialized.reflect(ofAggregatorType.get(0).field).setValue(aggregator);
+            } else if (ofAggregatorType.size() == 0) {
+                String s = "No aggregator-compatibe field found in %s for the aggregator type: %s";
+                throw new JSONSchemaException(s, model, aggregator.getClass());
+            } else {
+                String s ="Ambigious aggregator! Found %d fields of the same type!";
+                throw new JSONSchemaException(s, ofAggregatorType.size());
+            }
+        }
+
+        if (aggregatedSeeds != null) {
+            for (var aggregated : aggregatedSeeds) {
+                aggregated.serialize(serialized);
+            }
+        }
+
+        return serialized;
+    }
+
+    public Table<?> serialize() {
+        return serialize(null);
+    }
+}

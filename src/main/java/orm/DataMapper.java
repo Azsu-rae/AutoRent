@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import orm.reflect.Model;
+import util.BugDetectedException;
 
 class DataMapper {
 
@@ -43,9 +44,12 @@ class DataMapper {
         while (rs.next()) {
             T tuple = model.createInstance();
             for (var column : model.columns) {
-                Object value = ResultSetGetter.of(column.type).get(rs, column.sqlName());
+                Object value;
+                value = ResultSetGetter.of(column.visibleType()).get(rs, column.sqlName());
                 tuple.reflect(column.field).setValue(rs.wasNull() ? null : value);
-            } tuples.add(tuple);
+            }
+            tuple.id = (Integer) ResultSetGetter.of(Integer.class).get(rs, "id");
+            tuples.add(tuple);
         }
         return tuples;
     }

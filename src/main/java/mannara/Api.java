@@ -14,8 +14,7 @@ import org.json.JSONObject;
 
 import orm.Table;
 import orm.reflect.Model;
-import orm.serialize.SeedCollection;
-
+import orm.serialize.Serializable;
 import util.BugDetectedException;
 import util.JSONSchemaException;
 
@@ -53,10 +52,14 @@ public class Api {
                     .join();
         }
 
-        List<SeedCollection> collections = new ArrayList<>();
+        public final List<Serializable> collection = new ArrayList<>();
         Model<?> model;
 
-        public Seed(JSONObject payload) {
+        public Seed(String collection) {
+            this(fetchCollection(collection));
+        }
+
+        private Seed(JSONObject payload) {
 
             var meta = payload.getJSONObject("meta");
             var data = payload.get("data");
@@ -82,10 +85,16 @@ public class Api {
 
                 for (var aggregatorClue : ((JSONObject) data).keySet()) {
                     var aggregator = fetchAggregator(aggregatorModel, aggregatorField, aggregatorClue);
-                    collections.add(new SeedCollection(model, ((JSONObject) data).getJSONArray(aggregatorClue), aggregator));
+                    var seed = new Serializable(aggregator, ((JSONObject) data).getJSONArray(aggregatorClue), model);
+                    seed.serializeAggregated();
+                    collection.add(seed);
                 }
             } else {
-                collections.add(new SeedCollection(model, (JSONArray) data, null));
+                for (var seed : (JSONArray) data) {
+                    var serializable = new Serializable(model, (JSONObject) seed);
+                    serializable.serialize(null);
+                    collection.add(serializable);
+                }
             }
         }
 
@@ -95,12 +104,6 @@ public class Api {
                 throw new BugDetectedException("Aggregator clue isn't a candidate key");
             }
             return queryResult.get(0);
-        }
-
-        public void persist() {
-            for (var collection : collections) {
-                collection.serialize();
-            }
         }
     }
 }

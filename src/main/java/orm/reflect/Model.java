@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import model.Specialty;
 import util.BugDetectedException;
 import orm.annotate.Constraints;
 
@@ -160,7 +161,7 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
     }
 
     @Override public Method setter(Field field) throws NoSuchMethodException {
-        return klass.getDeclaredMethod("set" + camelToPascal(field.getName()), field.getType());
+        return klass.getDeclaredMethod("set" + camelToPascal(field.getName()), Fields.visibleTypeOf(field));
     }
 
     @Override public Method getter(Field field) throws NoSuchMethodException {
@@ -258,27 +259,15 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             return byName.get(name);
         }
 
-        Fields(Model<?> model) {
+        private Fields(Model<?> model) {
 
-            // Filtering static fields
             List<Field> filteredModelFields = new ArrayList<>();
             for (var field : model.klass.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers()) && Modifier.isPrivate(field.getModifiers())) {
                     filteredModelFields.add(field);
                 }
             }
-            var modelFields = filteredModelFields.toArray(Field[]::new);
-
-            all = new Field[modelFields.length + 1];
-            try {
-                all[0] = Table.class.getDeclaredField("id");
-            } catch (NoSuchFieldException _) {
-                throw new BugDetectedException("`id` field is not defined!");
-            }
-
-            for (int i = 0; i < modelFields.length; i++) {
-                all[i + 1] = modelFields[i];
-            }
+            all = filteredModelFields.toArray(Field[]::new);
 
             bounded = new ArrayList<String>();
             discrete = new ArrayList<String>();
@@ -323,11 +312,20 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
         // visible is relative to the user of the model. Sometimes the user only passes
         // strings that are then parsed to a LocalDate for example.
-        public Class<?> visibleTypeOf(Field field) {
+        public static Class<?> visibleTypeOf(Field field) {
             Class<?> type = field.getType();
-            if (type.equals(LocalDate.class)) {
+            if (type.equals(LocalDate.class) || type.isEnum()) {
                 type = String.class;
-            } return type;
+            }
+            return type;
+        }
+
+        public static String sqlName(String name, Class<?> type) {
+            if (Table.class.isAssignableFrom(type)) {
+                return camelToSnake(name) + "_id";
+            } else {
+                return camelToSnake(name);
+            }
         }
 
         public boolean contains(String name) {
@@ -360,11 +358,11 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
         }
 
         public String sqlName() {
-            if (Table.class.isAssignableFrom(type)) {
-                return camelToSnake(name) + "_id";
-            } else {
-                return camelToSnake(name);
-            }
+            return Model.Fields.sqlName(name, type);
+        }
+
+        public Class<?> visibleType() {
+            return Model.Fields.visibleTypeOf(field);
         }
     }
 }

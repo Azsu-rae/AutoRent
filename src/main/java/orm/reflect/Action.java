@@ -18,16 +18,26 @@ public class Action<U extends Table<U>,V> {
 
     Method setter;
     Method getter;
+    V field;
 
     public Action(Reflected<U,V> instance, Meta<U,V> meta, V field) {
         this.instance = instance;
         this.meta = meta;
+        this.field = field;
 
         try {
             this.getter = meta.getter(field);
             this.setter = meta.setter(field);
         } catch (NoSuchMethodException e) {
-            throw new BugDetectedException("Trouble finding a getter/setter for field " + field);
+            String s = "FAH";
+            if (this.getter == null && this.setter == null) {
+                s = " both a getter and a setter";
+            } else if (this.getter == null) {
+                s = "getter";
+            } else if (this.setter == null) {
+                s = "setter";
+            }
+            throw new BugDetectedException("Trouble finding a %s for field %s", s, field);
         }
     }
 
@@ -45,9 +55,10 @@ public class Action<U extends Table<U>,V> {
     Object invoke(Method method, Object... args) {
         try {
             return method.invoke(instance, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            error(e.toString());
-            throw new BugDetectedException("Bad Reflection Argument!");
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+            e.printStackTrace();
+            String s = "instance.getClass()=%s, field=%s, method=%s, args=%s";
+            throw new BugDetectedException(s, instance.getClass(), field, method, arrayToString(args));
         }
     }
 }

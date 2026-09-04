@@ -37,6 +37,10 @@ public class AcademicLevel extends Table<AcademicLevel> {
         super(AcademicLevel.class);
     }
 
+    @Override public String toString() {
+        return "Year " + level;
+    }
+
     public AcademicLevel(Integer level, Specialty specialty) {
         this();
         this.setSpecialty(specialty);
