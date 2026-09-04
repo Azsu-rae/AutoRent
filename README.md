@@ -35,6 +35,8 @@ public class Student extends Table<Student> {
         }
     }
 
+    // getters and setter
+
 ```
 
 - Database columns are defined by
