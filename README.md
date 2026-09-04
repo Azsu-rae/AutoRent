@@ -45,14 +45,7 @@ public class Student extends Table<Student> {
 
 Reflection-based read and write operations in the ORM go through the getter and setter methods; Not defining a getter/setter will result in the field being un-readable/un-writable. This can be used to control the behavior of the ORM.
 
-# Installation
-
-## Dependencies
-
-- sqlite-jdbc
-- org.json
-
-## From Source
+# Installing From Source
 
 First, clone the repository:
 
@@ -76,5 +69,9 @@ Then add it as a dependency in your project (on the same machine as the install)
 </dependency>
 ```
 
-Or you can find the generated `.jar` in `./target/YADL-<VERSION>.jar` but make sure to include its dependencies in your
-classpath
+Or you can find the generated `.jar` in `./target/YADL-<VERSION>.jar` but make sure to include the following dependencies in your classpath:
+
+## Dependencies
+
+- **sqlite-jdbc**: JDBC implementation for SQLite
+- **org.json**: Lightweight, spec-compliant and dependency-free JSON implementation
