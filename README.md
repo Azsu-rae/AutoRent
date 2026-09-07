@@ -1,4 +1,35 @@
 
+# Installing From Source
+
+First, clone the repository:
+
+```sh
+git clone --depth=1 git@github.com:Azsu-rae/YADL
+```
+
+Install it into your local maven repository
+
+```sh
+mvn clean install
+```
+
+Then add it as a dependency in your project (on the same machine as the install):
+
+```xml
+<dependency>
+    <groupId>asura</groupId>
+    <artifactId>YADL</artifactId>
+    <version>0.1</version>
+</dependency>
+```
+
+Or you can find the generated `.jar` in `./target/YADL-<VERSION>.jar` but make sure to include the following dependencies in your classpath:
+
+## Dependencies
+
+- **sqlite-jdbc**: JDBC implementation for SQLite
+- **org.json**: Lightweight, spec-compliant and dependency-free JSON implementation
+
 # Quickstart
 
 The ORM will as usual have you define models that go in the `model` package. Each model implementation `ModelClass`
@@ -44,34 +75,3 @@ public class Student extends Table<Student> {
     - being private
 
 Reflection-based read and write operations in the ORM go through the getter and setter methods; Not defining a getter/setter will result in the field being un-readable/un-writable. This can be used to control the behavior of the ORM.
-
-# Installing From Source
-
-First, clone the repository:
-
-```sh
-git clone --depth=1 git@github.com:Azsu-rae/YADL
-```
-
-Install it into your local maven repository
-
-```sh
-mvn clean install
-```
-
-Then add it as a dependency in your project (on the same machine as the install):
-
-```xml
-<dependency>
-    <groupId>asura</groupId>
-    <artifactId>YADL</artifactId>
-    <version>0.1</version>
-</dependency>
-```
-
-Or you can find the generated `.jar` in `./target/YADL-<VERSION>.jar` but make sure to include the following dependencies in your classpath:
-
-## Dependencies
-
-- **sqlite-jdbc**: JDBC implementation for SQLite
-- **org.json**: Lightweight, spec-compliant and dependency-free JSON implementation
