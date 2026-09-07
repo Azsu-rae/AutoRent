@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import orm.reflect.Model;
 
+import static util.Log.*;
+
 /**
  * ORM
  *
@@ -25,6 +27,8 @@ public class ORM {
         if (instance != null) {
             throw new IllegalStateException("ORM Singleton's instance has already been intialized");
         }
+
+        init("Initializing YADL V%s", " <DEBUGGING Model.of(Class<T extends Table<T>>)>");
 
         instance = new ORM(modelNames);
         Model.touch();

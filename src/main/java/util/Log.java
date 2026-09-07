@@ -11,6 +11,12 @@ import orm.Table;
  */
 public class Log {
 
+    // TODO: add a flat to turn off logging
+
+    public static void init(String format, Object... args) {
+        print(String.format(format, args));
+    }
+
     public static void notice(String format, Object... args) {
         print(String.format(format, args));
     }

@@ -33,36 +33,21 @@ class SQLiteQueryConstructor {
 
     class DataManipulation {
 
-        static <V> PreparedQuery select(Meta<?,V> meta, List<? extends Reflected<?,V>> discreteCriterias, List<Range> boundedCriterias) {
+        static <V> PreparedQuery select(
+                Meta<?,V> meta,
+                List<? extends Reflected<?,V>> discreteCriterias,
+                List<Range> boundedCriterias) {
 
             var queryString = new StringBuilder("SELECT * FROM " + DataDefinition.tableName(meta.model()));
             var queryInputs = new ArrayList<>(); // corresponding Object to each '?'
-
-            // an 'enumeration' is a String of the form: <field> IN(<value1>, <value2>, <value3>, ...)
-            var enumerations = new ArrayList<String>();
-            for (var component : meta.components()) {
-
-                // getting all the values `component` takes
-                var values = new ArrayList<>();
-                for (var criteria : discreteCriterias) {
-                    var reflected = criteria;
-                    Object value = reflected.reflect(component).getValue();
-                    if (value == null) {
-                        break;
-                    } values.add(value);
-                }
-
-                // constructing the enumeration
-                if (values.size() != 0) {
-                    queryInputs.addAll(values);
-                    enumerations.add(meta.nameOf(component)
-                            + " IN(" + values.stream().map(_ -> "?").collect(joining(", ")) + ")");
-                }
+                                                 //
+            List<String> enumerations = null;
+            if (discreteCriterias != null) {
+                enumerations = enumerations(meta, discreteCriterias, queryInputs);
             }
 
-            if (enumerations.size() != 0) {
+            if (enumerations != null && enumerations.size() != 0) {
                 queryString.append(" WHERE " + String.join(" AND ", enumerations));
-
             }
 
             return new PreparedQuery(queryString.toString() + ";", queryInputs);
@@ -114,6 +99,45 @@ class SQLiteQueryConstructor {
             values.add(instance.id);
 
             return new PreparedQuery(query, values);
+        }
+
+        /**
+         * an 'enumeration' is a String of the form: <field> IN(<value1>, <value2>, <value3>, ...)
+         */
+        private static <V> List<String> enumerations(
+                Meta<?,V> meta,
+                List<? extends Reflected<?,V>> discreteCriterias,
+                List<Object> queryInputs) {
+
+            var enumerations = new ArrayList<String>();
+            for (var component : meta.components()) {
+
+                // getting all the values `component` takes
+                var values = new ArrayList<>();
+                for (var criteria : discreteCriterias) {
+                    Object value = criteria.reflect(component).getValue();
+                    if (value == null) {
+                        continue;
+                    }
+
+                    if (value instanceof Table<?> tuple) {
+                        if (tuple.id != null) {
+                            values.add(tuple.id);
+                        }
+                    } else {
+                        values.add(value);
+                    }
+                }
+
+                // constructing the enumeration
+                if (values.size() != 0) {
+                    queryInputs.addAll(values);
+                    enumerations.add(meta.nameOf(component)
+                            + " IN(" + values.stream().map(_ -> "?").collect(joining(", ")) + ")");
+                }
+            }
+
+            return enumerations;
         }
     }
 

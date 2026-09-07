@@ -10,6 +10,7 @@ import orm.Table;
  */
 public interface Reflected<U extends Table<U>,V> {
 
+    // TODO: maybe use this.getClass()?
     public abstract Meta<U,V> meta();
 
     public default Action<U,V> reflect(V v) {

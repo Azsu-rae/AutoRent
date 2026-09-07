@@ -159,7 +159,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(0, id);
+            pstmt.setInt(1, id);
             tuples = fetchResutls(pstmt, model);
             sql("Ran query: %s", pstmt.toString());
 
@@ -183,7 +183,7 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
     // The state of the car has 3 possible values while the brand and type only have 2
     public static <T extends Table<T>,V> List<T> search(
             Meta<T,V> meta,
-            List<Reflected<T,V>> discreteCriterias,
+            List<? extends Reflected<T,V>> discreteCriterias,
             List<Range> boundedCriterias) {
 
         if (meta == null) {
@@ -374,6 +374,14 @@ public abstract class Table<T extends Table<T>> implements Reflected<T,Field> {
 
     public static <T extends Table<T>> List<T> search(Model<T> model, Field field, String value) {
         return Table.search(model, List.of(model.createInstance().reflect(field).setValue(value)), null);
+    }
+
+    public static <T extends Table<T>> List<T> search(Table<T> criteria) {
+        return search(criteria.model, List.of(criteria), null);
+    }
+
+    public static <T extends Table<T>> List<T> all(Class<T> klass) {
+        return Table.search(Model.of(klass), null, (List<Range>) null);
     }
 
     public boolean migrated() {

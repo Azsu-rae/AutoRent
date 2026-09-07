@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import model.Specialty;
 import util.BugDetectedException;
 import orm.annotate.Constraints;
 
@@ -36,6 +35,7 @@ import util.ModelDefinitionException;
 public class Model<T extends Table<T>> extends Meta<T,Field> {
 
     public static void debug() {
+        print("map.entrySet()=%s", pool.entrySet());
     }
 
     // --------------------------------------------------------------------------------
@@ -47,7 +47,22 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
     @SuppressWarnings("unchecked") // TODO: check if Table.class is allowed here
     public static <T extends Table<T>> Model<T> of(Class<T> modelClass) {
-        return (Model<T>) pool.get(modelClass);
+        Model<T> model = (Model<T>) pool.get(modelClass);
+        if (model == null) {
+            for (var key : pool.keySet()) {
+                if (key.getName().equals(modelClass.getName())) {
+                    System.out.println("NAME MATCHES BUT OBJECT DIFFERS");
+                    System.out.println("stored loader = " + key.getClassLoader());
+                    System.out.println("lookup loader = " + modelClass.getClassLoader());
+                    System.out.println("stored id     = " + System.identityHashCode(key));
+                    System.out.println("lookup id     = " + System.identityHashCode(modelClass));
+                }
+            }
+            throw new BugDetectedException("Pool has returned null for a Class<T> where T is obviously a model!");
+        } else {
+            IO.println("We just got ourselves a model: " + model);
+        }
+        return model;
     }
 
     public static Model<?> ofWildcard(Class<?> modelClass) {
@@ -157,7 +172,7 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
     }
 
     @Override public List<Field> components() {
-        return List.of(fields.all);
+        return Collections.unmodifiableList(fields.discrete);
     }
 
     @Override public Method setter(Field field) throws NoSuchMethodException {
@@ -251,7 +266,7 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
 
     public class Fields {
 
-        public final List<String> bounded, discrete, modifiable;
+        public final List<Field> bounded, discrete, modifiable;
         public final Field[] all;
 
         private final Map<String, Field> byName;
@@ -269,29 +284,28 @@ public class Model<T extends Table<T>> extends Meta<T,Field> {
             }
             all = filteredModelFields.toArray(Field[]::new);
 
-            bounded = new ArrayList<String>();
-            discrete = new ArrayList<String>();
-            modifiable = new ArrayList<String>();
+            bounded = new ArrayList<>();
+            discrete = new ArrayList<>();
+            modifiable = new ArrayList<>();
             byName = new HashMap<String, Field>();
 
             for (int i = 0; i < all.length; i++) {
 
                 var field = all[i];
 
-                var name = field.getName();
                 var constraints = field.getAnnotation(Constraints.class);
                 if (constraints == null) {
                     throw new BugDetectedException("No 'Constraints' annotation found for " + field);
                 }
 
                 if (constraints.bounded() || constraints.lowerBound()) {
-                    bounded.add(name);
+                    bounded.add(field);
                 } else {
-                    discrete.add(name);
+                    discrete.add(field);
                 }
 
                 if (model.hasSetter(field)) {
-                    modifiable.add(name);
+                    modifiable.add(field);
                 }
 
                 byName.put(field.getName(), field);
